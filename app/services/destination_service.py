@@ -1,12 +1,11 @@
-from select import select
 from typing import List
 
 from fastapi import HTTPException
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from app.models.destination_model import Destination
 from app.schemas.destination_schema import DestinationRead
-from app.services.address_service import AddressService
+
 
 
 class DestinationService:
@@ -27,10 +26,7 @@ class DestinationService:
         return destination
     
     def create_destination(self, destination_data: DestinationRead) -> Destination:
-        if destination_data.address:
-            address = AddressService(self.session).create_address(destination_data.address)
-            if address:
-                destination_data.address_id = address.id
+
         destination = Destination(**destination_data.model_dump())
         self.session.add(destination)
         self.session.commit()

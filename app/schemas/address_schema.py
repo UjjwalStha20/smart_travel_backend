@@ -21,9 +21,5 @@ class AddressRead(AddressBase):
     id: UUID
 
 
-class AddressUpdate(BaseModel):
-    province: Optional[str] = None
-    district: Optional[str] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
-    altitude: Optional[int] = None
+class AddressUpdate(AddressBase):
+    pass

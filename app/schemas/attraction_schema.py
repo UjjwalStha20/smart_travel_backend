@@ -29,15 +29,5 @@ class AttractionRead(AttractionBase):
     id: UUID
 
 
-class AttractionUpdate(BaseModel):
-    destination_id: Optional[UUID] = None
-    name: Optional[str] = None
-    attraction_type: Optional[AttractionType] = None
-    description: Optional[str] = None
-    opening_hours: Optional[str] = None
-    visit_duration_hours: Optional[Decimal] = None
-    entry_fee: Optional[Decimal] = None
-    permit_required: Optional[bool] = None
-    address_id: Optional[UUID] = None
-    accomodation_id: Optional[UUID] = None
-    food_cost_id: Optional[UUID] = None
+class AttractionUpdate(AttractionBase):
+    pass

@@ -19,11 +19,11 @@ class Address(SQLModel , table=True):
     __tablename__ = "address"
 
     id:          UUID                   = Field(default_factory=uuid4, primary_key=True)
-    province:       Optional[str]       = None
-    district:       Optional[str]       = None  
-    latitude:    Optional[float]        = None
-    longitude:   Optional[float]        = None
-    altitude:    Optional[float]        = None
+    province:       str                 = None
+    district:      str                  = None  
+    latitude:    float                  = None
+    longitude:   float                  = None
+    altitude:    float                  = None
 
     # relationships
     attractions: List["Attraction"] = Relationship(back_populates="address")

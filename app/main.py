@@ -1,14 +1,15 @@
 from fastapi import FastAPI, Depends
 
-from app.routers import destination
+from app.routers import address, destination
 from .routers import user
 from contextlib import asynccontextmanager
-from .core.db import engine
+from .core.db import engine, init_db
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Connecting to database...")
     engine
+    init_db()
     engine.connect()
     yield
     # Perform any shutdown tasks here (e.g., disconnect from the database)
@@ -17,6 +18,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.include_router(user.router)
 app.include_router(destination.router)
+app.include_router(address.router)
 
 
  
