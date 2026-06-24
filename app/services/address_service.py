@@ -1,10 +1,8 @@
 
 from fastapi import HTTPException
-from sqlmodel import Session, select
+from sqlmodel import select
 
-from app.models.address_model import Address
-from app.routers import address
-from app.schemas.address_schema import AddressCreate
+from app.models import Address
 
 
 class AddressService:
@@ -21,13 +19,13 @@ class AddressService:
             raise HTTPException(status_code=404, detail="Address not found")
         return address
 
-    def get_or_create_address(self, address_data: AddressCreate):
+    def get_or_create_address(self, address_data: Address):
         statement = select(Address).where(
             Address.province == address_data.province,
             Address.district == address_data.district,
             Address.latitude == address_data.latitude,
             Address.longitude == address_data.longitude,
-            Address.altitude == address_data.altitude
+            Address.altitude == address_data.altitude,
         )
         address = self.session.exec(statement).first()
 

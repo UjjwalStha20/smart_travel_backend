@@ -8,21 +8,20 @@ from sqlmodel import Session, select
 
 from app.core.security import hash_password
 from app.models import User
-from app.schemas.user_schema import UserCreate, UserRead, UserUpdate
 
 
 class UserService:
     def __init__(self, session: Session):
         self.session = session
 
-    def get_all_users(self, offset: int = 0, limit: int = 100, email: EmailStr = None) -> List[UserRead]:
+    def get_all_users(self, offset: int = 0, limit: int = 100, email: EmailStr = None) -> List[User]:
         statement = select(User).offset(offset).limit(limit)
         if email:
             statement = statement.where(User.email == email)
         users = self.session.exec(statement).all()
         return users
     
-    def get_user_by_id(self, user_id: UUID) -> UserRead:
+    def get_user_by_id(self, user_id: UUID) -> User:
         user = self.session.get(User, user_id)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
@@ -33,7 +32,7 @@ class UserService:
             select(User).where(User.email == email)
         ).first()
 
-    def create_user(self, user_data: UserCreate)-> UserRead:
+    def create_user(self, user_data: User)-> User:
         existing = self.get_user_by_email(user_data.email)
         if existing:
             raise HTTPException(status_code=409, detail="Email already exists")
@@ -44,7 +43,7 @@ class UserService:
         self.session.refresh(user)
         return user
 
-    def update_user(self, user_id: UUID, user_data: UserUpdate) -> UserRead:
+    def update_user(self, user_id: UUID, user_data: User) -> User:
         existing_user = self.get_user_by_id(user_id)
         if not existing_user:
             raise HTTPException(status_code=404, detail="User not found")

@@ -1,0 +1,13 @@
+from .accommodation_schema import AccommodationCreate, AccommodationRead, AccommodationUpdate
+from .address_schema import AddressCreate, AddressRead, AddressUpdate
+from .attraction_schema import AttractionCreate, AttractionRead, AttractionUpdate
+from .destination_schema import DestinationCreate, DestinationRead, DestinationUpdate
+from .itinerary_schema import ItineraryCreate, ItineraryRead, ItineraryUpdate
+from .permit_schema import PermitCreate, PermitRead, PermitUpdate
+from.photo_schema import PhotoCreate, PhotoRead, PhotoUpdate
+from .review_schema import ReviewCreate, ReviewRead, ReviewUpdate
+from .route_point_schema import RoutePointCreate, RoutePointRead, RoutePointUpdate
+from .saved_destination_schema import SavedDestinationCreate, SavedDestinationRead, SavedDestinationUpdate
+from .trekking_route_schema import TrekkingRouteCreate, TrekkingRouteRead, TrekkingRouteUpdate
+from .user_schema import UserCreate, UserRead, UserUpdate
+from .user_trip_schema import UserTripCreate, UserTripRead, UserTripUpdate

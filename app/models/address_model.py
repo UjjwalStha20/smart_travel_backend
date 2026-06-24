@@ -3,10 +3,11 @@ from uuid import UUID, uuid4
 
 from sqlmodel import Field, Relationship, SQLModel
 
-from app.models.route_point_model import RoutePoint
 
 if TYPE_CHECKING:
     from app.models.attraction_model import Attraction
+    from app.models.route_point_model import RoutePoint
+
 
 
 # ---------------------------------------------------------------------------

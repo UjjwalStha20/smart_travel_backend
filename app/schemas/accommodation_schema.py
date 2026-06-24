@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 
 class AccommodationBase(BaseModel):
-    budget_price: Optional[Decimal] = None
+    budget_price: Decimal
     standard_price: Optional[Decimal] = None
     luxury_price: Optional[Decimal] = None
 

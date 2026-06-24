@@ -3,8 +3,7 @@ from typing import List
 from fastapi import HTTPException
 from sqlmodel import Session, select
 
-from app.models.destination_model import Destination
-from app.schemas.destination_schema import DestinationRead
+from app.models import Destination
 
 
 
@@ -12,7 +11,7 @@ class DestinationService:
     def __init__(self, session: Session):
         self.session = session
     
-    def get_destinations(self, offset: int = 0, limit: int = 10,) -> List[DestinationRead]:
+    def get_destinations(self, offset: int = 0, limit: int = 10,) -> List[Destination]:
         statement = select(Destination).offset(offset).limit(limit)
         destinations = self.session.exec(statement).all()
         if not destinations:
@@ -25,7 +24,7 @@ class DestinationService:
             raise HTTPException(status_code=404, detail="Destination not found")
         return destination
     
-    def create_destination(self, destination_data: DestinationRead) -> Destination:
+    def create_destination(self, destination_data: Destination):
 
         destination = Destination(**destination_data.model_dump())
         self.session.add(destination)
@@ -33,7 +32,7 @@ class DestinationService:
         self.session.refresh(destination)
         return {"message": "Destination created successfully", "destination": destination}
 
-    def update_destination(self, destination_id: str, destination_data: DestinationRead) -> Destination:
+    def update_destination(self, destination_id: str, destination_data: Destination):
         existing_destination = self.get_destination_by_id(destination_id)
         if not existing_destination:
             raise HTTPException(status_code=404, detail="Destination not found")
