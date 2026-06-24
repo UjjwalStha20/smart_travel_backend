@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 
 class FoodCostBase(BaseModel):
-    budget_price: Decimal | None = None
+    budget_price: Decimal
     standard_price: Optional[Decimal] = None
     luxury_price: Optional[Decimal] = None
 
@@ -20,6 +20,6 @@ class FoodCostRead(FoodCostBase):
 
 
 class FoodCostUpdate(BaseModel):
-    budget_price: Optional[Decimal] = None
+    budget_price: Decimal
     standard_price: Optional[Decimal] = None
     luxury_price: Optional[Decimal] = None

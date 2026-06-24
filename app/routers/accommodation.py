@@ -3,7 +3,7 @@ from fastapi import APIRouter
 
 from app.dependencies import SessionDep
 from app.models import Accommodation
-from app.schemas import AccommodationCreate
+from app.schemas import AccommodationCreate , AccommodationUpdate
 from app.services import AccommodationService
 
 
@@ -27,7 +27,7 @@ class AccommodationRouter:
         return AccommodationService(session).create_accommodation(accommodation_data)
 
     @router.put("/{accommodation_id}", response_model=Accommodation, status_code=200)
-    async def update_accommodation(accommodation_id: str, accommodation_data: Accommodation, session: SessionDep):
+    async def update_accommodation(accommodation_id: str, accommodation_data: AccommodationUpdate, session: SessionDep):
         """Update an accommodation by ID."""
         return AccommodationService(session).update_accommodation(accommodation_id, accommodation_data)
 
