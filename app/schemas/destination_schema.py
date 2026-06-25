@@ -4,8 +4,8 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from app.models.destination_model import DestinationCategory
-from app.schemas.address_schema import AddressCreate
+from app.models import DestinationCategory
+from app.schemas import AddressCreate
 
 class DestinationBase(BaseModel):
     name: str
@@ -26,11 +26,5 @@ class DestinationRead(DestinationBase):
     created_at: datetime
 
 
-class DestinationUpdate(BaseModel):
-    name: Optional[str] = None
-    category: Optional[DestinationCategory] = None
-    description: Optional[str] = None
-    best_time: Optional[list] = None
-    permit_required: Optional[bool] = None
-    rating: Optional[int] = None
-    address_id: Optional[UUID] = None
+class DestinationUpdate(DestinationBase):
+    address: AddressCreate

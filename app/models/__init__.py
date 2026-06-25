@@ -1,5 +1,5 @@
 from .user_model import User
-from .destination_model import Destination
+from .destination_model import Destination, DestinationCategory
 from .address_model import Address
 from .photo_model import Photo
 from .review_model import Review

@@ -4,6 +4,7 @@ from fastapi import HTTPException
 from sqlmodel import Session, select
 
 from app.models import Destination
+from app.services import AddressService
 
 
 
@@ -16,17 +17,17 @@ class DestinationService:
         destinations = self.session.exec(statement).all()
         if not destinations:
             raise HTTPException(status_code=404, detail="No destinations found")
-        return destinations
+        return {"message": "Destinations retrieved successfully", "destinations": destinations}
     
     def get_destination_by_id(self, destination_id: str) -> Destination:
         destination = self.session.get(Destination, destination_id)
         if not destination:
             raise HTTPException(status_code=404, detail="Destination not found")
-        return destination
+        return {"message": "Destination retrieved successfully", "destination": destination}
     
     def create_destination(self, destination_data: Destination):
-
-        destination = Destination(**destination_data.model_dump())
+        address = AddressService(self.session).get_or_create_address(destination_data.address)
+        destination = Destination(**destination_data.model_dump(exclude={"address"}), address_id=address.id)
         self.session.add(destination)
         self.session.commit()
         self.session.refresh(destination)
@@ -36,9 +37,10 @@ class DestinationService:
         existing_destination = self.get_destination_by_id(destination_id)
         if not existing_destination:
             raise HTTPException(status_code=404, detail="Destination not found")
-        patch = destination_data.model_dump(exclude_unset=True)
+        address = AddressService(self.session).get_or_create_address(destination_data.address)
+        destination = Destination(**destination_data.model_dump(exclude={"address"}), address_id=address.id)
+        patch = destination.model_dump(exclude_unset=True)
         existing_destination.sqlmodel_update(patch)
-
         self.session.add(existing_destination)
         self.session.commit()
         self.session.refresh(existing_destination)
