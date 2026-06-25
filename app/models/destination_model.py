@@ -17,9 +17,7 @@ if TYPE_CHECKING:
 
 
 class DestinationCategory(str, Enum):
-    temple   = "temple"
-    heritage = "heritage"
-    nature   = "nature"
+    attraction = "attraction"
     trek     = "trek"
 
 # ---------------------------------------------------------------------------

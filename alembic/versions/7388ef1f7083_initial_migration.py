@@ -1,8 +1,8 @@
 """initial migration
 
-Revision ID: 2e206d4d2805
+Revision ID: 7388ef1f7083
 Revises: 
-Create Date: 2026-06-25 08:52:05.614609
+Create Date: 2026-06-25 19:38:22.297111
 
 """
 from typing import Sequence, Union
@@ -13,7 +13,7 @@ import sqlmodel
 
 
 # revision identifiers, used by Alembic.
-revision: str = '2e206d4d2805'
+revision: str = '7388ef1f7083'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -62,7 +62,7 @@ def upgrade() -> None:
     op.create_table('destination',
     sa.Column('id', sa.Uuid(), nullable=False),
     sa.Column('name', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-    sa.Column('category', sa.Enum('temple', 'heritage', 'nature', 'trek', name='destinationcategory'), nullable=False),
+    sa.Column('category', sa.Enum('attraction', 'trek', name='destinationcategory'), nullable=False),
     sa.Column('description', sa.Text(), nullable=False),
     sa.Column('best_time', sa.JSON(), nullable=False),
     sa.Column('permit_required', sa.Boolean(), nullable=False),
