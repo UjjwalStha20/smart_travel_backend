@@ -2,7 +2,7 @@ from decimal import Decimal
 from uuid import UUID
 
 from fastapi import HTTPException
-from sqlmodel import Session, select
+from sqlmodel import Session, func, select
 
 from app.models import Permit
 
@@ -13,7 +13,9 @@ class PermitService:
 
     def get_all_permits(self, offset: int = 0, limit: int = 100):
         statement = select(Permit).offset(offset).limit(limit)
-        return self.session.exec(statement).all()
+        items = self.session.exec(statement).all()
+        total = self.session.exec(select(func.count(Permit.id))).one()
+        return {"items": items, "total": total, "offset": offset, "limit": limit}
 
     def get_permit_by_id(self, permit_id: UUID) -> Permit:
         permit = self.session.get(Permit, permit_id)

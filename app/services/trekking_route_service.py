@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import HTTPException
-from sqlmodel import Session, select
+from sqlmodel import Session, func, select
 
 from app.models import TrekkingRoute
 
@@ -12,7 +12,9 @@ class TrekkingRouteService:
 
     def get_all_trekking_routes(self, offset: int = 0, limit: int = 100):
         statement = select(TrekkingRoute).offset(offset).limit(limit)
-        return self.session.exec(statement).all()
+        items = self.session.exec(statement).all()
+        total = self.session.exec(select(func.count(TrekkingRoute.id))).one()
+        return {"items": items, "total": total, "offset": offset, "limit": limit}
 
     def get_trekking_route_by_id(self, route_id: UUID) -> TrekkingRoute:
         route = self.session.get(TrekkingRoute, route_id)

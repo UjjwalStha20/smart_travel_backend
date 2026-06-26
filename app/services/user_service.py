@@ -4,7 +4,7 @@ from uuid import UUID
 
 from fastapi import HTTPException
 from pydantic import EmailStr
-from sqlmodel import Session, select
+from sqlmodel import Session, func, select
 
 from app.core.security import hash_password
 from app.models import User
@@ -18,8 +18,9 @@ class UserService:
         statement = select(User).offset(offset).limit(limit)
         if email:
             statement = statement.where(User.email == email)
-        users = self.session.exec(statement).all()
-        return users
+        items = self.session.exec(statement).all()
+        total = self.session.exec(select(func.count(User.id))).one()
+        return {"items": items, "total": total, "offset": offset, "limit": limit}
     
     def get_user_by_id(self, user_id: UUID) -> User:
         user = self.session.get(User, user_id)

@@ -49,7 +49,6 @@ class User(SQLModel, table=True):
     
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory= lambda: datetime.now(timezone.utc) ,sa_column=Column(DateTime(timezone=True)))
-    deleted_at: Optional[datetime] = None
  
     # ✅ relationships (correct SQLModel way)
     photos: List["Photo"] = Relationship(back_populates="uploader")

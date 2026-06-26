@@ -1,9 +1,13 @@
-from .config import settings 
+import logging
+
+from .config import settings
 from sqlmodel import SQLModel, create_engine, Session
 import app.models
 
+logger = logging.getLogger(__name__)
+
 DATABASE_URL = settings.database_url
-print(f"Connecting to database ")
+logger.info("Connecting to database")
 
 engine = create_engine(DATABASE_URL, echo=True)
 

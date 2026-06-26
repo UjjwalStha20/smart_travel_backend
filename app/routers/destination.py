@@ -1,11 +1,12 @@
-from typing import List
+import uuid
+from typing import Annotated, List
 
-from fastapi import APIRouter
-from fastapi.params import Depends
+from fastapi import APIRouter, Depends
 from sqlmodel import Session
 
 from app.core.db import get_session
-from app.dependencies import SessionDep
+from app.dependencies import SessionDep, require_admin
+from app.models import User
 from app.schemas.destination_schema import DestinationCreate, DestinationRead, DestinationUpdate
 from app.services.destination_service import DestinationService
 
@@ -20,26 +21,20 @@ class DestinationRouter:
     
 
     @router.get("/{destination_id}")
-    async def get_destination_by_id(session: SessionDep, destination_id: str):
-        """Get a destination by ID."""
-        # In a real application, you would fetch the destination from the database
-
-        return DestinationService(session).get_destination_by_id(destination_id)
+    async def get_destination_by_id(session: SessionDep, destination_id: uuid.UUID):
+        return DestinationService(session).get_destination_by_id(str(destination_id))
 
     @router.post("/")
-    async def create_destination(session: SessionDep, destination: DestinationCreate):
+    async def create_destination(session: SessionDep, destination: DestinationCreate, admin: Annotated[User, Depends(require_admin)]):
         """Create a new destination."""
-        # In a real application, you would save the destination to the database
         return DestinationService(session).create_destination(destination)
     
     @router.put("/{destination_id}")
-    async def update_destination(session: SessionDep, destination_id: str, destination: DestinationUpdate):
+    async def update_destination(session: SessionDep, destination_id: uuid.UUID, destination: DestinationUpdate, admin: Annotated[User, Depends(require_admin)]):
         """Update a destination by ID."""
-        # In a real application, you would update the destination in the database
-        return DestinationService(session).update_destination(destination_id, destination)
+        return DestinationService(session).update_destination(str(destination_id), destination)
     
     @router.delete("/{destination_id}")
-    async def delete_destination(session: SessionDep, destination_id: str):
+    async def delete_destination(session: SessionDep, destination_id: uuid.UUID, admin: Annotated[User, Depends(require_admin)]):
         """Delete a destination by ID."""
-        # In a real application, you would delete the destination from the database
-        return DestinationService(session).delete_destination(destination_id)
+        return DestinationService(session).delete_destination(str(destination_id))

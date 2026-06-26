@@ -1,20 +1,21 @@
-from typing import List
+from typing import Annotated, List
 
-from fastapi import APIRouter
-from fastapi.params import Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import EmailStr
 from sqlmodel import Session
 
 from app.core.db import get_session
-from app.dependencies import SessionDep
+from app.dependencies import CurrentUser, SessionDep, require_admin
+from app.models import User
 from app.schemas import UserCreate, UserRead, UserUpdate
+from app.schemas.pagination import PaginatedResponse
 from app.services.user_service import UserService
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 class UserRouter:
 
-    @router.get("/", response_model=list[UserRead] , status_code=200)
+    @router.get("/", response_model=PaginatedResponse[UserRead], status_code=200)
     def get_users(session: Session = Depends(get_session),email: EmailStr = None)-> List[UserRead]: 
         users = UserService(session).get_all_users(offset=0, limit=100, email=email)              
         return users
@@ -28,22 +29,23 @@ class UserRouter:
         return user
 
     @router.post("/")
-    async def create_user(session: SessionDep, user: UserCreate):
+    async def create_user(session: SessionDep, user: UserCreate, admin: Annotated[User, Depends(require_admin)]):
         """Create a new user."""
-        # In a real application, you would save the user to the database
         create_user = UserService(session).create_user(user)
         return {"message": "User created successfully", "user": create_user}
     
     @router.put("/{user_id}")
-    async def update_user(session: SessionDep, user_id: str, user: UserUpdate):
+    async def update_user(session: SessionDep, user_id: str, user: UserUpdate, current_user: CurrentUser):
         """Update a user by ID."""
-        # In a real application, you would update the user in the database
+        if str(current_user.id) != user_id and current_user.role != "admin":
+            raise HTTPException(status_code=403, detail="Not your profile")
         update_user = UserService(session).update_user(user_id, user)
         return {"message": "User updated successfully", "user": update_user}
     @router.delete("/{user_id}")
-    async def delete_user(session: SessionDep, user_id: str):
+    async def delete_user(session: SessionDep, user_id: str, current_user: CurrentUser):
         """Delete a user by ID."""
-        # In a real application, you would delete the user from the database
+        if str(current_user.id) != user_id and current_user.role != "admin":
+            raise HTTPException(status_code=403, detail="Not your profile")
         user_deleted = UserService(session).delete_user(user_id)
         if user_deleted:
             return {"message": "User deleted successfully"}

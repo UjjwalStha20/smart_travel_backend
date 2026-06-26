@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import HTTPException
-from sqlmodel import Session, select
+from sqlmodel import Session, func, select
 
 from app.models import RoutePoint
 
@@ -12,7 +12,9 @@ class RoutePointService:
 
     def get_all_route_points(self, offset: int = 0, limit: int = 100):
         statement = select(RoutePoint).offset(offset).limit(limit)
-        return self.session.exec(statement).all()
+        items = self.session.exec(statement).all()
+        total = self.session.exec(select(func.count(RoutePoint.id))).one()
+        return {"items": items, "total": total, "offset": offset, "limit": limit}
 
     def get_route_point_by_id(self, point_id: UUID) -> RoutePoint:
         point = self.session.get(RoutePoint, point_id)

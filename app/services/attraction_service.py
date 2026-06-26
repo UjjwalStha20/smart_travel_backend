@@ -1,7 +1,7 @@
 from typing import List
 
 from fastapi import HTTPException
-from sqlmodel import Session, select
+from sqlmodel import Session, func, select
 
 from app.models import Attraction
 
@@ -9,18 +9,17 @@ class AttractionService:
     def __init__(self, session: Session):
         self.session = session
     
-    def get_attractions(self, offset: int = 0, limit: int = 10,) -> List[Attraction]:
+    def get_attractions(self, offset: int = 0, limit: int = 100):
         statement = select(Attraction).offset(offset).limit(limit)
-        attractions = self.session.exec(statement).all()
-        if not attractions:
-            raise HTTPException(status_code=404, detail="No attractions found")
-        return {"message": "Attractions retrieved successfully", "attractions": attractions}
+        items = self.session.exec(statement).all()
+        total = self.session.exec(select(func.count(Attraction.id))).one()
+        return {"items": items, "total": total, "offset": offset, "limit": limit}
     
-    def get_attraction_by_id(self, attraction_id: str) -> Attraction:
+    def get_attraction_by_id(self, attraction_id: str):
         attraction = self.session.get(Attraction, attraction_id)
         if not attraction:
             raise HTTPException(status_code=404, detail="Attraction not found")
-        return {"message": "Attraction retrieved successfully", "attraction": attraction}
+        return attraction
     
     def create_attraction(self, attraction_data):
         attraction = Attraction(**attraction_data.model_dump())

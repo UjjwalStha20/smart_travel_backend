@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import HTTPException
-from sqlmodel import Session, select
+from sqlmodel import Session, func, select
 
 from app.models import EntryFee
 
@@ -12,7 +12,9 @@ class EntryFeeService:
 
     def get_all_entry_fees(self, offset: int = 0, limit: int = 100):
         statement = select(EntryFee).offset(offset).limit(limit)
-        return self.session.exec(statement).all()
+        items = self.session.exec(statement).all()
+        total = self.session.exec(select(func.count(EntryFee.id))).one()
+        return {"items": items, "total": total, "offset": offset, "limit": limit}
 
     def get_entry_fee_by_id(self, fee_id: UUID) -> EntryFee:
         fee = self.session.get(EntryFee, fee_id)

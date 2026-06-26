@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from fastapi import HTTPException
-from sqlmodel import Session, select
+from sqlmodel import Session, func, select
 from sqlalchemy.orm import selectinload
 
 from app.models import (
@@ -47,13 +47,11 @@ class DestinationService:
             selectinload(Destination.attraction).selectinload(Attraction.entry_fees),
             selectinload(Destination.trekking_routes).selectinload(TrekkingRoute.route_points),
         ).offset(offset).limit(limit)
-        destinations = self.session.exec(statement).all()
-        if not destinations:
+        items = self.session.exec(statement).all()
+        if not items:
             raise HTTPException(status_code=404, detail="No destinations found")
-        return {
-            "message": "Destinations retrieved successfully",
-            "destinations": [self._destination_to_dict(d) for d in destinations]
-        }
+        total = self.session.exec(select(func.count(Destination.id))).one()
+        return {"items": [self._destination_to_dict(d) for d in items], "total": total, "offset": offset, "limit": limit}
     
     def get_destination_by_id(self, destination_id: str) -> dict:
         statement = (

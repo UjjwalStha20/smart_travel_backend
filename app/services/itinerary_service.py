@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import HTTPException
-from sqlmodel import Session, select
+from sqlmodel import Session, func, select
 
 from app.models import Itinerary
 
@@ -12,7 +12,9 @@ class ItineraryService:
 
     def get_all_itineraries(self, offset: int = 0, limit: int = 100):
         statement = select(Itinerary).offset(offset).limit(limit)
-        return self.session.exec(statement).all()
+        items = self.session.exec(statement).all()
+        total = self.session.exec(select(func.count(Itinerary.id))).one()
+        return {"items": items, "total": total, "offset": offset, "limit": limit}
 
     def get_itinerary_by_id(self, itinerary_id: UUID) -> Itinerary:
         itinerary = self.session.get(Itinerary, itinerary_id)

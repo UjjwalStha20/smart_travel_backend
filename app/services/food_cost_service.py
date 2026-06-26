@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from sqlmodel import select
+from sqlmodel import func, select
 from app.models import FoodCost
 from app.schemas import FoodCostCreate
 
@@ -9,8 +9,10 @@ class FoodCostService:
         self.session = session
     
     def get_all_food_costs(self, offset: int = 0, limit: int = 100):
-        foods = select(FoodCost).offset(offset).limit(limit)
-        return self.session.exec(foods).all()
+        statement = select(FoodCost).offset(offset).limit(limit)
+        items = self.session.exec(statement).all()
+        total = self.session.exec(select(func.count(FoodCost.id))).one()
+        return {"items": items, "total": total, "offset": offset, "limit": limit}
     
     def get_food_cost_by_id(self, food_id):
         food = self.session.get(FoodCost, food_id)

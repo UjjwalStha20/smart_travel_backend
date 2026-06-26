@@ -2,7 +2,7 @@ from decimal import Decimal
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.models import EntryCategory
 
@@ -10,7 +10,7 @@ from app.models import EntryCategory
 class EntryFeeBase(BaseModel):
     attraction_id: UUID
     category: EntryCategory
-    price: Decimal
+    price: Decimal = Field(ge=Decimal("0"))
 
 
 class EntryFeeCreate(EntryFeeBase):
@@ -24,9 +24,9 @@ class EntryFeeRead(EntryFeeBase):
 class EntryFeeUpdate(BaseModel):
     attraction_id: Optional[UUID] = None
     category: Optional[EntryCategory] = None
-    price: Optional[Decimal] = None
+    price: Optional[Decimal] = Field(default=None, ge=Decimal("0"))
 
 
 class EntryFeeNested(BaseModel):
     category: EntryCategory
-    price: Decimal
+    price: Decimal = Field(ge=Decimal("0"))

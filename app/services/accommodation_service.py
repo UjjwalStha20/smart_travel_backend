@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from sqlmodel import select
+from sqlmodel import func, select
 from app.models import Accommodation
 
 
@@ -8,8 +8,10 @@ class AccommodationService:
         self.session = session
     
     def get_all_accommodations(self, offset: int = 0, limit: int = 100):
-        accommodations = select(Accommodation).offset(offset).limit(limit)
-        return self.session.exec(accommodations).all()
+        statement = select(Accommodation).offset(offset).limit(limit)
+        items = self.session.exec(statement).all()
+        total = self.session.exec(select(func.count(Accommodation.id))).one()
+        return {"items": items, "total": total, "offset": offset, "limit": limit}
     
     def get_accommodation_by_id(self, accommodation_id):
         accommodation = self.session.get(Accommodation, accommodation_id)

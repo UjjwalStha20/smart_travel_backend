@@ -25,6 +25,7 @@ backend/
 │   └── services/       # Business logic layer
 ├── alembic/            # Database migration scripts
 ├── migrations/
+├── scripts/            # Utility scripts (seeding, etc.)
 ├── tests/
 ├── .env                # Environment variables (not committed)
 ├── .env.example        # Environment variable template
@@ -98,7 +99,15 @@ createdb smart_travel_db
 alembic upgrade head
 ```
 
-### 7. Start the development server
+### 7. Seed the database (optional)
+
+Populate the database with sample data:
+
+```bash
+uv run python scripts/seed.py
+```
+
+### 8. Start the development server
 
 ```bash
 uvicorn app.main:app --reload
@@ -121,9 +130,22 @@ Once the server is running:
 | `alembic upgrade head` | Apply all migrations |
 | `alembic revision --autogenerate -m "message"` | Create a new migration |
 | `alembic downgrade -1` | Rollback last migration |
+| `uv run python scripts/seed.py` | Seed the database with sample data |
 
 ## Models
 
-- User, Destination, Address, Photo, Review
-- Attraction, Permit, TrekkingRoute, RoutePoint
-- FoodCost, Accommodation
+- **User** — travelers and admins
+- **Destination** — attractions or treks
+- **Address** — location data (province, district, place, coordinates)
+- **Photo** — destination images uploaded by users
+- **Review** — user ratings and comments
+- **Attraction** — extends Destination with attraction types, hours, visit duration
+- **EntryFee** — per-category entry fees for attractions
+- **Permit** — per-category permit costs for treks
+- **TrekkingRoute** — routes with difficulty, distance, and duration
+- **RoutePoint** — individual stops along a trekking route with accommodation & food costs
+- **FoodCost** — budget/standard/luxury meal pricing
+- **Accommodation** — budget/standard/luxury lodging pricing
+- **SavedDestination** — user's bookmarked destinations
+- **UserTrip** — planned trips with route, dates, budget/pace preferences
+- **Itinerary** — day-by-day breakdown of a trip

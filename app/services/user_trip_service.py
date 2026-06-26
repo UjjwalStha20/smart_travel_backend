@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import HTTPException
-from sqlmodel import Session, select
+from sqlmodel import Session, func, select
 
 from app.models import UserTrip
 
@@ -12,7 +12,9 @@ class UserTripService:
 
     def get_all_user_trips(self, offset: int = 0, limit: int = 100):
         statement = select(UserTrip).offset(offset).limit(limit)
-        return self.session.exec(statement).all()
+        items = self.session.exec(statement).all()
+        total = self.session.exec(select(func.count(UserTrip.id))).one()
+        return {"items": items, "total": total, "offset": offset, "limit": limit}
 
     def get_user_trip_by_id(self, trip_id: UUID) -> UserTrip:
         trip = self.session.get(UserTrip, trip_id)
@@ -20,8 +22,8 @@ class UserTripService:
             raise HTTPException(status_code=404, detail="User trip not found")
         return trip
 
-    def create_user_trip(self, trip_data: UserTrip) -> UserTrip:
-        trip = UserTrip(**trip_data.model_dump())
+    def create_user_trip(self, trip_data: dict) -> UserTrip:
+        trip = UserTrip(**trip_data)
         self.session.add(trip)
         self.session.commit()
         self.session.refresh(trip)

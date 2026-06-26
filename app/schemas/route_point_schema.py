@@ -2,17 +2,17 @@ from decimal import Decimal
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class RoutePointBase(BaseModel):
     route_id: UUID
-    sequence_no: int
-    name: str
-    distance_from_previous_km: Optional[Decimal] = None
-    walking_hours_from_previous: Optional[Decimal] = None
+    sequence_no: int = Field(ge=1)
+    name: str = Field(min_length=1)
+    distance_from_previous_km: Optional[Decimal] = Field(default=None, ge=0)
+    walking_hours_from_previous: Optional[Decimal] = Field(default=None, ge=0)
     overnight_stop: bool = False
-    description: Optional[str] = None
+    description: Optional[str] = Field(default=None, min_length=1)
     address_id: UUID
     accommodation_id: Optional[UUID] = None
     food_cost_id: Optional[UUID] = None
@@ -27,12 +27,12 @@ class RoutePointRead(RoutePointBase):
 
 
 class RoutePointNested(BaseModel):
-    sequence_no: int
-    name: str
-    distance_from_previous_km: Optional[Decimal] = None
-    walking_hours_from_previous: Optional[Decimal] = None
+    sequence_no: int = Field(ge=1)
+    name: str = Field(min_length=1)
+    distance_from_previous_km: Optional[Decimal] = Field(default=None, ge=0)
+    walking_hours_from_previous: Optional[Decimal] = Field(default=None, ge=0)
     overnight_stop: bool = False
-    description: Optional[str] = None
+    description: Optional[str] = Field(default=None, min_length=1)
     address_id: UUID
     accommodation_id: Optional[UUID] = None
     food_cost_id: Optional[UUID] = None
@@ -40,12 +40,12 @@ class RoutePointNested(BaseModel):
 
 class RoutePointUpdate(BaseModel):
     route_id: Optional[UUID] = None
-    sequence_no: Optional[int] = None
-    name: Optional[str] = None
-    distance_from_previous_km: Optional[Decimal] = None
-    walking_hours_from_previous: Optional[Decimal] = None
+    sequence_no: Optional[int] = Field(default=None, ge=1)
+    name: Optional[str] = Field(default=None, min_length=1)
+    distance_from_previous_km: Optional[Decimal] = Field(default=None, ge=0)
+    walking_hours_from_previous: Optional[Decimal] = Field(default=None, ge=0)
     overnight_stop: Optional[bool] = None
-    description: Optional[str] = None
+    description: Optional[str] = Field(default=None, min_length=1)
     address_id: Optional[UUID] = None
     accommodation_id: Optional[UUID] = None
     food_cost_id: Optional[UUID] = None

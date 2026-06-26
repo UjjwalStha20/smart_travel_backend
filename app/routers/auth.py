@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlmodel import Session, select
 
 from app.core.auth import create_access_token, get_current_user
 from app.core.db import get_session
+from app.core.rate_limit import limiter
 from app.core.security import hash_password, verify_password
 from app.models import User
 from app.schemas.auth_schema import LoginRequest, RegisterRequest, TokenResponse, UserOut
@@ -11,7 +12,8 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 @router.post("/register", response_model=TokenResponse, status_code=201)
-def register(body: RegisterRequest, session: Session = Depends(get_session)):
+@limiter.limit("3/minute")
+def register(request: Request, body: RegisterRequest, session: Session = Depends(get_session)):
     existing = session.exec(select(User).where(User.email == body.email)).first()
     if existing:
         raise HTTPException(status_code=409, detail="Email already registered")
@@ -33,7 +35,8 @@ def register(body: RegisterRequest, session: Session = Depends(get_session)):
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(body: LoginRequest, session: Session = Depends(get_session)):
+@limiter.limit("10/minute")
+def login(request: Request, body: LoginRequest, session: Session = Depends(get_session)):
     user = session.exec(select(User).where(User.email == body.email)).first()
     if not user or not verify_password(body.password, user.password):
         raise HTTPException(status_code=401, detail="Invalid email or password")

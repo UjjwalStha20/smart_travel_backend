@@ -1,5 +1,9 @@
+import os
+import sys
 from datetime import date, datetime, timezone
 from decimal import Decimal
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from app.core.db import engine, init_db
 from app.core.security import hash_password
@@ -132,12 +136,6 @@ def main():
                      price=Decimal("1000")),
             EntryFee(attraction_id=attr_pashu.id, category="Foreign",
                      price=Decimal("2000")),
-            EntryFee(attraction_id=attr_pashu.id, category="Nepali",
-                     price=Decimal("250")),
-            EntryFee(attraction_id=attr_pashu.id, category="SAARC",
-                     price=Decimal("500")),
-            EntryFee(attraction_id=attr_pashu.id, category="Foreign",
-                     price=Decimal("1000")),
         ]
         session.add_all(entry_fees)
 

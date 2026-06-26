@@ -10,8 +10,8 @@ class SavedDestinationBase(BaseModel):
     destination_id: UUID
 
 
-class SavedDestinationCreate(SavedDestinationBase):
-    pass
+class SavedDestinationCreate(BaseModel):
+    destination_id: UUID
 
 
 class SavedDestinationRead(SavedDestinationBase):

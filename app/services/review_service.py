@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import HTTPException
-from sqlmodel import Session, select
+from sqlmodel import Session, func, select
 
 from app.models import Review
 
@@ -12,7 +12,9 @@ class ReviewService:
 
     def get_all_reviews(self, offset: int = 0, limit: int = 100):
         statement = select(Review).offset(offset).limit(limit)
-        return self.session.exec(statement).all()
+        items = self.session.exec(statement).all()
+        total = self.session.exec(select(func.count(Review.id))).one()
+        return {"items": items, "total": total, "offset": offset, "limit": limit}
 
     def get_review_by_id(self, review_id: UUID) -> Review:
         review = self.session.get(Review, review_id)
@@ -20,8 +22,8 @@ class ReviewService:
             raise HTTPException(status_code=404, detail="Review not found")
         return review
 
-    def create_review(self, review_data: Review) -> Review:
-        review = Review(**review_data.model_dump())
+    def create_review(self, review_data: dict) -> Review:
+        review = Review(**review_data)
         self.session.add(review)
         self.session.commit()
         self.session.refresh(review)

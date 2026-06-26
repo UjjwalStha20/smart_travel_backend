@@ -1,6 +1,6 @@
 
 from fastapi import HTTPException
-from sqlmodel import select
+from sqlmodel import func, select
 
 from app.models import Address
 
@@ -10,8 +10,10 @@ class AddressService:
         self.session = session
 
     def get_all_addresses(self, offset: int = 0, limit: int = 100):
-        addresses = select(Address).offset(offset).limit(limit)
-        return self.session.exec(addresses).all()
+        statement = select(Address).offset(offset).limit(limit)
+        items = self.session.exec(statement).all()
+        total = self.session.exec(select(func.count(Address.id))).one()
+        return {"items": items, "total": total, "offset": offset, "limit": limit}
 
     def get_address_by_id(self, address_id):
         address = self.session.get(Address, address_id)

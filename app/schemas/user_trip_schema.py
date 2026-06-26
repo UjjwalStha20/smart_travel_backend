@@ -18,8 +18,14 @@ class UserTripBase(BaseModel):
     status: TripStatus = TripStatus.planned
 
 
-class UserTripCreate(UserTripBase):
-    pass
+class UserTripCreate(BaseModel):
+    destination_id: UUID
+    route_id: UUID
+    pace_type: PaceType
+    budget_type: BudgetType
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+    status: TripStatus = TripStatus.planned
 
 
 class UserTripRead(UserTripBase):
