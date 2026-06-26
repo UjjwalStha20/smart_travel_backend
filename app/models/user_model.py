@@ -8,11 +8,8 @@ from pydantic import EmailStr
 from sqlmodel import Column, DateTime, Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from app.models.destination_model import Destination
-    from app.models.photo_model import Photo
-    from app.models.review_model import Review
-    from app.models.trekking_route_model import TrekkingRoute
-
+    from app.models import Destination , Photo , Review, TrekkingRoute
+   
 class UserRole(str, Enum):
     traveler = "traveler"
     guide    = "guide"

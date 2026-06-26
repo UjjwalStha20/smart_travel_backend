@@ -12,3 +12,4 @@ from .saved_destination_schema import SavedDestinationCreate, SavedDestinationRe
 from .trekking_route_schema import TrekkingRouteCreate, TrekkingRouteRead, TrekkingRouteUpdate
 from .user_schema import UserCreate, UserRead, UserUpdate
 from .user_trip_schema import UserTripCreate, UserTripRead, UserTripUpdate
+from .entry_fee_schema import EntryFeeCreate, EntryFeeRead, EntryFeeUpdate

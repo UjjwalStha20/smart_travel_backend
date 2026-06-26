@@ -7,13 +7,7 @@ from sqlalchemy import JSON
 from sqlmodel import Field, Relationship, SQLModel, Text
 
 if TYPE_CHECKING:
-    from app.models.attraction_model import Attraction
-    from app.models.permit_model import Permit
-    from app.models.photo_model import Photo
-    from app.models.review_model import Review
-    from app.models.trekking_route_model import TrekkingRoute
-    from app.models.user_model import SavedDestination, UserTrip
-
+    from app.models import Attraction, Permit, Photo, Review, TrekkingRoute, SavedDestination, UserTrip
 
 
 class DestinationCategory(str, Enum):

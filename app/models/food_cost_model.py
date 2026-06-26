@@ -7,8 +7,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 
 if TYPE_CHECKING:
-    from app.models.attraction_model import Attraction
-    from app.models.route_point_model import RoutePoint
+    from app.models import Attraction, RoutePoint
 
 
 

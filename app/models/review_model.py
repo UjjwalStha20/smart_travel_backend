@@ -5,8 +5,7 @@ from uuid import UUID, uuid4
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from app.models.destination_model import Destination
-    from app.models.user_model import User
+    from app.models import Destination, User
 
 
 

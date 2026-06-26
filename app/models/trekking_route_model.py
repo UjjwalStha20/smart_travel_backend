@@ -6,10 +6,8 @@ from uuid import UUID, uuid4
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from app.models.destination_model import Destination
-    from app.models.route_point_model import RoutePoint
-    from app.models.user_model import UserTrip
-
+    from app.models import Destination , RoutePoint, UserTrip
+    
 
 class Difficulty(str, Enum):
     easy     = "easy"

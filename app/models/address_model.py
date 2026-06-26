@@ -5,9 +5,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 
 if TYPE_CHECKING:
-    from app.models.attraction_model import Attraction
-    from app.models.route_point_model import RoutePoint
-
+    from app.models import Attraction , RoutePoint
 
 
 # ---------------------------------------------------------------------------
@@ -22,6 +20,7 @@ class Address(SQLModel , table=True):
     id:          UUID                   = Field(default_factory=uuid4, primary_key=True)
     province:       str                 = None
     district:      str                  = None  
+    place:         str | None              = None
     latitude:    float                  = None
     longitude:   float                  = None
     altitude:    float                  = None

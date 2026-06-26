@@ -8,8 +8,7 @@ from sqlmodel import Field, Relationship, SQLModel
 from app.models.food_cost_model import FoodCost
 
 if TYPE_CHECKING:
-    from app.models.accomodation_model import Accommodation
-    from app.models.trekking_route_model import TrekkingRoute
+    from app.models import Accommodation, TrekkingRoute
 
 
 
