@@ -26,6 +26,18 @@ class RoutePointRead(RoutePointBase):
     id: UUID
 
 
+class RoutePointNested(BaseModel):
+    sequence_no: int
+    name: str
+    distance_from_previous_km: Optional[Decimal] = None
+    walking_hours_from_previous: Optional[Decimal] = None
+    overnight_stop: bool = False
+    description: Optional[str] = None
+    address_id: UUID
+    accommodation_id: Optional[UUID] = None
+    food_cost_id: Optional[UUID] = None
+
+
 class RoutePointUpdate(BaseModel):
     route_id: Optional[UUID] = None
     sequence_no: Optional[int] = None

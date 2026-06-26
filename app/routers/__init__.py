@@ -2,3 +2,14 @@ from .user import router as user_router
 from .destination import router as destination_router
 from .address import router as address_router
 from .accommodation import router as accommodation_router
+from .attraction import router as attraction_router
+from .entry_fee import router as entry_fee_router
+from .food_cost import router as food_cost_router
+from .itinerary import router as itinerary_router
+from .permit import router as permit_router
+from .photo import router as photo_router
+from .review import router as review_router
+from .route_point import router as route_point_router
+from .saved_destination import router as saved_destination_router
+from .trekking_route import router as trekking_route_router
+from .user_trip import router as user_trip_router

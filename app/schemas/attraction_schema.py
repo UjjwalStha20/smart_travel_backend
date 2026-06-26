@@ -4,19 +4,18 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from app.models import AttractionType 
-from app.schemas import EntryFeeCreate
+from app.schemas.entry_fee_schema import EntryFeeCreate, EntryFeeNested
 
 
 class AttractionBase(BaseModel):
     destination_id: UUID
-    attraction_type: AttractionType
+    attraction_types: list
     opening_hours: Optional[str] = None
     visit_duration_hours: Optional[Decimal] = None
     
 
 class AttractionCreate(AttractionBase):
-    entry_fee: EntryFeeCreate | None = None
+    entry_fee: Optional[EntryFeeCreate] = None
 
 
 class AttractionRead(AttractionBase):
@@ -25,3 +24,10 @@ class AttractionRead(AttractionBase):
 
 class AttractionUpdate(AttractionBase):
     pass
+
+
+class AttractionNested(BaseModel):
+    attraction_types: list
+    opening_hours: Optional[str] = None
+    visit_duration_hours: Optional[Decimal] = None
+    entry_fees: Optional[list["EntryFeeNested"]] = None

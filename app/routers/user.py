@@ -7,7 +7,7 @@ from sqlmodel import Session
 
 from app.core.db import get_session
 from app.dependencies import SessionDep
-from app.schemas.user_schema import UserCreate, UserRead, UserUpdate
+from app.schemas import UserCreate, UserRead, UserUpdate
 from app.services.user_service import UserService
 
 router = APIRouter(prefix="/users", tags=["users"])

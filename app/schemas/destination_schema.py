@@ -6,6 +6,8 @@ from pydantic import BaseModel
 
 from app.models import DestinationCategory
 from app.schemas import AddressCreate
+from app.schemas.attraction_schema import AttractionNested
+from app.schemas.trekking_route_schema import TrekkingRouteNested
 
 class DestinationBase(BaseModel):
     name: str
@@ -19,6 +21,8 @@ class DestinationBase(BaseModel):
 
 class DestinationCreate(DestinationBase):
     address: AddressCreate
+    attraction: Optional[AttractionNested] = None
+    trekking_routes: Optional[list[TrekkingRouteNested]] = None
 
 
 class DestinationRead(DestinationBase):

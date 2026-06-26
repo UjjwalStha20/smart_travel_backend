@@ -1,0 +1,42 @@
+from uuid import UUID
+
+from fastapi import HTTPException
+from sqlmodel import Session, select
+
+from app.models import UserTrip
+
+
+class UserTripService:
+    def __init__(self, session: Session):
+        self.session = session
+
+    def get_all_user_trips(self, offset: int = 0, limit: int = 100):
+        statement = select(UserTrip).offset(offset).limit(limit)
+        return self.session.exec(statement).all()
+
+    def get_user_trip_by_id(self, trip_id: UUID) -> UserTrip:
+        trip = self.session.get(UserTrip, trip_id)
+        if not trip:
+            raise HTTPException(status_code=404, detail="User trip not found")
+        return trip
+
+    def create_user_trip(self, trip_data: UserTrip) -> UserTrip:
+        trip = UserTrip(**trip_data.model_dump())
+        self.session.add(trip)
+        self.session.commit()
+        self.session.refresh(trip)
+        return trip
+
+    def update_user_trip(self, trip_id: UUID, trip_data: UserTrip) -> UserTrip:
+        existing = self.get_user_trip_by_id(trip_id)
+        patch = trip_data.model_dump(exclude_unset=True)
+        existing.sqlmodel_update(patch)
+        self.session.commit()
+        self.session.refresh(existing)
+        return existing
+
+    def delete_user_trip(self, trip_id: UUID) -> dict:
+        trip = self.get_user_trip_by_id(trip_id)
+        self.session.delete(trip)
+        self.session.commit()
+        return {"message": "User trip deleted successfully"}

@@ -24,4 +24,3 @@ class Accommodation(SQLModel, table=True):
 
     # relationships
     route_points: List["RoutePoint"]  = Relationship(back_populates="accommodation")
-    attractions:  List["Attraction"]  = Relationship(back_populates="accommodation")

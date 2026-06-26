@@ -47,7 +47,7 @@ class User(SQLModel, table=True):
     password: str
     phone: Optional[str] = None
     
-    created_at: datetime = Field(default_factory=datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory= lambda: datetime.now(timezone.utc) ,sa_column=Column(DateTime(timezone=True)))
     deleted_at: Optional[datetime] = None
  

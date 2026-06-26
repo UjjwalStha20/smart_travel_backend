@@ -4,8 +4,6 @@ from fastapi import HTTPException
 from sqlmodel import Session, select
 
 from app.models import Attraction
-from app.services import AddressService
-
 
 class AttractionService:
     def __init__(self, session: Session):
@@ -24,29 +22,25 @@ class AttractionService:
             raise HTTPException(status_code=404, detail="Attraction not found")
         return {"message": "Attraction retrieved successfully", "attraction": attraction}
     
-    def create_attraction(self, attraction_data: Attraction):
+    def create_attraction(self, attraction_data):
         attraction = Attraction(**attraction_data.model_dump())
         self.session.add(attraction)
         self.session.commit()
         self.session.refresh(attraction)
         return {"message": "Attraction created successfully", "attraction": attraction}
 
-    def update_attraction(self, attraction_id: str, attraction_data: Attraction):
-        existing_attraction = self.get_attraction_by_id(attraction_id)
-        if not existing_attraction:
+    def update_attraction(self, attraction_id: str, attraction_data):
+        existing = self.session.get(Attraction, attraction_id)
+        if not existing:
             raise HTTPException(status_code=404, detail="Attraction not found")
-        address = AddressService(self.session).get_or_create_address(attraction_data.address)
-        attraction = Attraction(**attraction_data.model_dump(exclude={"address"}), address_id=address.id)
-        patch = attraction.model_dump(exclude_unset=True)
-        existing_attraction.sqlmodel_update(patch)
-        self.session.add(existing_attraction)
+        patch = attraction_data.model_dump(exclude_unset=True)
+        existing.sqlmodel_update(patch)
         self.session.commit()
-        self.session.refresh(existing_attraction)
-        return {"message": "Attraction updated successfully", "attraction": existing_attraction} 
-    
+        self.session.refresh(existing)
+        return {"message": "Attraction updated successfully", "attraction": existing}
 
     def delete_attraction(self, attraction_id: str) -> dict:
-        attraction = self.get_attraction_by_id(attraction_id)
+        attraction = self.session.get(Attraction, attraction_id)
         if not attraction:
             raise HTTPException(status_code=404, detail="Attraction not found")
         self.session.delete(attraction)

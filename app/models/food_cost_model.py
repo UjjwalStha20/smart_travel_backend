@@ -25,7 +25,6 @@ class FoodCost(SQLModel, table=True):
     luxury_price:   Optional[Decimal] = None
 
     # relationships
-    attractions: List["Attraction"] = Relationship(back_populates="food_cost")
     route_points: List["RoutePoint"] = Relationship(back_populates="food_cost")
 
 

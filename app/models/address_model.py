@@ -5,7 +5,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 
 if TYPE_CHECKING:
-    from app.models import Attraction , RoutePoint
+    from app.models import Attraction , RoutePoint , Destination
 
 
 # ---------------------------------------------------------------------------
@@ -26,6 +26,6 @@ class Address(SQLModel , table=True):
     altitude:    float                  = None
 
     # relationships
-    attractions: List["Attraction"] = Relationship(back_populates="address")
     route_points: List["RoutePoint"] = Relationship(back_populates="address")
+    destinations: List["Destination"] = Relationship(back_populates="address")
     
