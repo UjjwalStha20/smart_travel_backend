@@ -10,3 +10,4 @@ from .route_point_model import RoutePoint
 from .food_cost_model import FoodCost
 from .accomodation_model import Accommodation
 from .entry_fee_model import EntryFee, EntryCategory
+from .chat_model import ChatConversation, ChatMessage

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 
 from app.dependencies import CurrentUser, SessionDep
 from app.models import UserTrip
@@ -11,8 +11,8 @@ router = APIRouter(prefix="/user-trips", tags=["User Trips"])
 class UserTripRouter:
 
     @router.get("/", response_model=PaginatedResponse[UserTrip], status_code=200)
-    async def get_user_trips(session: SessionDep):
-        return UserTripService(session).get_all_user_trips(offset=0, limit=100)
+    async def get_user_trips(session: SessionDep, offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
+        return UserTripService(session).get_all_user_trips(offset=offset, limit=limit)
 
     @router.get("/{trip_id}", response_model=UserTrip, status_code=200)
     async def get_user_trip_by_id(trip_id: str, session: SessionDep):

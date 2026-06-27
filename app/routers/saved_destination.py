@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 
 from app.dependencies import CurrentUser, SessionDep
 from app.models import SavedDestination
@@ -11,8 +11,8 @@ router = APIRouter(prefix="/saved-destinations", tags=["Saved Destinations"])
 class SavedDestinationRouter:
 
     @router.get("/", response_model=PaginatedResponse[SavedDestination], status_code=200)
-    async def get_saved_destinations(session: SessionDep):
-        return SavedDestinationService(session).get_all_saved_destinations(offset=0, limit=100)
+    async def get_saved_destinations(session: SessionDep, offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
+        return SavedDestinationService(session).get_all_saved_destinations(offset=offset, limit=limit)
 
     @router.get("/{saved_id}", response_model=SavedDestination, status_code=200)
     async def get_saved_destination_by_id(saved_id: str, session: SessionDep):

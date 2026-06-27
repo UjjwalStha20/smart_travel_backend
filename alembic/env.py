@@ -12,6 +12,7 @@ from app.models import (
     TrekkingRoute, RoutePoint, FoodCost, Accommodation, EntryFee,
     SavedDestination, UserTrip, Itinerary,
 )
+from app.models.chat_model import ChatConversation, ChatMessage
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

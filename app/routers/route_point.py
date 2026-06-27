@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from app.dependencies import SessionDep, require_admin
 from app.models import RoutePoint, User
@@ -13,8 +13,8 @@ router = APIRouter(prefix="/route-points", tags=["Route Points"])
 class RoutePointRouter:
 
     @router.get("/", response_model=PaginatedResponse[RoutePoint], status_code=200)
-    async def get_route_points(session: SessionDep):
-        return RoutePointService(session).get_all_route_points(offset=0, limit=100)
+    async def get_route_points(session: SessionDep, offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
+        return RoutePointService(session).get_all_route_points(offset=offset, limit=limit)
 
     @router.get("/{point_id}", response_model=RoutePoint, status_code=200)
     async def get_route_point_by_id(point_id: str, session: SessionDep):

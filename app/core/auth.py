@@ -31,7 +31,10 @@ def get_current_user(token: str = Depends(oauth2_scheme), session: Session = Dep
     except JWTError:
         raise credentials_exception
 
-    user = session.exec(select(User).where(User.id == UUID(user_id))).first()
+    try:
+        user = session.exec(select(User).where(User.id == UUID(user_id))).first()
+    except ValueError:
+        raise credentials_exception
     if not user:
         raise credentials_exception
     return user

@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 DATABASE_URL = settings.database_url
 logger.info("Connecting to database")
 
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL, echo=settings.DB_ECHO)
 
 def init_db():
     SQLModel.metadata.create_all(engine)

@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from app.dependencies import SessionDep, require_admin
 from app.models import EntryFee, User
@@ -13,8 +13,8 @@ router = APIRouter(prefix="/entry-fees", tags=["Entry Fees"])
 class EntryFeeRouter:
 
     @router.get("/", response_model=PaginatedResponse[EntryFee], status_code=200)
-    async def get_entry_fees(session: SessionDep):
-        return EntryFeeService(session).get_all_entry_fees(offset=0, limit=100)
+    async def get_entry_fees(session: SessionDep, offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
+        return EntryFeeService(session).get_all_entry_fees(offset=offset, limit=limit)
 
     @router.get("/{fee_id}", response_model=EntryFee, status_code=200)
     async def get_entry_fee_by_id(fee_id: str, session: SessionDep):

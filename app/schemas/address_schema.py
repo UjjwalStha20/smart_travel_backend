@@ -2,7 +2,7 @@ from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field
-from sqlmodel import Float, Integer
+from sqlmodel import Float
 
 
 class AddressBase(BaseModel):
@@ -11,7 +11,7 @@ class AddressBase(BaseModel):
     place: str | None = None
     latitude: float = Field(ge=-90, le=90)
     longitude: float = Field(ge=-180, le=180)
-    altitude: int = Field(gt=0)
+    altitude: float = Field(gt=0)
 
 
 class AddressCreate(AddressBase):
@@ -28,4 +28,4 @@ class AddressUpdate(BaseModel):
     place: str | None = None
     latitude: float | None = Field(default=None, ge=-90, le=90)
     longitude: float | None = Field(default=None, ge=-180, le=180)
-    altitude: int | None = Field(default=None, gt=0)
+    altitude: float | None = Field(default=None, gt=0)

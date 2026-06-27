@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from app.dependencies import SessionDep, require_admin
 from app.models import Permit, User
@@ -13,8 +13,8 @@ router = APIRouter(prefix="/permits", tags=["Permits"])
 class PermitRouter:
 
     @router.get("/", response_model=PaginatedResponse[Permit], status_code=200)
-    async def get_permits(session: SessionDep):
-        return PermitService(session).get_all_permits(offset=0, limit=100)
+    async def get_permits(session: SessionDep, offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
+        return PermitService(session).get_all_permits(offset=offset, limit=limit)
 
     @router.get("/{permit_id}", response_model=Permit, status_code=200)
     async def get_permit_by_id(permit_id: str, session: SessionDep):

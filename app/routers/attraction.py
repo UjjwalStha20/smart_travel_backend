@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from app.dependencies import SessionDep, require_admin
 from app.models import User
@@ -15,8 +15,8 @@ router = APIRouter(prefix="/attractions", tags=["attractions"])
 class AttractionRouter:
 
     @router.get("/", response_model=PaginatedResponse[Attraction], status_code=200)
-    async def get_attractions(session: SessionDep):
-        return AttractionService(session).get_attractions(offset=0, limit=100)
+    async def get_attractions(session: SessionDep, offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
+        return AttractionService(session).get_attractions(offset=offset, limit=limit)
 
     @router.get("/{attraction_id}", response_model=Attraction)
     async def get_attraction_by_id(attraction_id: str, session: SessionDep):

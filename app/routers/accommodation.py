@@ -1,7 +1,7 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from app.dependencies import SessionDep, require_admin
 from app.models import Accommodation, User
@@ -17,7 +17,7 @@ class AccommodationRouter:
     @router.get("/",response_model=PaginatedResponse[Accommodation], status_code=200)
     async def get_accommodations(session : SessionDep):
         """Get all accommodations."""
-        return AccommodationService(session).get_all_accommodations(offset=0, limit=100)
+        return AccommodationService(session).get_all_accommodations(offset=offset, limit=limit)
 
     @router.get("/{accommodation_id}", response_model=Accommodation,status_code=200)
     async def get_accommodation_by_id(accommodation_id: str, session: SessionDep):

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from sqlmodel import select
 
 from app.dependencies import CurrentUser, SessionDep
@@ -12,8 +12,8 @@ router = APIRouter(prefix="/itineraries", tags=["Itineraries"])
 class ItineraryRouter:
 
     @router.get("/", response_model=PaginatedResponse[Itinerary], status_code=200)
-    async def get_itineraries(session: SessionDep):
-        return ItineraryService(session).get_all_itineraries(offset=0, limit=100)
+    async def get_itineraries(session: SessionDep, offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
+        return ItineraryService(session).get_all_itineraries(offset=offset, limit=limit)
 
     @router.get("/{itinerary_id}", response_model=Itinerary, status_code=200)
     async def get_itinerary_by_id(itinerary_id: str, session: SessionDep):

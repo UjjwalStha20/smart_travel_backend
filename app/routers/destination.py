@@ -1,7 +1,7 @@
 import uuid
-from typing import Annotated, List
+from typing import Annotated, List, Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session
 
 from app.core.db import get_session
@@ -16,8 +16,31 @@ router = APIRouter(prefix="/destinations", tags=["destinations"])
 class DestinationRouter:
 
     @router.get("/", status_code=200)
-    def get_destinations(session: Session = Depends(get_session)):
-        return DestinationService(session).get_destinations(offset=0, limit=100)
+    def get_destinations(
+        session: Session = Depends(get_session),
+        offset: int = Query(0, ge=0),
+        limit: int = Query(10, ge=1, le=100),
+        category: Optional[str] = Query(None),
+        name: Optional[str] = Query(None),
+        description: Optional[str] = Query(None),
+        rating_min: Optional[int] = Query(None, ge=1, le=5),
+        permit_required: Optional[bool] = Query(None),
+        province: Optional[str] = Query(None),
+        district: Optional[str] = Query(None),
+        place: Optional[str] = Query(None),
+    ):
+        return DestinationService(session).get_destinations(
+            offset=offset,
+            limit=limit,
+            category=category,
+            name=name,
+            description=description,
+            rating_min=rating_min,
+            permit_required=permit_required,
+            province=province,
+            district=district,
+            place=place,
+        )
     
 
     @router.get("/{destination_id}")

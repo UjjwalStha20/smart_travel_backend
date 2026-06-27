@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from app.dependencies import SessionDep, require_admin
 from app.models import TrekkingRoute, User
@@ -13,8 +13,8 @@ router = APIRouter(prefix="/trekking-routes", tags=["Trekking Routes"])
 class TrekkingRouteRouter:
 
     @router.get("/", response_model=PaginatedResponse[TrekkingRoute], status_code=200)
-    async def get_trekking_routes(session: SessionDep):
-        return TrekkingRouteService(session).get_all_trekking_routes(offset=0, limit=100)
+    async def get_trekking_routes(session: SessionDep, offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
+        return TrekkingRouteService(session).get_all_trekking_routes(offset=offset, limit=limit)
 
     @router.get("/{route_id}", response_model=TrekkingRoute, status_code=200)
     async def get_trekking_route_by_id(route_id: str, session: SessionDep):

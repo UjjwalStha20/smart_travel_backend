@@ -39,30 +39,12 @@ class AddressService:
         return address
 
     def update_address(self, address_id, address_data: Address):
-        statement = select(Address).where(
-            Address.province == address_data.province,
-            Address.district == address_data.district,
-            Address.latitude == address_data.latitude,
-            Address.longitude == address_data.longitude,
-            Address.altitude == address_data.altitude,
-            Address.id != address_id
-        )
-        address = self.session.exec(statement).first()
-        if address:
-            deleted_address = self.get_address_by_id(address_id)
-            self.session.delete(deleted_address)
-            self.session.commit()
-            self.session.refresh(address)
-            return address
-        else:
-            existing_address = self.get_address_by_id(address_id)
-            if not existing_address:
-                raise HTTPException(status_code=404, detail="Address  not found")
-            patch = address_data.model_dump(exclude_unset=True)
-            existing_address.sqlmodel_update(patch) 
-            self.session.commit()
-            self.session.refresh(existing_address)
-            return existing_address
+        existing_address = self.get_address_by_id(address_id)
+        patch = address_data.model_dump(exclude_unset=True)
+        existing_address.sqlmodel_update(patch)
+        self.session.commit()
+        self.session.refresh(existing_address)
+        return existing_address
 
     def delete_address(self, address_id):
         address = self.get_address_by_id(address_id)

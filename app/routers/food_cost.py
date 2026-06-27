@@ -1,7 +1,7 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from app.dependencies import SessionDep, require_admin
 from app.models import User
@@ -17,7 +17,7 @@ class FoodCostRouter:
     @router.get("/",response_model=PaginatedResponse[FoodCost], status_code=200)
     async def get_food_costs(session : SessionDep):
         """Get all food costs."""
-        return FoodCostService(session).get_all_food_costs(offset=0, limit=100)
+        return FoodCostService(session).get_all_food_costs(offset=offset, limit=limit)
 
     @router.get("/{food_id}", response_model=FoodCost,status_code=200)
     async def get_food_cost_by_id(food_id: str, session: SessionDep):

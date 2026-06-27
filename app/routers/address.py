@@ -2,7 +2,7 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from app.dependencies import SessionDep, require_admin
 from app.models import User
@@ -17,9 +17,9 @@ router = APIRouter(prefix="/addresses", tags=["addresses"])
 class Addressrouter:
 
     @router.get("/", response_model=PaginatedResponse[Address], status_code=200)
-    async def get_addresses(session: SessionDep):
+    async def get_addresses(session: SessionDep, offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
         """Get all addresses."""
-        return AddressService(session).get_all_addresses(offset=0, limit=100)
+        return AddressService(session).get_all_addresses(offset=offset, limit=limit)
 
     @router.get("/{address_id}")
     async def get_address_by_id(address_id: str, session: SessionDep):

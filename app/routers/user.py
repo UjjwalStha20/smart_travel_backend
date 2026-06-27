@@ -1,6 +1,6 @@
-from typing import Annotated, List
+from typing import Annotated, List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import EmailStr
 from sqlmodel import Session
 
@@ -16,8 +16,8 @@ router = APIRouter(prefix="/users", tags=["users"])
 class UserRouter:
 
     @router.get("/", response_model=PaginatedResponse[UserRead], status_code=200)
-    def get_users(session: Session = Depends(get_session),email: EmailStr = None)-> List[UserRead]: 
-        users = UserService(session).get_all_users(offset=0, limit=100, email=email)              
+    def get_users(session: Session = Depends(get_session), offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100), email: Optional[EmailStr] = None):
+        users = UserService(session).get_all_users(offset=offset, limit=limit, email=email)
         return users
     
 

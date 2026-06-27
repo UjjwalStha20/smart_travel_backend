@@ -13,6 +13,7 @@ from app.routers import (auth,
     accommodation,
     address,
     attraction,
+    chat,
     destination,
     entry_fee,
     food_cost,
@@ -48,6 +49,7 @@ app.include_router(auth.router)
 app.include_router(accommodation.router)
 app.include_router(address.router)
 app.include_router(attraction.router)
+app.include_router(chat.router)
 app.include_router(destination.router)
 app.include_router(entry_fee.router)
 app.include_router(food_cost.router)

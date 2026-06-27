@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 
 from app.dependencies import CurrentUser, SessionDep
 from app.models import Review
@@ -11,8 +11,8 @@ router = APIRouter(prefix="/reviews", tags=["Reviews"])
 class ReviewRouter:
 
     @router.get("/", response_model=PaginatedResponse[Review], status_code=200)
-    async def get_reviews(session: SessionDep):
-        return ReviewService(session).get_all_reviews(offset=0, limit=100)
+    async def get_reviews(session: SessionDep, offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
+        return ReviewService(session).get_all_reviews(offset=offset, limit=limit)
 
     @router.get("/{review_id}", response_model=Review, status_code=200)
     async def get_review_by_id(review_id: str, session: SessionDep):

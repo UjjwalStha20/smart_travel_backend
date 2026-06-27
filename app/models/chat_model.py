@@ -1,0 +1,34 @@
+from datetime import datetime
+from typing import TYPE_CHECKING, List
+from uuid import UUID, uuid4
+
+from sqlmodel import Field, Relationship, SQLModel
+from sqlalchemy import event
+
+if TYPE_CHECKING:
+    from app.models import User
+
+
+class ChatConversation(SQLModel, table=True):
+    __tablename__ = "chat_conversation"
+
+    id:         UUID     = Field(default_factory=uuid4, primary_key=True)
+    user_id:    UUID     = Field(foreign_key="users.id")
+    title:      str      = "New Conversation"
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    messages: List["ChatMessage"] = Relationship(back_populates="conversation")
+    user: "User" = Relationship(back_populates="chat_conversations")
+
+
+class ChatMessage(SQLModel, table=True):
+    __tablename__ = "chat_message"
+
+    id:               UUID     = Field(default_factory=uuid4, primary_key=True)
+    conversation_id:  UUID     = Field(foreign_key="chat_conversation.id", ondelete="CASCADE")
+    role:             str
+    content:          str
+    created_at:       datetime = Field(default_factory=datetime.utcnow)
+
+    conversation: ChatConversation = Relationship(back_populates="messages")

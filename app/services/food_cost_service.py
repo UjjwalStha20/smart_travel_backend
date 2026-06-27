@@ -21,41 +21,19 @@ class FoodCostService:
         return food
     
     def create_food_cost(self, food_data: FoodCost):
-        statement = select(FoodCost).where(
-            FoodCost.budget_price == food_data.budget_price,
-            FoodCost.standard_price == food_data.standard_price,
-            FoodCost.luxury_price == food_data.luxury_price
-        )
-        existing_food = self.session.exec(statement).first()
-        print(food_data)
-        if existing_food:
-            return existing_food
-        else:
-            food = FoodCost(**food_data.model_dump())
-            self.session.add(food)
-            self.session.commit()
-            self.session.refresh(food)
-            return food
+        food = FoodCost(**food_data.model_dump())
+        self.session.add(food)
+        self.session.commit()
+        self.session.refresh(food)
+        return food
     
     def update_food_cost(self, food_id, food_data: FoodCost):
-        statement = select(FoodCost).where(
-            FoodCost.budget_price == food_data.budget_price,
-            FoodCost.standard_price == food_data.standard_price,
-            FoodCost.luxury_price == food_data.luxury_price,
-            FoodCost.id != food_id
-        )
-        existing_food = self.session.exec(statement).first()
-        if existing_food:
-            self.delete_food_cost(food_id)
-            self.session.refresh(existing_food)
-            return existing_food
-        else:
-            existing_food = self.get_food_cost_by_id(food_id)
-            patch = food_data.model_dump(exclude_unset=True)
-            existing_food.sqlmodel_update(patch)
-            self.session.commit()
-            self.session.refresh(existing_food)
-            return existing_food
+        existing_food = self.get_food_cost_by_id(food_id)
+        patch = food_data.model_dump(exclude_unset=True)
+        existing_food.sqlmodel_update(patch)
+        self.session.commit()
+        self.session.refresh(existing_food)
+        return existing_food
     
     def delete_food_cost(self, food_id):
         food = self.get_food_cost_by_id(food_id)

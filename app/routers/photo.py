@@ -1,6 +1,8 @@
+import os
+
 from uuid import UUID
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, File, Query, Form, HTTPException, UploadFile
 
 from app.dependencies import CurrentUser, SessionDep
 from app.models import Photo
@@ -8,13 +10,16 @@ from app.schemas import PhotoCreate, PhotoUpdate
 from app.schemas.pagination import PaginatedResponse
 from app.services import PhotoService
 
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
+
 router = APIRouter(prefix="/photos", tags=["Photos"])
 
 class PhotoRouter:
 
     @router.get("/", response_model=PaginatedResponse[Photo], status_code=200)
-    async def get_photos(session: SessionDep):
-        return PhotoService(session).get_all_photos(offset=0, limit=100)
+    async def get_photos(session: SessionDep, offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
+        return PhotoService(session).get_all_photos(offset=offset, limit=limit)
 
     @router.get("/{photo_id}", response_model=Photo, status_code=200)
     async def get_photo_by_id(photo_id: str, session: SessionDep):
@@ -28,7 +33,12 @@ class PhotoRouter:
         session: SessionDep = None,
         current_user: CurrentUser = None,
     ):
+        ext = os.path.splitext(file.filename or "")[1].lower()
+        if ext not in ALLOWED_EXTENSIONS:
+            raise HTTPException(status_code=400, detail=f"File type '{ext}' not allowed. Allowed: {', '.join(ALLOWED_EXTENSIONS)}")
         content = await file.read()
+        if len(content) > MAX_FILE_SIZE:
+            raise HTTPException(status_code=400, detail=f"File too large. Max {MAX_FILE_SIZE // (1024*1024)} MB")
         return PhotoService(session).create_photo_from_upload(destination_id, current_user.id, file.filename or "photo.jpg", content, caption)
 
     @router.post("/json", response_model=Photo, status_code=201)

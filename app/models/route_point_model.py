@@ -2,13 +2,12 @@ from decimal import Decimal
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID, uuid4
 
-from fastapi.datastructures import Address
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.food_cost_model import FoodCost
 
 if TYPE_CHECKING:
-    from app.models import Accommodation, TrekkingRoute
+    from app.models import Accommodation, Address, TrekkingRoute
 
 
 
