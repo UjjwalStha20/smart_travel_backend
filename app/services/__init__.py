@@ -13,3 +13,5 @@ from .saved_destination_service import SavedDestinationService
 from .trekking_route_service import TrekkingRouteService
 from .user_service import UserService
 from .user_trip_service import UserTripService
+from .destination_itinerary_service import DestinationItineraryService
+from .blog_service import BlogService

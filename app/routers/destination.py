@@ -43,6 +43,10 @@ class DestinationRouter:
         )
     
 
+    @router.get("/stats", status_code=200)
+    def get_destinations_stats(session: Session = Depends(get_session)):
+        return DestinationService(session).get_destinations_stats()
+
     @router.get("/{destination_id}")
     async def get_destination_by_id(session: SessionDep, destination_id: uuid.UUID):
         return DestinationService(session).get_destination_by_id(str(destination_id))

@@ -1,0 +1,13 @@
+key,destination_key,category,price
+perm_abc_nepali,dest_abc_trek,Nepali,100
+perm_abc_foreign,dest_abc_trek,Foreign,3000
+perm_abc_saarc,dest_abc_trek,SAARC,1500
+perm_poon_nepali,dest_poon_hill_trek,Nepali,100
+perm_poon_foreign,dest_poon_hill_trek,Foreign,3000
+perm_poon_saarc,dest_poon_hill_trek,SAARC,1500
+perm_ebc_nepali,dest_ebc_trek,Nepali,500
+perm_ebc_foreign,dest_ebc_trek,Foreign,5000
+perm_ebc_saarc,dest_ebc_trek,SAARC,3000
+perm_langtang_nepali,dest_langtang_trek,Nepali,100
+perm_langtang_foreign,dest_langtang_trek,Foreign,3000
+perm_langtang_saarc,dest_langtang_trek,SAARC,1500

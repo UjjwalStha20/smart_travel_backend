@@ -1,0 +1,48 @@
+key,province,district,place,latitude,longitude,altitude
+addr_kathmandu,Bagmati,Kathmandu,Kathmandu,27.7172,85.3240,1400
+addr_patan,Bagmati,Lalitpur,Patan,27.6644,85.3188,1350
+addr_bhaktapur,Bagmati,Bhaktapur,Bhaktapur,27.6710,85.4058,1401
+addr_pokhara,Gandaki,Kaski,Pokhara,28.2096,83.9856,822
+addr_chitwan,Bagmati,Chitwan,Sauraha,27.5778,84.4940,415
+addr_lumbini,Lumbini,Rupandehi,Lumbini,27.4680,83.2760,150
+addr_janakpur,Province No. 2,Dhanusha,Janakpur,26.7271,85.9247,74
+addr_nagarkot,Bagmati,Bhaktapur,Nagarkot,27.7080,85.5200,2175
+addr_bandipur,Gandaki,Tanahun,Bandipur,27.9333,84.4000,1030
+addr_manakamana,Gandaki,Gorkha,Manakamana,27.8833,84.6167,1300
+addr_chandragiri,Bagmati,Kathmandu,Chandragiri,27.6225,85.2233,2551
+addr_gosaikunda,Bagmati,Rasuwa,Gosaikunda,28.1040,85.3160,4380
+addr_dakshinkali,Bagmati,Kathmandu,Dakshinkali,27.5833,85.2833,1500
+addr_pharping,Bagmati,Kathmandu,Pharping,27.5833,85.2833,1480
+addr_kirtipur,Bagmati,Kathmandu,Kirtipur,27.6786,85.2778,1428
+addr_nayapul,Gandaki,Kaski,Nayapul,28.3167,83.8167,1070
+addr_tikhedhunga,Gandaki,Myagdi,Tikhedhunga,28.3667,83.7833,1540
+addr_ghorepani,Gandaki,Myagdi,Ghorepani,28.4000,83.7333,2874
+addr_poonhill,Gandaki,Myagdi,Poon Hill,28.4000,83.6917,3210
+addr_ulleri,Gandaki,Myagdi,Ulleri,28.3833,83.7667,2080
+addr_tadapani,Gandaki,Kaski,Tadapani,28.3667,83.8333,2630
+addr_chhomrong,Gandaki,Kaski,Chhomrong,28.3833,83.8500,2170
+addr_sinuwa,Gandaki,Kaski,Sinuwa,28.3833,83.8833,2340
+addr_bamboo,Gandaki,Kaski,Bamboo,28.4000,83.9000,2310
+addr_dovan,Gandaki,Kaski,Dovan,28.4167,83.9167,2600
+addr_himalaya,Gandaki,Kaski,Himalaya Hotel,28.4333,83.9167,2920
+addr_deurali,Gandaki,Kaski,Deurali,28.4500,83.9000,3230
+addr_mbc,Gandaki,Kaski,Machhapuchhre Base Camp,28.4833,83.8833,3700
+addr_abc,Gandaki,Kaski,Annapurna Base Camp,28.4833,83.8833,4130
+addr_jhinu,Gandaki,Kaski,Jhinu Danda,28.3500,83.8333,1780
+addr_landruk,Gandaki,Kaski,Landruk,28.3500,83.8167,1640
+addr_lukla,Province No. 1,Solukhumbu,Lukla,27.6870,86.7310,2860
+addr_phakding,Province No. 1,Solukhumbu,Phakding,27.7500,86.6833,2610
+addr_namche,Province No. 1,Solukhumbu,Namche Bazaar,27.8111,86.7150,3440
+addr_tyangboche,Province No. 1,Solukhumbu,Tyangboche,27.8333,86.6500,3867
+addr_dingboche,Province No. 1,Solukhumbu,Dingboche,27.8833,86.8333,4260
+addr_lobuche,Province No. 1,Solukhumbu,Lobuche,27.9333,86.8000,4930
+addr_gorakshep,Province No. 1,Solukhumbu,Gorakshep,28.0000,86.8333,5140
+addr_ebp,Province No. 1,Solukhumbu,Everest Base Camp,28.0010,86.8513,5364
+addr_syabrubesi,Bagmati,Rasuwa,Syabrubesi,28.1667,85.3333,1503
+addr_lama_hotel,Bagmati,Rasuwa,Lama Hotel,28.2000,85.3833,2480
+addr_langtang_village,Bagmati,Rasuwa,Langtang Village,28.2167,85.5167,3430
+addr_kyangjin,Bagmati,Rasuwa,Kyanjin Gompa,28.2167,85.5500,3870
+addr_kanyam,Province No. 1,Ilam,Kanyam,26.9500,87.9000,1700
+addr_pashupatinath,Bagmati,Kathmandu,Pashupatinath,27.7100,85.3480,1340
+addr_boudhanath,Bagmati,Kathmandu,Boudhanath,27.7215,85.3620,1350
+addr_swayambhunath,Bagmati,Kathmandu,Swayambhunath,27.7150,85.2900,1500

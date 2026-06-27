@@ -13,3 +13,5 @@ from .trekking_route_schema import TrekkingRouteCreate, TrekkingRouteRead, Trekk
 from .user_schema import UserCreate, UserRead, UserUpdate
 from .user_trip_schema import UserTripCreate, UserTripRead, UserTripUpdate
 from .entry_fee_schema import EntryFeeCreate, EntryFeeRead, EntryFeeUpdate
+from .destination_itinerary_schema import DestinationItineraryCreate, DestinationItineraryRead, DestinationItineraryUpdate
+from .blog_schema import BlogCreate, BlogRead, BlogUpdate

@@ -1,0 +1,41 @@
+key,route_key,sequence_no,name,distance_from_previous_km,walking_hours_from_previous,overnight_stop,description,address_key,accommodation_key,food_cost_key
+rp_abc_01,route_abc,1,Nayapul,0,0,False,"Trek starting point by the Modi Khola river","addr_nayapul",,
+rp_abc_02,route_abc,2,Tikhedhunga,8,4,True,"Small village with basic teahouses. The trail involves a steep climb up stone steps through rhododendron forests.","addr_tikhedhunga",accom_budget,food_budget
+rp_abc_03,route_abc,3,Ulleri,3,1.5,False,"Known for the iconic stone staircase (3380 steps). Great spot for a rest break before continuing to Ghorepani.","addr_ulleri",,
+rp_abc_04,route_abc,4,Ghorepani,9,4.5,True,"Popular stop with panoramic mountain views. Base for the early morning Poon Hill hike. Numerous teahouses and lodges available.","addr_ghorepani",accom_standard,food_standard
+rp_abc_05,route_abc,5,Poon Hill Viewpoint,5,2,False,"Sunrise viewpoint at 3,210m offering 360-degree views of Annapurna, Dhaulagiri, Manaslu, and Machhapuchhre ranges.","addr_poonhill",,
+rp_abc_06,route_abc,6,Tadapani,8,4,True,"A scenic ridge-top village with excellent mountain views. Trail passes through dense rhododendron and oak forests.","addr_tadapani",accom_standard,food_standard
+rp_abc_07,route_abc,7,Chhomrong,5,2.5,True,"A beautiful Gurung village with stone-paved streets and stunning views of Annapurna South and Hiunchuli. Last major settlement before entering the sanctuary.","addr_chhomrong",accom_standard,food_standard
+rp_abc_08,route_abc,8,Sinuwa,3,1.5,True,"Small settlement perched on a ridge. Trail descends to the Chhomrong Khola before climbing steeply through bamboo forests.","addr_sinuwa",accom_budget_plus,food_budget_plus
+rp_abc_09,route_abc,9,Bamboo,2,1,True,"A cluster of teahouses surrounded by dense bamboo forests. A peaceful stop with the sound of the nearby river.","addr_bamboo",accom_budget_plus,food_budget_plus
+rp_abc_10,route_abc,10,Dovan,2.5,1.5,True,"A small clearing with teahouses where the valley narrows. The trail continues alongside the river through dense forest.","addr_dovan",accom_budget_plus,food_budget_plus
+rp_abc_11,route_abc,11,Himalaya Hotel,2.5,1.5,True,"A popular teahouse stop despite its grand name. Trail continues through increasingly alpine terrain with fewer trees.","addr_himalaya",accom_budget_plus,food_budget_plus
+rp_abc_12,route_abc,12,Deurali,3,1.5,True,"The last stop before the base camp. The landscape becomes stark and alpine with moraines and snow-capped peaks all around.","addr_deurali",accom_standard,food_standard
+rp_abc_13,route_abc,13,Machhapuchhre Base Camp,3,2,True,"Base camp for the sacred Mt. Machhapuchhre. The trail traverses a landslide area with spectacular views of the surrounding peaks.","addr_mbc",accom_premium,food_premium
+rp_abc_14,route_abc,14,Annapurna Base Camp,3,1.5,True,"The ultimate destination at 4,130m. Surrounded by a natural amphitheater of peaks including Annapurna I, Annapurna South, Gangapurna, and Machhapuchhre.","addr_abc",accom_premium,food_premium
+rp_abc_15,route_abc,15,Chhomrong (return),12,6,True,"Return route descending back through Bamboo, Sinuwa to Chhomrong.","addr_chhomrong",accom_standard,food_standard
+rp_abc_16,route_abc,16,Jhinu Danda,4,2,True,"Famous for natural hot springs (tatopani) by the river. A perfect way to relax after the trek. Trail descends steeply from Chhomrong.","addr_jhinu",accom_budget,food_budget
+rp_abc_17,route_abc,17,Nayapul (return),6,3,False,"Final leg back to Nayapul passing through Landruk and along the Modi Khola river.","addr_nayapul",,
+rp_ebc_01,route_ebc,1,Lukla,0,0,False,"Gateway to the Everest region. A thrilling flight from Kathmandu lands at one of the world's most dramatic airports.","addr_lukla",,
+rp_ebc_02,route_ebc,2,Phakding,8,3,True,"First day's walk takes you through pine forests and across suspension bridges along the Dudh Koshi River.","addr_phakding",accom_budget,food_budget
+rp_ebc_03,route_ebc,3,Namche Bazaar,10,5,True,"The bustling Sherpa capital of the Khumbu region. A steep climb leads to this horseshoe-shaped town with shops, bakeries, and amazing mountain views.","addr_namche",accom_standard,food_standard
+rp_ebc_04,route_ebc,4,Tyangboche,8,4,True,"Home to the famous Tengboche Monastery, the largest in the Khumbu region. Offers stunning views of Everest, Ama Dablam, and Lhotse.","addr_tyangboche",accom_standard,food_standard
+rp_ebc_05,route_ebc,5,Dingboche,8,4,True,"A beautiful settlement in a valley surrounded by towering peaks. Used as an acclimatization stop with a hike to Nagarjun Hill.","addr_dingboche",accom_standard,food_standard
+rp_ebc_06,route_ebc,6,Lobuche,8,4,True,"The last permanent settlement before Everest Base Camp. Located in a stark, alpine landscape surrounded by glaciers and moraines.","addr_lobuche",accom_premium,food_premium
+rp_ebc_07,route_ebc,7,Gorakshep,4,2,True,"The final stop before Everest Base Camp. From here, trekkers make the journey to base camp and the early morning hike to Kala Patthar.","addr_gorakshep",accom_premium,food_premium
+rp_ebc_08,route_ebc,8,Everest Base Camp,4,2.5,False,"The ultimate destination at 5,364m. Stand at the foot of the world's tallest mountain. Best visited in the afternoon after arriving from Gorakshep.","addr_ebp",,
+rp_ebc_09,route_ebc,9,Kala Patthar,2,1.5,False,"A 5,555m viewpoint offering the best panoramic views of Mount Everest, Nuptse, and the surrounding Himalayan giants.","addr_gorakshep",,
+rp_ebc_10,route_ebc,10,Pheriche,12,5,True,"Return route descending through Lobuche to Pheriche, a village known for its medical research station and stunning valley setting.","addr_dingboche",accom_standard,food_standard
+rp_langtang_01,route_langtang,1,Syabrubesi,0,0,False,"Starting point of the Langtang Valley trek. A small town on the Trisuli River with basic amenities and stunning surrounding hills.","addr_syabrubesi",,
+rp_langtang_02,route_langtang,2,Lama Hotel,8,4,True,"A small settlement deep in the forest. The trail follows the Langtang River through bamboo and rhododendron forests with occasional glimpses of langur monkeys.","addr_lama_hotel",accom_budget,food_budget
+rp_langtang_03,route_langtang,3,Langtang Village,10,5,True,"The main village in the Langtang Valley, rebuilt after the 2015 earthquake. Offers stunning views of Langtang Lirung and an opportunity to experience Tamang culture.","addr_langtang_village",accom_standard,food_standard
+rp_langtang_04,route_langtang,4,Kyanjin Gompa,5,3,True,"The end of the trekking route at 3,870m. Features a famous monastery, cheese factory, and stunning views of Langtang Lirung, Genjumpa, and Tserko Ri.","addr_kyangjin",accom_standard,food_standard
+rp_langtang_05,route_langtang,5,Kyanjin Ri,2,2,False,"A challenging but rewarding hike to 4,773m offering panoramic views of the Langtang range and into Tibet.","addr_kyangjin",,
+rp_poon_01,route_poon_hill,1,Nayapul,0,0,False,"Starting point for the Ghorepani Poon Hill trek.","addr_nayapul",,
+rp_poon_02,route_poon_hill,2,Tikhedhunga,8,4,True,"First overnight stop. Steep climb through terraced fields and small settlements with mountain views.","addr_tikhedhunga",accom_budget,food_budget
+rp_poon_03,route_poon_hill,3,Ulleri,3,1.5,False,"Famous for its massive stone staircase. A challenging but rewarding ascent through rhododendron forests.","addr_ulleri",,
+rp_poon_04,route_poon_hill,4,Ghorepani,9,4.5,True,"Main overnight stop and base for the Poon Hill sunrise hike. Offers excellent views of the Dhaulagiri and Annapurna ranges.","addr_ghorepani",accom_standard,food_standard
+rp_poon_05,route_poon_hill,5,Poon Hill Viewpoint,5,2,False,"The highlight of the trek. A pre-dawn hike to 3,210m rewards you with one of the best Himalayan sunrise views in Nepal.","addr_poonhill",,
+rp_poon_06,route_poon_hill,6,Tadapani,8,4,True,"Descend through rhododendron forests to this ridge-top village with spectacular mountain views.","addr_tadapani",accom_standard,food_standard
+rp_poon_07,route_poon_hill,7,Landruk,6,3,True,"Traditional Gurung village with charming stone houses and terraced fields. Offers a glimpse into rural Nepali life.","addr_landruk",accom_budget,food_budget
+rp_poon_08,route_poon_hill,8,Nayapul (return),5,2.5,False,"Final leg back to Nayapul along the Modi Khola riverbank.","addr_nayapul",,

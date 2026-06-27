@@ -1,0 +1,7 @@
+key,user_email,destination_key,route_key,pace_type,budget_type,start_date,end_date,status
+trip_abc_standard,ujjwal@gmail.com,dest_abc_trek,route_abc,normal,standard,2026-10-01,2026-10-08,planned
+trip_abc_fast,anusha@admin.com,dest_abc_trek,route_abc,fast,budget,2026-11-05,2026-11-10,planned
+trip_poon_standard,ujjwal@gmail.com,dest_poon_hill_trek,route_poon_hill,normal,standard,2026-09-15,2026-09-19,planned
+trip_ebc_standard,ujjwal@gmail.com,dest_ebc_trek,route_ebc,normal,standard,2027-03-20,2027-04-02,planned
+trip_ebc_luxury,anusha@admin.com,dest_ebc_trek,route_ebc,slow,luxury,2027-04-10,2027-04-25,planned
+trip_langtang_standard,anusha@admin.com,dest_langtang_trek,route_langtang,normal,standard,2026-05-10,2026-05-17,planned

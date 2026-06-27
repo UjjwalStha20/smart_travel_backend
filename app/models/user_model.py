@@ -8,7 +8,7 @@ from pydantic import EmailStr
 from sqlmodel import Column, DateTime, Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from app.models import ChatConversation, Destination , Photo , Review, TrekkingRoute
+    from app.models import Blog, ChatConversation, Destination , Photo , Review, TrekkingRoute
    
 class UserRole(str, Enum):
     traveler = "traveler"
@@ -56,6 +56,7 @@ class User(SQLModel, table=True):
     trips: List["UserTrip"] = Relationship(back_populates="user")
     saved_destinations: List["SavedDestination"] = Relationship(back_populates="user")
     chat_conversations: List["ChatConversation"] = Relationship(back_populates="user")
+    blogs: List["Blog"] = Relationship(back_populates="author")
 
 
 # ---------------------------------------------------------------------------
