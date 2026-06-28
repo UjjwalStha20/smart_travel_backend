@@ -12,6 +12,7 @@ from app.core.logging import setup_logging
 from app.routers import (auth,
     accommodation,
     address,
+    admin,
     attraction,
     blog,
     chat,
@@ -29,6 +30,7 @@ from app.routers import (auth,
     trekking_route,
     user,
     user_trip,
+    activity_log,
 )
 
 setup_logging()
@@ -50,6 +52,7 @@ app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(accommodation.router)
 app.include_router(address.router)
+app.include_router(admin.router)
 app.include_router(attraction.router)
 app.include_router(chat.router)
 app.include_router(destination.router)
@@ -70,6 +73,7 @@ app.include_router(saved_destination.router)
 app.include_router(trekking_route.router)
 app.include_router(user.router)
 app.include_router(user_trip.router)
+app.include_router(activity_log.router)
 
 
 

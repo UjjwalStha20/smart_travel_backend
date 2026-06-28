@@ -13,3 +13,4 @@ from .entry_fee_model import EntryFee, EntryCategory
 from .blog_model import Blog
 from .chat_model import ChatConversation, ChatMessage
 from .destination_itinerary_model import DestinationItinerary
+from .activity_log_model import ActivityLog

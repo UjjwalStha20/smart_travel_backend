@@ -1,10 +1,13 @@
-from fastapi import APIRouter, Query
+from typing import Annotated
 
-from app.dependencies import SessionDep
-from app.models import Blog
+from fastapi import APIRouter, Depends, Query
+
+from app.dependencies import SessionDep, require_admin
+from app.models import Blog, User
 from app.schemas import BlogCreate, BlogUpdate
 from app.schemas.pagination import PaginatedResponse
 from app.services import BlogService
+from app.services.activity_log_service import ActivityLogService
 
 router = APIRouter(prefix="/blogs", tags=["Blogs"])
 
@@ -28,13 +31,28 @@ class BlogRouter:
         return BlogService(session).get_by_id(blog_id)
 
     @router.post("/", response_model=Blog, status_code=201)
-    async def create(data: BlogCreate, session: SessionDep):
-        return BlogService(session).create(data)
+    async def create(data: BlogCreate, session: SessionDep, admin: Annotated[User, Depends(require_admin)]):
+        result = BlogService(session).create(data)
+        ActivityLogService(session).log(
+            user_id=admin.id, user_name=admin.name,
+            action="Created", target=f"Blog: {result.title}", type="content",
+        )
+        return result
 
     @router.put("/{blog_id}", response_model=Blog, status_code=200)
-    async def update(blog_id: str, data: BlogUpdate, session: SessionDep):
-        return BlogService(session).update(blog_id, data)
+    async def update(blog_id: str, data: BlogUpdate, session: SessionDep, admin: Annotated[User, Depends(require_admin)]):
+        result = BlogService(session).update(blog_id, data)
+        ActivityLogService(session).log(
+            user_id=admin.id, user_name=admin.name,
+            action="Updated", target=f"Blog: {result.title}", type="content",
+        )
+        return result
 
     @router.delete("/{blog_id}", status_code=200)
-    async def delete(blog_id: str, session: SessionDep):
+    async def delete(blog_id: str, session: SessionDep, admin: Annotated[User, Depends(require_admin)]):
+        blog = BlogService(session).get_by_id(blog_id)
+        ActivityLogService(session).log(
+            user_id=admin.id, user_name=admin.name,
+            action="Deleted", target=f"Blog: {blog.title}", type="content",
+        )
         return BlogService(session).delete(blog_id)
