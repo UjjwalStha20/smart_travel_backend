@@ -1,0 +1,15 @@
+key,destination_key,attraction_types,opening_hours,visit_duration_hours
+attr_pashupatinath,dest_pashupatinath,"[""temple"",""heritage""]","6:00 AM - 8:00 PM",2.5
+attr_boudhanath,dest_boudhanath,"[""heritage""]","24 hours (stupa grounds)",1.5
+attr_swayambhunath,dest_swayambhunath,"[""temple"",""heritage"",""viewpoint""]","5:00 AM - 9:00 PM",2.0
+attr_bhaktapur_durbar,dest_bhaktapur_durbar,"[""heritage""]","7:00 AM - 7:00 PM",3.0
+attr_patan_durbar,dest_patan_durbar,"[""heritage""]","7:00 AM - 6:00 PM",2.5
+attr_lumbini,dest_lumbini,"[""heritage""]","6:00 AM - 6:00 PM",4.0
+attr_janaki,dest_janaki_mandir,"[""heritage"",""temple""]","5:00 AM - 9:00 PM",1.5
+attr_chitwan,dest_chitwan,"[""hiking"",""heritage""]","6:00 AM - 5:00 PM",6.0
+attr_phewa,dest_phewa_lake,"[""lake"",""viewpoint""]","5:00 AM - 7:00 PM",3.0
+attr_nagarkot,dest_nagarkot,"[""viewpoint""]","Sunrise - Sunset",2.0
+attr_bandipur,dest_bandipur,"[""heritage"",""viewpoint""]","24 hours",4.0
+attr_manakamana,dest_manakamana,"[""temple"",""viewpoint""]","6:00 AM - 5:00 PM",2.0
+attr_chandragiri,dest_chandragiri,"[""viewpoint"",""heritage""]","7:00 AM - 5:00 PM",3.0
+attr_gosaikunda,dest_gosaikunda,"[""lake"",""hiking"",""heritage""]","Sunrise - Sunset",3.0

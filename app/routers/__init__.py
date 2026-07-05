@@ -14,3 +14,6 @@ from .route_point import router as route_point_router
 from .saved_destination import router as saved_destination_router
 from .trekking_route import router as trekking_route_router
 from .user_trip import router as user_trip_router
+from .destination_itinerary import router as destination_itinerary_router
+from .blog import router as blog_router
+from .activity_log import router as activity_log_router

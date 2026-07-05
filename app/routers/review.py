@@ -5,6 +5,7 @@ from app.models import Review
 from app.schemas import ReviewCreate, ReviewUpdate
 from app.schemas.pagination import PaginatedResponse
 from app.services import ReviewService
+from app.services.activity_log_service import ActivityLogService
 
 router = APIRouter(prefix="/reviews", tags=["Reviews"])
 
@@ -21,7 +22,12 @@ class ReviewRouter:
     @router.post("/", response_model=Review, status_code=201)
     async def create_review(review_data: ReviewCreate, session: SessionDep, current_user: CurrentUser):
         data = review_data.model_dump() | {"user_id": current_user.id}
-        return ReviewService(session).create_review(data)
+        result = ReviewService(session).create_review(data)
+        ActivityLogService(session).log(
+            user_id=current_user.id, user_name=current_user.name,
+            action="Created", target="Review", type="content",
+        )
+        return result
 
     @router.put("/{review_id}", response_model=Review, status_code=200)
     async def update_review(review_id: str, review_data: ReviewUpdate, session: SessionDep, current_user: CurrentUser):
@@ -35,4 +41,8 @@ class ReviewRouter:
         existing = ReviewService(session).get_review_by_id(review_id)
         if existing.user_id != current_user.id and current_user.role != "admin":
             raise HTTPException(status_code=403, detail="Not your review")
+        ActivityLogService(session).log(
+            user_id=current_user.id, user_name=current_user.name,
+            action="Deleted", target="Review", type="content",
+        )
         return ReviewService(session).delete_review(review_id)

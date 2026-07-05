@@ -9,6 +9,7 @@ from app.dependencies import SessionDep, require_admin
 from app.models import User
 from app.schemas.destination_schema import DestinationCreate, DestinationRead, DestinationUpdate
 from app.services.destination_service import DestinationService
+from app.services.activity_log_service import ActivityLogService
 
 
 router = APIRouter(prefix="/destinations", tags=["destinations"])
@@ -43,6 +44,10 @@ class DestinationRouter:
         )
     
 
+    @router.get("/stats", status_code=200)
+    def get_destinations_stats(session: Session = Depends(get_session)):
+        return DestinationService(session).get_destinations_stats()
+
     @router.get("/{destination_id}")
     async def get_destination_by_id(session: SessionDep, destination_id: uuid.UUID):
         return DestinationService(session).get_destination_by_id(str(destination_id))
@@ -50,14 +55,30 @@ class DestinationRouter:
     @router.post("/")
     async def create_destination(session: SessionDep, destination: DestinationCreate, admin: Annotated[User, Depends(require_admin)]):
         """Create a new destination."""
-        return DestinationService(session).create_destination(destination)
+        result = DestinationService(session).create_destination(destination)
+        ActivityLogService(session).log(
+            user_id=admin.id, user_name=admin.name,
+            action="Created", target=f"Destination: {destination.name}", type="content",
+        )
+        return result
     
     @router.put("/{destination_id}")
     async def update_destination(session: SessionDep, destination_id: uuid.UUID, destination: DestinationUpdate, admin: Annotated[User, Depends(require_admin)]):
         """Update a destination by ID."""
-        return DestinationService(session).update_destination(str(destination_id), destination)
+        result = DestinationService(session).update_destination(str(destination_id), destination)
+        ActivityLogService(session).log(
+            user_id=admin.id, user_name=admin.name,
+            action="Updated", target=f"Destination: {result.name}", type="content",
+        )
+        return result
     
     @router.delete("/{destination_id}")
     async def delete_destination(session: SessionDep, destination_id: uuid.UUID, admin: Annotated[User, Depends(require_admin)]):
         """Delete a destination by ID."""
-        return DestinationService(session).delete_destination(str(destination_id))
+        name = DestinationService(session).get_destination_by_id(str(destination_id)).name
+        result = DestinationService(session).delete_destination(str(destination_id))
+        ActivityLogService(session).log(
+            user_id=admin.id, user_name=admin.name,
+            action="Deleted", target=f"Destination: {name}", type="content",
+        )
+        return result

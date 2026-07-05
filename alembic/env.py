@@ -13,6 +13,9 @@ from app.models import (
     SavedDestination, UserTrip, Itinerary,
 )
 from app.models.chat_model import ChatConversation, ChatMessage
+from app.models.destination_itinerary_model import DestinationItinerary
+from app.models.blog_model import Blog
+from app.models.activity_log_model import ActivityLog
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

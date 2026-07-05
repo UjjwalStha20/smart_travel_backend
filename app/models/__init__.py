@@ -10,4 +10,7 @@ from .route_point_model import RoutePoint
 from .food_cost_model import FoodCost
 from .accomodation_model import Accommodation
 from .entry_fee_model import EntryFee, EntryCategory
+from .blog_model import Blog
 from .chat_model import ChatConversation, ChatMessage
+from .destination_itinerary_model import DestinationItinerary
+from .activity_log_model import ActivityLog

@@ -10,8 +10,10 @@ from app.models import (
     Destination,
     DestinationCategory,
     EntryFee,
+    Photo,
     RoutePoint,
     TrekkingRoute,
+    User,
 )
 from app.schemas.destination_schema import DestinationCreate
 from app.services import AddressService
@@ -24,6 +26,10 @@ class DestinationService:
     def _destination_to_dict(self, dest: Destination) -> dict:
         data = dest.model_dump()
         data["address"] = dest.address.model_dump() if dest.address else None
+        try:
+            data["photos"] = [p.model_dump() for p in dest.photos]
+        except Exception:
+            data["photos"] = []
         if dest.category == DestinationCategory.attraction:
             try:
                 attraction = dest.attraction
@@ -94,6 +100,7 @@ class DestinationService:
             selectinload(Destination.address),
             selectinload(Destination.attraction).selectinload(Attraction.entry_fees),
             selectinload(Destination.trekking_routes).selectinload(TrekkingRoute.route_points),
+            selectinload(Destination.photos),
         )
 
         statement = self._apply_filters(statement, category, name, description, rating_min, permit_required, province, district, place)
@@ -106,6 +113,31 @@ class DestinationService:
         total = self.session.exec(count_statement).one()
         return {"items": [self._destination_to_dict(d) for d in items], "total": total, "offset": offset, "limit": limit}
     
+    def get_destinations_stats(self) -> dict:
+        total = self.session.exec(select(func.count(Destination.id))).one()
+
+        avg_rating_row = self.session.exec(
+            select(func.avg(Destination.rating)).where(Destination.rating.isnot(None))
+        ).one()
+        avg_rating = round(float(avg_rating_row), 1) if avg_rating_row else 0
+
+        provinces_row = self.session.exec(
+            select(func.count(func.distinct(Address.province)))
+            .select_from(Destination)
+            .join(Address)
+        ).one()
+
+        travelers = self.session.exec(
+            select(func.count(User.id)).where(User.role == "traveler")
+        ).one()
+
+        return {
+            "total_destinations": total,
+            "total_provinces": provinces_row,
+            "avg_rating": avg_rating,
+            "total_travelers": travelers,
+        }
+
     def get_destination_by_id(self, destination_id: str) -> dict:
         statement = (
             select(Destination)

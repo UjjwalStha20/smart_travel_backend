@@ -1,0 +1,6 @@
+key,budget_price,standard_price,luxury_price
+accom_budget,10,30,100
+accom_budget_plus,15,40,120
+accom_standard,20,50,150
+accom_premium,50,100,300
+accom_luxury,80,150,400

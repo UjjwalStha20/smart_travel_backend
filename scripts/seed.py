@@ -11,7 +11,9 @@ from app.models import (
     Accommodation,
     Address,
     Attraction,
+    Blog,
     Destination,
+    DestinationItinerary,
     EntryFee,
     FoodCost,
     Itinerary,
@@ -29,7 +31,7 @@ from sqlmodel import Session, delete, select
 
 def clear_all(session: Session):
     tables = [
-        Itinerary, UserTrip, SavedDestination, Review, Photo,
+        Blog, DestinationItinerary, Itinerary, UserTrip, SavedDestination, Review, Photo,
         Permit, EntryFee, RoutePoint, TrekkingRoute,
         Attraction, Destination, Address, Accommodation, FoodCost, User,
     ]
@@ -310,6 +312,191 @@ def main():
             ),
         ]
         session.add_all(itineraries)
+
+        # ── DESTINATION ITINERARIES ────────────────────────────────────────
+
+        dest_itineraries = [
+            DestinationItinerary(
+                destination_id=dest_attraction.id, day_number=1,
+                title="Sacred Temple Tour",
+                start_location="Main Entrance", end_location="Bagmati River",
+                overnight_location="Kathmandu",
+                estimated_walking_hours=Decimal("2.5"),
+                notes="Explore the main temple complex, observe evening aarti ceremony.",
+            ),
+            DestinationItinerary(
+                destination_id=dest_trek.id, day_number=1,
+                title="Nayapul to Tikhedhunga",
+                start_location="Nayapul", end_location="Tikhedhunga",
+                overnight_location="Tikhedhunga",
+                estimated_walking_hours=Decimal("4"),
+                notes="Easy start. Stay at teahouse in Tikhedhunga.",
+            ),
+            DestinationItinerary(
+                destination_id=dest_trek.id, day_number=2,
+                title="Tikhedhunga to Ghorepani",
+                start_location="Tikhedhunga", end_location="Ghorepani",
+                overnight_location="Ghorepani",
+                estimated_walking_hours=Decimal("6"),
+                notes="Steep climb up stone steps through rhododendron forest.",
+            ),
+            DestinationItinerary(
+                destination_id=dest_trek.id, day_number=3,
+                title="Ghorepani to Poon Hill & Tadapani",
+                start_location="Ghorepani", end_location="Tadapani",
+                overnight_location="Tadapani",
+                estimated_walking_hours=Decimal("7"),
+                notes="Early sunrise at Poon Hill (3,210m), then trek to Tadapani.",
+            ),
+            DestinationItinerary(
+                destination_id=dest_trek.id, day_number=4,
+                title="Tadapani to Machhapuchhre Base Camp",
+                start_location="Tadapani", end_location="Machhapuchhre Base Camp",
+                overnight_location="Machhapuchhre Base Camp",
+                estimated_walking_hours=Decimal("6"),
+                notes="Walk through dense forest with views of Machhapuchhre.",
+            ),
+            DestinationItinerary(
+                destination_id=dest_trek.id, day_number=5,
+                title="Machhapuchhre Base Camp to Annapurna Base Camp",
+                start_location="Machhapuchhre Base Camp", end_location="Annapurna Base Camp",
+                overnight_location="Annapurna Base Camp",
+                estimated_walking_hours=Decimal("4"),
+                notes="Arrive at ABC (4,130m). Surrounded by Annapurna massif.",
+            ),
+            DestinationItinerary(
+                destination_id=dest_trek.id, day_number=6,
+                title="Annapurna Base Camp to Bamboo",
+                start_location="Annapurna Base Camp", end_location="Bamboo",
+                overnight_location="Bamboo",
+                estimated_walking_hours=Decimal("6"),
+                notes="Descend through rhododendron and bamboo forests.",
+            ),
+            DestinationItinerary(
+                destination_id=dest_trek.id, day_number=7,
+                title="Bamboo to Nayapul",
+                start_location="Bamboo", end_location="Nayapul",
+                overnight_location="Pokhara",
+                estimated_walking_hours=Decimal("5"),
+                notes="Final descent back to Nayapul. Drive to Pokhara.",
+            ),
+        ]
+        session.add_all(dest_itineraries)
+
+        # ── BLOGS ──────────────────────────────────────────────────────────
+
+        blogs = [
+            Blog(
+                title="10 Must-Visit Temples in Kathmandu Valley",
+                slug="temples-kathmandu-valley",
+                content="""<p class="text-lg font-medium text-slate-800 dark:text-slate-200">The Kathmandu Valley is home to some of the most remarkable religious architecture in the world. With seven UNESCO World Heritage Sites within a 15-kilometer radius, it is a paradise for history lovers and spiritual seekers alike.</p>
+<p>From ancient stupas that date back over 1,500 years to intricately carved temple squares, each site tells a unique story of Nepal's rich cultural and religious heritage. Whether you are a devout pilgrim or a curious traveler, these sacred spaces offer a profound glimpse into the soul of the nation.</p>
+<h2 class="text-xl lg:text-2xl font-bold text-slate-900 dark:text-white pt-4">1. Swayambhunath Stupa (Monkey Temple)</h2>
+<p>Perched on a hilltop west of Kathmandu, Swayambhunath is one of the oldest religious sites in Nepal. The massive stupa with its all-seeing eyes of Buddha offers panoramic views of the valley.</p>
+<h2 class="text-xl lg:text-2xl font-bold text-slate-900 dark:text-white pt-4">2. Boudhanath Stupa</h2>
+<p>One of the largest spherical stupas in the world, Boudhanath is a focal point of Tibetan Buddhism in Nepal. The surrounding area is filled with monasteries and Tibetan craft shops.</p>
+<h2 class="text-xl lg:text-2xl font-bold text-slate-900 dark:text-white pt-4">3. Pashupatinath Temple</h2>
+<p>Located on the banks of the Bagmati River, Pashupatinath is one of the most sacred Hindu temples dedicated to Lord Shiva. The surrounding complex offers a fascinating glimpse into Hindu rituals.</p>""",
+                excerpt="Discover the spiritual heart of Nepal through its most iconic temples and stupas, each with a story spanning centuries.",
+                author_id=user_admin.id,
+                featured_image="https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?w=600&q=85",
+                category="Culture",
+                tags=["Temples", "Kathmandu", "Culture", "UNESCO", "Travel Guide"],
+                is_published=True,
+                published_at=datetime(2026, 3, 15, 10, 0, 0),
+            ),
+            Blog(
+                title="Beginner's Guide to Trekking in Nepal",
+                slug="beginners-guide-trekking",
+                content="""<p>Nepal offers some of the world's most spectacular trekking routes, from the iconic Everest Base Camp trek to the lush Annapurna Circuit. If you are a first-time trekker, this guide will help you prepare for your adventure.</p>
+<h2>Choosing Your Trek</h2>
+<p>For beginners, the Poon Hill trek or Ghorepani loop is ideal — short duration, moderate elevation, and breathtaking sunrise views over the Annapurna and Dhaulagiri ranges.</p>
+<h2>Permits</h2>
+<p>Most treks require a TIMS card and a national park entry permit. Your trekking agency will usually arrange these for you.</p>
+<h2>Packing Essentials</h2>
+<p>A good pair of hiking boots, warm layers, a waterproof jacket, and a reliable sleeping bag are non-negotiable. Don't forget sunscreen and a first-aid kit.</p>""",
+                excerpt="Everything you need to know before hitting the trails — from permits to packing lists and fitness tips.",
+                author_id=user_admin.id,
+                featured_image="https://images.unsplash.com/photo-1585409677983-0f6c41ca9c3b?w=600&q=85",
+                category="Trekking",
+                tags=["Trekking", "Beginners", "Nepal", "Hiking", "Adventure"],
+                is_published=True,
+                published_at=datetime(2026, 3, 10, 10, 0, 0),
+            ),
+            Blog(
+                title="Best Street Food in Pokhara",
+                slug="pokhara-street-food",
+                content="""<p>Pokhara is not just about paragliding and lake views — it is also a fantastic destination for food lovers. From cozy lakeside cafes to bustling local eateries, here are the must-try foods.</p>
+<h2>Dal Bhat</h2>
+<p>The quintessential Nepali meal — steamed rice, lentil soup, vegetable curry, and pickles. It is served at nearly every restaurant and is both delicious and filling.</p>
+<h2>Momos</h2>
+<p>Steamed or fried dumplings stuffed with buffalo, chicken, or vegetables. Dip them in spicy tomato chutney for the full experience.</p>
+<h2>Newari Khaja Set</h2>
+<p>A traditional platter featuring beaten rice, spiced meat, boiled eggs, and black soybeans. A true taste of local cuisine.</p>""",
+                excerpt="A food lover's tour of Pokhara's lakeside eateries, local dal bhat joints, and hidden culinary gems.",
+                author_id=user_john.id,
+                featured_image="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&q=85",
+                category="Food",
+                tags=["Pokhara", "Food", "Street Food", "Nepali Cuisine"],
+                is_published=True,
+                published_at=datetime(2026, 3, 5, 10, 0, 0),
+            ),
+            Blog(
+                title="Sustainable Travel Tips for Nepal",
+                slug="sustainable-travel-nepal",
+                content="""<p>As tourism in Nepal continues to grow, it is important to travel responsibly. Here are some simple ways to minimize your impact while supporting local communities.</p>
+<h2>Choose Eco-Friendly Accommodations</h2>
+<p>Many teahouses and hotels in Nepal are adopting sustainable practices—solar power, water purification, and waste management. Look for eco-certified lodgings.</p>
+<h2>Reduce Plastic Waste</h2>
+<p>Bring a reusable water bottle with a built-in filter. Many trekking areas have refill stations, reducing the need for single-use plastic bottles.</p>
+<h2>Support Local Businesses</h2>
+<p>Eat at local restaurants, hire local guides, and buy souvenirs from artisan cooperatives rather than mass-produced imports.</p>""",
+                excerpt="How to minimize your environmental impact while supporting local communities during your travels.",
+                author_id=user_john.id,
+                featured_image="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=85",
+                category="Travel Tips",
+                tags=["Sustainable", "Eco Travel", "Nepal", "Responsible Tourism"],
+                is_published=True,
+                published_at=datetime(2026, 2, 28, 10, 0, 0),
+            ),
+            Blog(
+                title="Chitwan National Park: A Wildlife Guide",
+                slug="chitwan-wildlife-guide",
+                content="""<p>Chitwan National Park is a UNESCO World Heritage Site and one of Asia's best wildlife destinations. Located in the subtropical lowlands of southern Nepal, it offers incredible biodiversity.</p>
+<h2>What You Will See</h2>
+<p>The park is famous for its one-horned rhinoceros, Bengal tigers, and over 500 species of birds. Elephant safaris and jeep tours offer the best chances for wildlife spotting.</p>
+<h2>Best Time to Visit</h2>
+<p>The dry season from October to March offers the best wildlife viewing, as animals congregate around water sources. The weather is pleasant and leeches are minimal.</p>
+<h2>Getting There</h2>
+<p>Chitwan is a 5-hour drive from Kathmandu or Pokhara. Regular tourist buses and private transfers are available.</p>""",
+                excerpt="Spot rhinos, tigers, and exotic birds in Nepal's most famous national park. Your complete safari guide.",
+                author_id=user_admin.id,
+                featured_image="https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=600&q=85",
+                category="Wildlife",
+                tags=["Chitwan", "Wildlife", "Safari", "National Park", "Nature"],
+                is_published=True,
+                published_at=datetime(2026, 2, 20, 10, 0, 0),
+            ),
+            Blog(
+                title="Festivals of Nepal: A Year-Round Calendar",
+                slug="nepal-festivals-calendar",
+                content="""<p>Nepal is a land of festivals, with celebrations happening almost every month. From the vibrant colors of Holi to the solemn beauty of Tihar, here is a guide to the major festivals.</p>
+<h2>Dashain (September-October)</h2>
+<p>The biggest and longest festival in Nepal, lasting 15 days. Families reunite, receive blessings from elders, and celebrate with feasts and flying kites.</p>
+<h2>Tihar (October-November)</h2>
+<p>The festival of lights, dedicated to worshiping crows, dogs, cows, and oxen. Homes are decorated with oil lamps and marigold garlands.</p>
+<h2>Holi (March)</h2>
+<p>The festival of colors is celebrated with great enthusiasm. People throw colored powder and water at each other, dance in the streets, and share sweets.</p>""",
+                excerpt="From Dashain to Holi, plan your trip around Nepal's vibrant festivals and cultural celebrations.",
+                author_id=user_admin.id,
+                featured_image="https://images.unsplash.com/photo-1587474260584-136574528ed5?w=600&q=85",
+                category="Culture",
+                tags=["Festivals", "Culture", "Nepal", "Dashain", "Tihar", "Holi"],
+                is_published=True,
+                published_at=datetime(2026, 2, 14, 10, 0, 0),
+            ),
+        ]
+        session.add_all(blogs)
 
         session.commit()
 

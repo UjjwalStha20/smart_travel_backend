@@ -1,0 +1,6 @@
+key,budget_price,standard_price,luxury_price
+food_budget,500,1200,2500
+food_budget_plus,300,800,1800
+food_standard,100,200,400
+food_premium,150,350,600
+food_luxury,200,500,1000

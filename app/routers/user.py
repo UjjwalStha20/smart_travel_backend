@@ -10,6 +10,7 @@ from app.models import User
 from app.schemas import UserCreate, UserRead, UserUpdate
 from app.schemas.pagination import PaginatedResponse
 from app.services.user_service import UserService
+from app.services.activity_log_service import ActivityLogService
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -31,8 +32,12 @@ class UserRouter:
     @router.post("/")
     async def create_user(session: SessionDep, user: UserCreate, admin: Annotated[User, Depends(require_admin)]):
         """Create a new user."""
-        create_user = UserService(session).create_user(user)
-        return {"message": "User created successfully", "user": create_user}
+        created = UserService(session).create_user(user)
+        ActivityLogService(session).log(
+            user_id=admin.id, user_name=admin.name,
+            action="Created", target=f"User: {created.name}", type="user",
+        )
+        return {"message": "User created successfully", "user": created}
     
     @router.put("/{user_id}")
     async def update_user(session: SessionDep, user_id: str, user: UserUpdate, current_user: CurrentUser):
@@ -46,7 +51,12 @@ class UserRouter:
         """Delete a user by ID."""
         if str(current_user.id) != user_id and current_user.role != "admin":
             raise HTTPException(status_code=403, detail="Not your profile")
+        target = UserService(session).get_user_by_id(user_id)
         user_deleted = UserService(session).delete_user(user_id)
         if user_deleted:
+            ActivityLogService(session).log(
+                user_id=current_user.id, user_name=current_user.name,
+                action="Deleted", target=f"User: {target.name}", type="user",
+            )
             return {"message": "User deleted successfully"}
         return {"message": "User not found"}

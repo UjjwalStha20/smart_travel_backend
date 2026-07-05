@@ -12,9 +12,12 @@ from app.core.logging import setup_logging
 from app.routers import (auth,
     accommodation,
     address,
+    admin,
     attraction,
+    blog,
     chat,
     destination,
+    destination_itinerary,
     entry_fee,
     food_cost,
     health,
@@ -27,6 +30,7 @@ from app.routers import (auth,
     trekking_route,
     user,
     user_trip,
+    activity_log,
 )
 
 setup_logging()
@@ -38,7 +42,7 @@ app.add_middleware(SlowAPIMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"],
+    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173", "http://localhost:4173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -48,11 +52,14 @@ app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(accommodation.router)
 app.include_router(address.router)
+app.include_router(admin.router)
 app.include_router(attraction.router)
 app.include_router(chat.router)
 app.include_router(destination.router)
 app.include_router(entry_fee.router)
 app.include_router(food_cost.router)
+app.include_router(destination_itinerary.router)
+app.include_router(blog.router)
 app.include_router(itinerary.router)
 app.include_router(permit.router)
 UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "..", "uploads")
@@ -66,6 +73,7 @@ app.include_router(saved_destination.router)
 app.include_router(trekking_route.router)
 app.include_router(user.router)
 app.include_router(user_trip.router)
+app.include_router(activity_log.router)
 
 
 
