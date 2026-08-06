@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID, uuid4
 
+from sqlalchemy import UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
@@ -15,6 +16,7 @@ if TYPE_CHECKING:
 
 class Review(SQLModel, table=True):
     __tablename__ = "review"
+    __table_args__ = (UniqueConstraint("user_id", "destination_id"),)
 
     id:             UUID          = Field(default_factory=uuid4, primary_key=True)
     user_id:        UUID          = Field(foreign_key="users.id")

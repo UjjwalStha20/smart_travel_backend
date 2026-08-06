@@ -44,6 +44,8 @@ class PhotoRouter:
     @router.post("/json", response_model=Photo, status_code=201)
     async def create_photo_json(photo_data: PhotoCreate, session: SessionDep, current_user: CurrentUser):
         data = photo_data.model_dump() | {"uploaded_by": current_user.id}
+        if not data.get("image_url"):
+            data["image_url"] = ""
         return PhotoService(session).create_photo(data)
 
     @router.put("/{photo_id}", response_model=Photo, status_code=200)

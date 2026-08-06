@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fastapi import HTTPException
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, func, select
 
 from app.models import Review
@@ -23,10 +24,22 @@ class ReviewService:
         return review
 
     def create_review(self, review_data: dict) -> Review:
+        existing = self.session.exec(
+            select(Review).where(
+                Review.user_id == review_data["user_id"],
+                Review.destination_id == review_data["destination_id"],
+            )
+        ).first()
+        if existing:
+            raise HTTPException(status_code=409, detail="You already reviewed this destination")
         review = Review(**review_data)
-        self.session.add(review)
-        self.session.commit()
-        self.session.refresh(review)
+        try:
+            self.session.add(review)
+            self.session.commit()
+            self.session.refresh(review)
+        except IntegrityError:
+            self.session.rollback()
+            raise HTTPException(status_code=409, detail="You already reviewed this destination")
         return review
 
     def update_review(self, review_id: UUID, review_data: Review) -> Review:

@@ -30,7 +30,7 @@ class DestinationItineraryRouter:
         result = DestinationItineraryService(session).create(data)
         ActivityLogService(session).log(
             user_id=admin.id, user_name=admin.name,
-            action="Created", target=f"Itinerary for destination {result.destination_name}", type="content",
+            action="Created", target=f"Itinerary for destination {result.destination_id}", type="content",
         )
         return result
 
@@ -39,7 +39,7 @@ class DestinationItineraryRouter:
         result = DestinationItineraryService(session).update(itinerary_id, data)
         ActivityLogService(session).log(
             user_id=admin.id, user_name=admin.name,
-            action="Updated", target=f"Itinerary day {result.day_number} for {result.destination_name}", type="content",
+            action="Updated", target=f"Itinerary day {result.day_number} for {result.destination_id}", type="content",
         )
         return result
 
@@ -48,6 +48,6 @@ class DestinationItineraryRouter:
         existing = DestinationItineraryService(session).get_by_id(itinerary_id)
         ActivityLogService(session).log(
             user_id=admin.id, user_name=admin.name,
-            action="Deleted", target=f"Itinerary day {existing.day_number} for {existing.destination_name}", type="content",
+            action="Deleted", target=f"Itinerary day {existing.day_number} for {existing.destination_id}", type="content",
         )
         return DestinationItineraryService(session).delete(itinerary_id)

@@ -22,6 +22,16 @@ class TestReview:
         assert resp.json()["rating"] == 4
         assert resp.json()["user_id"] is not None
 
+    def test_duplicate_review_returns_409(self, client, session, test_addresses, user_token):
+        dest = self._create_test_destination(session, test_addresses)
+        payload = {"destination_id": str(dest.id), "rating": 4, "comment": "Once"}
+        first = client.post("/reviews/", json=payload,
+                            headers={"Authorization": f"Bearer {user_token}"})
+        assert first.status_code == 201
+        second = client.post("/reviews/", json=payload,
+                             headers={"Authorization": f"Bearer {user_token}"})
+        assert second.status_code == 409
+
     def test_list_reviews_public(self, client):
         resp = client.get("/reviews/")
         assert resp.status_code == 200
@@ -112,3 +122,14 @@ class TestSavedDestination:
         resp = client.delete(f"/saved-destinations/{saved_id}",
                              headers={"Authorization": f"Bearer {user_token}"})
         assert resp.status_code in (200, 204)
+
+    def test_duplicate_save_is_idempotent(self, client, session, test_addresses, user_token):
+        dest = self._create_test_destination(session, test_addresses)
+        payload = {"destination_id": str(dest.id)}
+        first = client.post("/saved-destinations/", json=payload,
+                            headers={"Authorization": f"Bearer {user_token}"})
+        assert first.status_code == 201
+        second = client.post("/saved-destinations/", json=payload,
+                             headers={"Authorization": f"Bearer {user_token}"})
+        assert second.status_code == 201
+        assert second.json()["id"] == first.json()["id"]

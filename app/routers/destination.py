@@ -68,14 +68,15 @@ class DestinationRouter:
         result = DestinationService(session).update_destination(str(destination_id), destination)
         ActivityLogService(session).log(
             user_id=admin.id, user_name=admin.name,
-            action="Updated", target=f"Destination: {result.name}", type="content",
+            action="Updated", target=f"Destination: {result['destination'].name}", type="content",
         )
         return result
     
     @router.delete("/{destination_id}")
     async def delete_destination(session: SessionDep, destination_id: uuid.UUID, admin: Annotated[User, Depends(require_admin)]):
         """Delete a destination by ID."""
-        name = DestinationService(session).get_destination_by_id(str(destination_id)).name
+        result = DestinationService(session).get_destination_by_id(str(destination_id))
+        name = result["destination"]["name"]
         result = DestinationService(session).delete_destination(str(destination_id))
         ActivityLogService(session).log(
             user_id=admin.id, user_name=admin.name,

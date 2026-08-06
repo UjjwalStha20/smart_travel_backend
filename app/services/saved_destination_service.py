@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fastapi import HTTPException
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, func, select
 
 from app.models import SavedDestination
@@ -23,10 +24,30 @@ class SavedDestinationService:
         return saved
 
     def create_saved_destination(self, saved_data: dict) -> SavedDestination:
+        existing = self.session.exec(
+            select(SavedDestination).where(
+                SavedDestination.user_id == saved_data["user_id"],
+                SavedDestination.destination_id == saved_data["destination_id"],
+            )
+        ).first()
+        if existing:
+            return existing
         saved = SavedDestination(**saved_data)
-        self.session.add(saved)
-        self.session.commit()
-        self.session.refresh(saved)
+        try:
+            self.session.add(saved)
+            self.session.commit()
+            self.session.refresh(saved)
+        except IntegrityError:
+            self.session.rollback()
+            existing = self.session.exec(
+                select(SavedDestination).where(
+                    SavedDestination.user_id == saved_data["user_id"],
+                    SavedDestination.destination_id == saved_data["destination_id"],
+                )
+            ).first()
+            if existing:
+                return existing
+            raise HTTPException(status_code=500, detail="Failed to save destination")
         return saved
 
     def update_saved_destination(self, saved_id: UUID, saved_data: SavedDestination) -> SavedDestination:

@@ -13,6 +13,7 @@ class PhotoBase(BaseModel):
 
 class PhotoCreate(BaseModel):
     destination_id: UUID
+    image_url: Optional[str] = Field(default=None, min_length=1)
     caption: Optional[str] = Field(default=None, max_length=500)
 
 

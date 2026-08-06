@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Optional, List
 from uuid import UUID, uuid4
 
 from pydantic import EmailStr
+from sqlalchemy import UniqueConstraint
 from sqlmodel import Column, DateTime, Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
@@ -109,6 +110,7 @@ class Itinerary(SQLModel, table=True):
 
 class SavedDestination(SQLModel, table=True):
     __tablename__ = "saved_destinations"
+    __table_args__ = (UniqueConstraint("user_id", "destination_id"),)
 
     id:             UUID     = Field(default_factory=uuid4, primary_key=True)
     user_id:        UUID     = Field(foreign_key="users.id")

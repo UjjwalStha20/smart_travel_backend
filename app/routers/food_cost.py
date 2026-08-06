@@ -15,7 +15,7 @@ router = APIRouter(prefix="/food_costs", tags=["Food Costs"])
 
 class FoodCostRouter:
     @router.get("/",response_model=PaginatedResponse[FoodCost], status_code=200)
-    async def get_food_costs(session : SessionDep):
+    async def get_food_costs(session : SessionDep, offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
         """Get all food costs."""
         return FoodCostService(session).get_all_food_costs(offset=offset, limit=limit)
 

@@ -15,7 +15,7 @@ router = APIRouter(prefix="/accommodations", tags=["Accommodations"])
 class AccommodationRouter:
 
     @router.get("/",response_model=PaginatedResponse[Accommodation], status_code=200)
-    async def get_accommodations(session : SessionDep):
+    async def get_accommodations(session : SessionDep, offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
         """Get all accommodations."""
         return AccommodationService(session).get_all_accommodations(offset=offset, limit=limit)
 

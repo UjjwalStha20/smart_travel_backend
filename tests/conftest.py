@@ -28,7 +28,7 @@ engine = create_engine(TEST_DB_URL, echo=False)
 
 
 def override_get_session() -> Generator[Session, None, None]:
-    with Session(engine) as session:
+    with Session(engine, expire_on_commit=False) as session:
         yield session
 
 
@@ -41,7 +41,7 @@ def setup_db():
 
 @pytest.fixture
 def session(setup_db) -> Generator[Session, None, None]:
-    with Session(engine) as s:
+    with Session(engine, expire_on_commit=False) as s:
         yield s
 
 

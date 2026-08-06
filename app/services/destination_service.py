@@ -217,7 +217,7 @@ class DestinationService:
         existing.sqlmodel_update(dump)
         existing.address_id = address.id
 
-        if destination_data.attraction and existing.category == DestinationCategory.attraction:
+        if getattr(destination_data, "attraction", None) and existing.category == DestinationCategory.attraction:
             if existing.attraction:
                 attr = existing.attraction
                 attr.attraction_types = destination_data.attraction.attraction_types
@@ -234,7 +234,7 @@ class DestinationService:
                 self.session.add(attr)
                 self.session.flush()
 
-        if destination_data.trekking_routes and existing.category == DestinationCategory.trek:
+        if getattr(destination_data, "trekking_routes", None) and existing.category == DestinationCategory.trek:
             for tr_data in destination_data.trekking_routes:
                 tr = TrekkingRoute(
                     destination_id=existing.id,
