@@ -2,7 +2,9 @@ from decimal import Decimal
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
+
+from app.schemas.address_schema import AddressCreate
 
 
 class RoutePointBase(BaseModel):
@@ -33,9 +35,16 @@ class RoutePointNested(BaseModel):
     walking_hours_from_previous: Optional[Decimal] = Field(default=None, ge=0)
     overnight_stop: bool = False
     description: Optional[str] = Field(default=None, min_length=1)
-    address_id: UUID
+    address: Optional[AddressCreate] = None
+    address_id: Optional[UUID] = None
     accommodation_id: Optional[UUID] = None
     food_cost_id: Optional[UUID] = None
+
+    @model_validator(mode="after")
+    def check_address(self):
+        if self.address is None and self.address_id is None:
+            raise ValueError("Route point requires an address or address_id")
+        return self
 
 
 class RoutePointUpdate(BaseModel):

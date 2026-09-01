@@ -1,4 +1,6 @@
+import os
 from typing import List, Optional
+from uuid import UUID
 
 from fastapi import HTTPException
 from sqlmodel import Session, func, select
@@ -10,13 +12,20 @@ from app.models import (
     Destination,
     DestinationCategory,
     EntryFee,
+    Itinerary,
+    Permit,
     Photo,
+    Review,
     RoutePoint,
+    SavedDestination,
+    DestinationItinerary,
     TrekkingRoute,
     User,
+    UserTrip,
 )
 from app.schemas.destination_schema import DestinationCreate
 from app.services import AddressService
+from app.services.photo_service import PhotoService, UPLOAD_DIR
 
 
 class DestinationService:
@@ -54,7 +63,15 @@ class DestinationService:
             for tr in trekking_routes:
                 tr_data = tr.model_dump()
                 try:
-                    tr_data["route_points"] = [rp.model_dump() for rp in tr.route_points]
+                    points = []
+                    for rp in tr.route_points:
+                        rp_data = rp.model_dump()
+                        try:
+                            rp_data["address"] = rp.address.model_dump()
+                        except Exception:
+                            rp_data["address"] = None
+                        points.append(rp_data)
+                    tr_data["route_points"] = points
                 except Exception:
                     tr_data["route_points"] = []
                 data["trekking_routes"].append(tr_data)
@@ -157,7 +174,12 @@ class DestinationService:
             "destination": self._destination_to_dict(destination)
         }
     
-    def create_destination(self, destination_data: DestinationCreate) -> dict:
+    def create_destination(
+        self,
+        destination_data: DestinationCreate,
+        photo_uploads: Optional[List[tuple[str, bytes]]] = None,
+        uploaded_by: Optional[UUID] = None,
+    ) -> dict:
         address = AddressService(self.session).get_or_create_address(destination_data.address)
 
         dump = destination_data.model_dump(exclude={"address", "attraction", "trekking_routes"})
@@ -196,46 +218,104 @@ class DestinationService:
                 self.session.add(tr)
                 self.session.flush()
 
-                if tr_data.route_points:
-                    self.session.add_all([
-                        RoutePoint(route_id=tr.id, **rp.model_dump())
-                        for rp in tr_data.route_points
-                    ])
+                if tr_data.route_points is not None:
+                    self._replace_route_points(tr, tr_data.route_points)
 
         self.session.commit()
         self.session.refresh(destination)
 
+        if photo_uploads and uploaded_by is not None:
+            photo_service = PhotoService(self.session)
+            for filename, content in photo_uploads:
+                photo_service.create_photo_from_upload(
+                    destination_id=destination.id, user_id=uploaded_by,
+                    filename=filename, content=content,
+                )
+
         # reload with relationships for the response
         return self.get_destination_by_id(str(destination.id))
 
-    def update_destination(self, destination_id: str, destination_data) -> dict:
-        existing = self.session.get(Destination, destination_id)
-        if not existing:
-            raise HTTPException(status_code=404, detail="Destination not found")
-        address = AddressService(self.session).get_or_create_address(destination_data.address)
-        dump = destination_data.model_dump(exclude={"address", "attraction", "trekking_routes"}, exclude_unset=True)
-        existing.sqlmodel_update(dump)
-        existing.address_id = address.id
+    def _replace_attraction(self, existing: Destination, attr_data) -> None:
+        if existing.attraction:
+            attr = existing.attraction
+            attr.attraction_types = attr_data.attraction_types
+            attr.opening_hours = attr_data.opening_hours
+            attr.visit_duration_hours = attr_data.visit_duration_hours
+            fees = list(attr.entry_fees or [])
+            for fee in fees:
+                self.session.delete(fee)
+            attr.entry_fees = []
+            self.session.flush()
+        else:
+            attr = Attraction(
+                destination_id=existing.id,
+                attraction_types=attr_data.attraction_types,
+                opening_hours=attr_data.opening_hours,
+                visit_duration_hours=attr_data.visit_duration_hours,
+            )
+            self.session.add(attr)
+            self.session.flush()
 
-        if getattr(destination_data, "attraction", None) and existing.category == DestinationCategory.attraction:
-            if existing.attraction:
-                attr = existing.attraction
-                attr.attraction_types = destination_data.attraction.attraction_types
-                attr.opening_hours = destination_data.attraction.opening_hours
-                attr.visit_duration_hours = destination_data.attraction.visit_duration_hours
-                self.session.add(attr)
+        if attr_data.entry_fees:
+            self.session.add_all(
+                EntryFee(attraction_id=attr.id, category=f.category, price=f.price)
+                for f in attr_data.entry_fees
+            )
+
+    def _replace_route_points(self, route: TrekkingRoute, points_data) -> None:
+        for rp in list(route.route_points or []):
+            self.session.delete(rp)
+        route.route_points = []
+        self.session.flush()
+
+        created = []
+        for rp in points_data:
+            address_id = getattr(rp, "address_id", None)
+            if getattr(rp, "address", None):
+                address = AddressService(self.session).get_or_create_address(rp.address)
+                address_id = address.id
+            if not address_id:
+                raise HTTPException(status_code=400, detail="Route point requires an address")
+            point = RoutePoint(
+                route_id=route.id,
+                sequence_no=rp.sequence_no,
+                name=rp.name,
+                distance_from_previous_km=rp.distance_from_previous_km,
+                walking_hours_from_previous=rp.walking_hours_from_previous,
+                overnight_stop=rp.overnight_stop,
+                description=rp.description,
+                address_id=address_id,
+                accommodation_id=getattr(rp, "accommodation_id", None),
+                food_cost_id=getattr(rp, "food_cost_id", None),
+            )
+            self.session.add(point)
+            created.append(point)
+        self.session.flush()
+        route.route_points = created
+
+    def _replace_trekking_routes(self, existing: Destination, routes_data) -> None:
+        existing_routes = list(existing.trekking_routes or [])
+        referenced_ids = set()
+        if existing_routes:
+            stmt = select(UserTrip.route_id).where(
+                UserTrip.route_id.in_([r.id for r in existing_routes])
+            )
+            referenced_ids = {row for row in self.session.exec(stmt).all()}
+
+        # update existing routes in place so user trips referencing them stay intact
+        for i, tr_data in enumerate(routes_data):
+            if i < len(existing_routes):
+                route = existing_routes[i]
+                route.route_name = tr_data.route_name
+                route.difficulty = tr_data.difficulty
+                route.total_distance_km = tr_data.total_distance_km
+                route.recommended_days = tr_data.recommended_days
+                route.max_altitude = tr_data.max_altitude
+                route.description = tr_data.description
+                self.session.add(route)
+                if tr_data.route_points is not None:
+                    self._replace_route_points(route, tr_data.route_points)
             else:
-                attr = Attraction(
-                    destination_id=existing.id,
-                    attraction_types=destination_data.attraction.attraction_types,
-                    opening_hours=destination_data.attraction.opening_hours,
-                    visit_duration_hours=destination_data.attraction.visit_duration_hours,
-                )
-                self.session.add(attr)
-                self.session.flush()
-
-        if getattr(destination_data, "trekking_routes", None) and existing.category == DestinationCategory.trek:
-            for tr_data in destination_data.trekking_routes:
                 tr = TrekkingRoute(
                     destination_id=existing.id,
                     route_name=tr_data.route_name,
@@ -247,21 +327,134 @@ class DestinationService:
                 )
                 self.session.add(tr)
                 self.session.flush()
-                if tr_data.route_points:
-                    self.session.add_all([
-                        RoutePoint(route_id=tr.id, **rp.model_dump())
-                        for rp in tr_data.route_points
-                    ])
+                if tr_data.route_points is not None:
+                    self._replace_route_points(tr, tr_data.route_points)
 
-        self.session.add(existing)
+        # remove only excess routes that are NOT referenced by any user trip
+        for route in existing_routes[len(routes_data):]:
+            if route.id in referenced_ids:
+                continue
+            for rp in list(route.route_points or []):
+                self.session.delete(rp)
+            route.route_points = []
+            self.session.delete(route)
+        self.session.flush()
+
+    def _sync_photos(
+        self,
+        existing: Destination,
+        keep_photo_ids: Optional[list] = None,
+        photo_uploads: Optional[List[tuple[str, bytes]]] = None,
+        uploaded_by: Optional[UUID] = None,
+    ) -> None:
+        if keep_photo_ids is not None:
+            keep = {str(i) for i in keep_photo_ids}
+            photos = list(existing.photos or [])
+            for photo in photos:
+                if str(photo.id) not in keep:
+                    if photo.image_url and photo.image_url.startswith("/uploads/"):
+                        filepath = os.path.join(UPLOAD_DIR, os.path.basename(photo.image_url))
+                        if os.path.exists(filepath):
+                            os.remove(filepath)
+                    existing.photos.remove(photo)
+                    self.session.delete(photo)
+            self.session.flush()
+        if photo_uploads and uploaded_by is not None:
+            photo_service = PhotoService(self.session)
+            for filename, content in photo_uploads:
+                photo_service.create_photo_from_upload(
+                    destination_id=existing.id, user_id=uploaded_by,
+                    filename=filename, content=content,
+                )
+
+    def update_destination(
+        self,
+        destination_id: str,
+        destination_data,
+        photo_uploads: Optional[List[tuple[str, bytes]]] = None,
+        uploaded_by: Optional[UUID] = None,
+    ) -> dict:
+        existing = self.session.get(Destination, destination_id)
+        if not existing:
+            raise HTTPException(status_code=404, detail="Destination not found")
+        address = AddressService(self.session).get_or_create_address(destination_data.address)
+        dump = destination_data.model_dump(
+            exclude={"address", "attraction", "trekking_routes", "keep_photo_ids"}, exclude_unset=True
+        )
+        existing.sqlmodel_update(dump)
+        existing.address_id = address.id
+
+        if existing.category == DestinationCategory.attraction and destination_data.attraction is not None:
+            self._replace_attraction(existing, destination_data.attraction)
+
+        if existing.category == DestinationCategory.trek:
+            self._replace_trekking_routes(existing, destination_data.trekking_routes or [])
+
+        self._sync_photos(
+            existing,
+            keep_photo_ids=destination_data.keep_photo_ids,
+            photo_uploads=photo_uploads,
+            uploaded_by=uploaded_by,
+        )
+
         self.session.commit()
         self.session.refresh(existing)
-        return {"message": "Destination updated successfully", "destination": existing}
+        return self.get_destination_by_id(str(existing.id))
 
     def delete_destination(self, destination_id: str) -> dict:
         dest = self.session.get(Destination, destination_id)
         if not dest:
             raise HTTPException(status_code=404, detail="Destination not found")
+
+        # photos (remove files + rows)
+        for photo in list(dest.photos or []):
+            if photo.image_url and photo.image_url.startswith("/uploads/"):
+                filepath = os.path.join(UPLOAD_DIR, os.path.basename(photo.image_url))
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+            self.session.delete(photo)
+        dest.photos = []
+
+        # attraction -> entry fees
+        if dest.attraction:
+            attr = dest.attraction
+            for fee in list(attr.entry_fees or []):
+                self.session.delete(fee)
+            attr.entry_fees = []
+            self.session.delete(attr)
+        dest.attraction = None
+
+        # user trips -> itineraries (must go before trekking routes: trips reference route_id)
+        for trip in list(dest.user_trips or []):
+            for it in list(trip.itineraries or []):
+                self.session.delete(it)
+            trip.itineraries = []
+            self.session.delete(trip)
+        dest.user_trips = []
+
+        # trekking routes -> route points
+        for route in list(dest.trekking_routes or []):
+            for rp in list(route.route_points or []):
+                self.session.delete(rp)
+            route.route_points = []
+            self.session.delete(route)
+        dest.trekking_routes = []
+
+        # leaf rows referencing the destination
+        for row in list(dest.permits or []):
+            self.session.delete(row)
+        dest.permits = []
+        for row in list(dest.reviews or []):
+            self.session.delete(row)
+        dest.reviews = []
+        for row in list(dest.saved_destinations or []):
+            self.session.delete(row)
+        dest.saved_destinations = []
+        for row in list(dest.destination_itineraries or []):
+            self.session.delete(row)
+        dest.destination_itineraries = []
+
+        self.session.flush()
         self.session.delete(dest)
         self.session.commit()
         return {"message": "Destination deleted successfully"}

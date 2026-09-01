@@ -115,7 +115,7 @@ def main():
                 "located on the banks of the Bagmati River. A UNESCO World "
                 "Heritage Site and a major pilgrimage destination."
             ),
-            best_time=["spring", "autumn"],
+            best_time=["March", "April", "October", "November"],
             permit_required=False, rating=5,
             address_id=addr_kathmandu.id,
         )
@@ -166,7 +166,7 @@ def main():
                 "villages, and up to the heart of the Annapurna Sanctuary "
                 "at 4,130m with breathtaking mountain views."
             ),
-            best_time=["march", "april", "october", "november"],
+            best_time=["March", "April", "October", "November"],
             permit_required=True, rating=5,
             address_id=addr_pokhara.id,
         )

@@ -1,0 +1,808 @@
+SMART TRAVEL MANAGEMENT SYSTEM — COMPLETE UML ANALYSIS
+=======================================================
+
+1. PROJECT TITLE
+----------------
+Smart Travel Management System (Nepal)
+
+
+2. PROJECT DESCRIPTION
+-----------------------
+A full-stack web application for planning and managing travel in Nepal. The
+backend provides a RESTful API for CRUD operations on travel resources
+(destinations, attractions, trekking routes, accommodations, food costs,
+permits, reviews, photos) plus an AI-powered chatbot that answers
+natural-language travel queries using OpenRouter's LLM. Users can browse
+destinations, save favorites, plan trips with itineraries, and get
+AI-assisted recommendations — all authenticated via JWT. The frontend
+(separate Vite + React app) consumes the API.
+
+
+3. PURPOSE OF THE SYSTEM
+-------------------------
+To centralize Nepal travel information (destinations, attractions, trekking
+routes, costs, permits) and provide intelligent trip planning assistance
+through an AI chatbot, making it easier for travelers to discover, compare,
+and plan their Nepal adventures.
+
+
+4. TECHNOLOGY STACK
+--------------------
+
+  Layer               | Technology
+  --------------------+-----------------------------------------------
+  Backend Framework   | FastAPI (Python 3.14+, ASGI)
+  Frontend Framework  | React + TypeScript (Vite), separate repo:
+                      |   Smart-Travel-Planner-Frontend/
+  Database            | PostgreSQL with SQLModel ORM
+                      |   (SQLAlchemy + Pydantic)
+  Authentication      | JWT (python-jose + OAuth2PasswordBearer)
+                      |   + bcrypt password hashing
+  ORM Migrations      | Alembic
+  AI/LLM              | OpenRouter API (OpenAI-compatible client)
+                      |   via openai Python SDK
+  Rate Limiting       | slowapi (60 req/min global, 3/min register,
+                      |   10/min login)
+  Testing             | pytest + httpx
+  Server              | Uvicorn (ASGI)
+  Package Manager     | uv (Python)
+
+
+5. USER ROLES
+--------------
+
+  Role        | Privileges
+  ------------+----------------------------------------------------------
+  traveler    | Default role. Can manage own profile, trips, itineraries,
+              | saved destinations, reviews, photos, chat conversations.
+              | Read access to destinations, attractions, trekking routes,
+              | etc.
+  admin       | All traveler privileges plus create/update/delete any
+              | resource (destinations, addresses, permits, etc.)
+
+
+6. MAIN MODULES / FEATURES
+---------------------------
+
+  Module              | Description
+  --------------------+---------------------------------------------------
+  Auth                | Register, login, JWT token issuance, password
+                      | hashing, current user endpoint
+  User Management     | CRUD for users; profile editing
+  Destination         | CRUD for attractions and treks with rich filtering
+                      | (category, name, location, rating, permit)
+  Address             | CRUD for location data (province, district, place,
+                      | coordinates, altitude)
+  Attraction          | CRUD for attraction-specific data (types, hours,
+                      | duration), linked to EntryFee
+  Trekking Route      | CRUD for routes with difficulty, distance, days,
+                      | altitude, plus RoutePoints
+  Route Point         | CRUD for waypoints on trekking routes (sequence,
+                      | distance, hours, overnight, address, accommodation,
+                      | food)
+  Accommodation       | CRUD for lodging pricing (budget/standard/luxury)
+  Food Cost           | CRUD for meal pricing (budget/standard/luxury)
+  Entry Fee           | CRUD for attraction entry fees (Nepali/SAARC/
+                      | Foreign categories)
+  Permit              | CRUD for trekking permits (Nepali/SAARC/Foreign)
+  Photo               | Upload/download photos (file validation: images
+                      | only, 10MB max); static serving via /uploads
+  Review              | CRUD for user ratings and comments on destinations
+  Saved Destination   | Bookmark destinations
+  User Trip           | Plan trips (pace, budget, duration, status)
+  Itinerary           | Day-by-day trip breakdown
+  AI Chat             | Natural-language Q&A powered by OpenRouter LLM
+                      | with tool calling (10 functions across 5 tools)
+  Health              | Simple health-check endpoint
+
+
+7. API ENDPOINTS
+-----------------
+
+  AUTH (/auth)
+
+    Method  Route              Auth?  Purpose
+    ------  -----------------  -----  --------------------------------
+    POST    /auth/register     No     Register new user (3/min limit)
+    POST    /auth/login        No     Login, returns JWT (10/min limit)
+    GET     /auth/me           Yes    Get current user profile
+
+  USERS (/users)
+
+    Method  Route              Auth?  Purpose
+    ------  -----------------  -----  --------------------------------
+    GET     /users/            Admin  List all users (paginated)
+    GET     /users/{id}        Yes    Get user by ID
+    POST    /users/            Admin  Create user
+    PUT     /users/{id}        Yes    Update own profile (or admin)
+    DELETE  /users/{id}        Yes    Delete own account (or admin)
+
+  DESTINATIONS (/destinations)
+
+    Method  Route                   Auth?  Purpose
+    ------  ----------------------  -----  --------------------------------
+    GET     /destinations/          No     List destinations (9 filters)
+    GET     /destinations/{id}      No     Get destination with full
+                                          details
+    POST    /destinations/          Admin  Create destination (nested
+                                          attraction/trekking)
+    PUT     /destinations/{id}      Admin  Update destination
+    DELETE  /destinations/{id}      Admin  Delete destination
+
+  ADDRESSES (/addresses)
+
+    Method  Route              Auth?  Purpose
+    ------  -----------------  -----  --------------------------------
+    GET     /addresses/        Yes    List addresses (paginated)
+    GET     /addresses/{id}    Yes    Get address
+    POST    /addresses/        Admin  Create address
+    PUT     /addresses/{id}    Admin  Update address
+    DELETE  /addresses/{id}    Admin  Delete address
+
+  ATTRACTIONS (/attractions)
+
+    Method  Route               Auth?  Purpose
+    ------  ------------------  -----  --------------------------------
+    GET     /attractions/       No     List attractions (paginated)
+    GET     /attractions/{id}   No     Get attraction
+    POST    /attractions/       Admin  Create attraction
+    PUT     /attractions/{id}   Admin  Update attraction
+    DELETE  /attractions/{id}   Admin  Delete attraction
+
+  ACCOMMODATIONS (/accommodations)
+
+    Method  Route                    Auth?  Purpose
+    ------  -----------------------  -----  --------------------------------
+    GET     /accommodations/         No     List accommodations (paginated)
+    GET     /accommodations/{id}     No     Get accommodation
+    POST    /accommodations/         Admin  Create accommodation
+    PUT     /accommodations/{id}     Admin  Update accommodation
+    DELETE  /accommodations/{id}     Admin  Delete accommodation
+
+  TREKKING ROUTES (/trekking-routes)
+
+    Method  Route                    Auth?  Purpose
+    ------  -----------------------  -----  --------------------------------
+    GET     /trekking-routes/        No     List trekking routes (paginated)
+    GET     /trekking-routes/{id}    No     Get trekking route
+    POST    /trekking-routes/        Admin  Create trekking route
+    PUT     /trekking-routes/{id}    Admin  Update trekking route
+    DELETE  /trekking-routes/{id}    Admin  Delete trekking route
+
+  ROUTE POINTS (/route-points)
+
+    Method  Route                  Auth?  Purpose
+    ------  ---------------------  -----  --------------------------------
+    GET     /route-points/         No     List route points (paginated)
+    GET     /route-points/{id}     No     Get route point
+    POST    /route-points/         Admin  Create route point
+    PUT     /route-points/{id}     Admin  Update route point
+    DELETE  /route-points/{id}     Admin  Delete route point
+
+  FOOD COSTS (/food-costs)
+
+    Method  Route                Auth?  Purpose
+    ------  -------------------  -----  --------------------------------
+    GET     /food-costs/         No     List food costs (paginated)
+    GET     /food-costs/{id}     No     Get food cost
+    POST    /food-costs/         Admin  Create food cost
+    PUT     /food-costs/{id}     Admin  Update food cost
+    DELETE  /food-costs/{id}     Admin  Delete food cost
+
+  ENTRY FEES (/entry-fees)
+
+    Method  Route                Auth?  Purpose
+    ------  -------------------  -----  --------------------------------
+    GET     /entry-fees/         No     List entry fees (paginated)
+    GET     /entry-fees/{id}     No     Get entry fee
+    POST    /entry-fees/         Admin  Create entry fee
+    PUT     /entry-fees/{id}     Admin  Update entry fee
+    DELETE  /entry-fees/{id}     Admin  Delete entry fee
+
+  PERMITS (/permits)
+
+    Method  Route              Auth?  Purpose
+    ------  -----------------  -----  --------------------------------
+    GET     /permits/          No     List permits (paginated)
+    GET     /permits/{id}      No     Get permit
+    POST    /permits/          Admin  Create permit
+    PUT     /permits/{id}      Admin  Update permit
+    DELETE  /permits/{id}      Admin  Delete permit
+
+  REVIEWS (/reviews)
+
+    Method  Route              Auth?  Purpose
+    ------  -----------------  -----  --------------------------------
+    GET     /reviews/          No     List reviews (paginated)
+    GET     /reviews/{id}      No     Get review
+    POST    /reviews/          Yes    Create review
+    PUT     /reviews/{id}      Yes    Update own review
+    DELETE  /reviews/{id}      Yes    Delete own review (or admin)
+
+  PHOTOS (/photos)
+
+    Method  Route              Auth?  Purpose
+    ------  -----------------  -----  --------------------------------
+    GET     /photos/           No     List photos (paginated)
+    GET     /photos/{id}       No     Get photo
+    POST    /photos/           Yes    Upload photo (file, validated)
+    POST    /photos/json       Yes    Create photo from JSON
+    PUT     /photos/{id}       Yes    Update own photo
+    DELETE  /photos/{id}       Yes    Delete own photo (or admin)
+
+  SAVED DESTINATIONS (/saved-destinations)
+
+    Method  Route                         Auth?  Purpose
+    ------  ----------------------------  -----  ----------------------------
+    GET     /saved-destinations/          Yes    List user's saved
+                                                 destinations (paginated)
+    GET     /saved-destinations/{id}      Yes    Get saved destination
+    POST    /saved-destinations/          Yes    Save a destination
+    DELETE  /saved-destinations/{id}      Yes    Unsave a destination
+
+  USER TRIPS (/user-trips)
+
+    Method  Route                Auth?  Purpose
+    ------  -------------------  -----  --------------------------------
+    GET     /user-trips/         Yes    List own trips (paginated)
+    GET     /user-trips/{id}     Yes    Get trip details
+    POST    /user-trips/         Yes    Create trip
+    PUT     /user-trips/{id}     Yes    Update own trip
+    DELETE  /user-trips/{id}     Yes    Delete own trip
+
+  ITINERARIES (/itineraries)
+
+    Method  Route                     Auth?  Purpose
+    ------  ------------------------  -----  --------------------------------
+    GET     /itineraries/             No     List itineraries (paginated)
+    GET     /itineraries/{id}         No     Get itinerary
+    POST    /itineraries/             Yes    Create itinerary for own trip
+    PUT     /itineraries/{id}         Yes    Update own itinerary
+    DELETE  /itineraries/{id}         Yes    Delete own itinerary
+
+  CHAT (/chat)
+
+    Method  Route                              Auth?  Purpose
+    ------  ---------------------------------  -----  ------------------------
+    POST    /chat/                             Yes    Send message to AI
+                                                      assistant
+    GET     /chat/conversations                Yes    List own conversations
+                                                      (paginated, with msg
+                                                      counts)
+    GET     /chat/conversations/{id}           Yes    Get conversation with
+                                                      messages
+    DELETE  /chat/conversations/{id}           Yes    Delete own conversation
+
+  HEALTH (/health)
+
+    Method  Route        Auth?  Purpose
+    ------  -----------  -----  --------------------------------
+    GET     /health      No     Health check
+
+
+8. DATABASE SCHEMA
+-------------------
+
+  TABLE: users
+  +-------------+-------------+------+-----+---------------------------+
+  | Field       | Type        | PK   | FK  | Notes                     |
+  +-------------+-------------+------+-----+---------------------------+
+  | id          | UUID        | PK   |     | uuid4                     |
+  | name        | VARCHAR     |      |     |                           |
+  | role        | ENUM        |      |     | traveler/guide/admin      |
+  | nationality | VARCHAR?    |      |     | Optional                  |
+  | email       | VARCHAR     |      |     | UNIQUE                    |
+  | password    | VARCHAR     |      |     | bcrypt hash               |
+  | phone       | VARCHAR?    |      |     | Optional                  |
+  | created_at  | DATETIME    |      |     | Timezone-aware            |
+  | updated_at  | DATETIME    |      |     | Timezone-aware            |
+  +-------------+-------------+------+-----+---------------------------+
+
+  TABLE: destination
+  +-----------------+-------------+------+------+---------------------------+
+  | Field           | Type        | PK   | FK   | Notes                     |
+  +-----------------+-------------+------+------+---------------------------+
+  | id              | UUID        | PK   |      | uuid4                     |
+  | name            | VARCHAR     |      |      |                           |
+  | category        | ENUM        |      |      | attraction/trek           |
+  | description     | TEXT        |      |      |                           |
+  | best_time       | JSON        |      |      | List                      |
+  | permit_required | BOOLEAN     |      |      | Default false             |
+  | rating          | INT?        |      |      | 1-5, optional             |
+  | created_at      | DATETIME    |      |      |                           |
+  | address_id      | UUID        |      | FK→  | address.id                |
+  +-----------------+-------------+------+------+---------------------------+
+
+  TABLE: address
+  +-----------+-------------+------+------+---------------------------+
+  | Field     | Type        | PK   | FK   | Notes                     |
+  +-----------+-------------+------+------+---------------------------+
+  | id        | UUID        | PK   |      | uuid4                     |
+  | province  | VARCHAR     |      |      |                           |
+  | district  | VARCHAR     |      |      |                           |
+  | place     | VARCHAR?    |      |      | Optional                  |
+  | latitude  | FLOAT       |      |      |                           |
+  | longitude | FLOAT       |      |      |                           |
+  | altitude  | FLOAT       |      |      |                           |
+  +-----------+-------------+------+------+---------------------------+
+
+  TABLE: attraction
+  +----------------------+-------------+------+------+---------------------------+
+  | Field                | Type        | PK   | FK   | Notes                     |
+  +----------------------+-------------+------+------+---------------------------+
+  | id                   | UUID        | PK   |      | uuid4                     |
+  | destination_id       | UUID        |      | FK→  | destination.id (UNIQUE)   |
+  | attraction_types     | JSON?       |      |      | List of types             |
+  | opening_hours        | VARCHAR?    |      |      | Optional                  |
+  | visit_duration_hours | DECIMAL?    |      |      | Optional                  |
+  +----------------------+-------------+------+------+---------------------------+
+
+  TABLE: entry_fee
+  +---------------+---------------+------+------+---------------------------+
+  | Field         | Type          | PK   | FK   | Notes                     |
+  +---------------+---------------+------+------+---------------------------+
+  | id            | UUID          | PK   |      | uuid4                     |
+  | attraction_id | UUID          |      | FK→  | attraction.id             |
+  | category      | ENUM          |      |      | Nepali/SAARC/Foreign      |
+  | price         | DECIMAL       |      |      |                           |
+  | UNIQUE        | (attraction_id, category) |                        |
+  +---------------+---------------+------+------+---------------------------+
+
+  TABLE: trekking_routes
+  +-------------------+-------------+------+------+---------------------------+
+  | Field             | Type        | PK   | FK   | Notes                     |
+  +-------------------+-------------+------+------+---------------------------+
+  | id                | UUID        | PK   |      | uuid4                     |
+  | destination_id    | UUID        |      | FK→  | destination.id            |
+  | route_name        | VARCHAR     |      |      |                           |
+  | difficulty        | ENUM        |      |      | easy/moderate/hard        |
+  | total_distance_km | DECIMAL?    |      |      |                           |
+  | recommended_days  | INT?        |      |      |                           |
+  | max_altitude      | INT?        |      |      |                           |
+  | description       | TEXT?       |      |      |                           |
+  +-------------------+-------------+------+------+---------------------------+
+
+  TABLE: route_points
+  +----------------------------+-------------+------+------+---------------------------+
+  | Field                      | Type        | PK   | FK   | Notes                     |
+  +----------------------------+-------------+------+------+---------------------------+
+  | id                         | UUID        | PK   |      | uuid4                     |
+  | route_id                   | UUID        |      | FK→  | trekking_routes.id        |
+  | sequence_no                | INT         |      |      |                           |
+  | name                       | VARCHAR     |      |      |                           |
+  | distance_from_previous_km  | DECIMAL?    |      |      |                           |
+  | walking_hours_from_previous| DECIMAL?    |      |      |                           |
+  | overnight_stop             | BOOLEAN     |      |      |                           |
+  | description                | TEXT?       |      |      |                           |
+  | address_id                 | UUID        |      | FK→  | address.id                |
+  | accommodation_id           | UUID?       |      | FK→  | accommodation.id          |
+  | food_cost_id               | UUID?       |      | FK→  | food_cost.id              |
+  +----------------------------+-------------+------+------+---------------------------+
+
+  TABLE: accommodation
+  +----------------+-------------+------+------+---------------------------+
+  | Field          | Type        | PK   | FK   | Notes                     |
+  +----------------+-------------+------+------+---------------------------+
+  | id             | UUID        | PK   |      | uuid4                     |
+  | budget_price   | DECIMAL     |      |      |                           |
+  | standard_price | DECIMAL?    |      |      |                           |
+  | luxury_price   | DECIMAL?    |      |      |                           |
+  +----------------+-------------+------+------+---------------------------+
+
+  TABLE: food_cost
+  +----------------+-------------+------+------+---------------------------+
+  | Field          | Type        | PK   | FK   | Notes                     |
+  +----------------+-------------+------+------+---------------------------+
+  | id             | UUID        | PK   |      | uuid4                     |
+  | budget_price   | DECIMAL     |      |      |                           |
+  | standard_price | DECIMAL?    |      |      |                           |
+  | luxury_price   | DECIMAL?    |      |      |                           |
+  +----------------+-------------+------+------+---------------------------+
+
+  TABLE: permit
+  +----------------+-------------+------+------+---------------------------+
+  | Field          | Type        | PK   | FK   | Notes                     |
+  +----------------+-------------+------+------+---------------------------+
+  | id             | UUID        | PK   |      | uuid4                     |
+  | destination_id | UUID        |      | FK→  | destination.id            |
+  | category       | ENUM        |      |      | Nepali/SAARC/Foreign      |
+  | price          | DECIMAL     |      |      |                           |
+  +----------------+-------------+------+------+---------------------------+
+
+  TABLE: review
+  +----------------+-------------+------+------+---------------------------+
+  | Field          | Type        | PK   | FK   | Notes                     |
+  +----------------+-------------+------+------+---------------------------+
+  | id             | UUID        | PK   |      | uuid4                     |
+  | user_id        | UUID        |      | FK→  | users.id                  |
+  | destination_id | UUID        |      | FK→  | destination.id            |
+  | rating         | INT         |      |      |                           |
+  | comment        | TEXT?       |      |      | Optional                  |
+  | created_at     | DATETIME    |      |      |                           |
+  +----------------+-------------+------+------+---------------------------+
+
+  TABLE: photos
+  +----------------+-------------+------+------+---------------------------+
+  | Field          | Type        | PK   | FK   | Notes                     |
+  +----------------+-------------+------+------+---------------------------+
+  | id             | UUID        | PK   |      | uuid4                     |
+  | destination_id | UUID        |      | FK→  | destination.id            |
+  | uploaded_by    | UUID        |      | FK→  | users.id                  |
+  | image_url      | VARCHAR     |      |      |                           |
+  | caption        | TEXT?       |      |      | Optional                  |
+  +----------------+-------------+------+------+---------------------------+
+
+  TABLE: user_trips
+  +----------------+-------------+------+------+---------------------------+
+  | Field          | Type        | PK   | FK   | Notes                     |
+  +----------------+-------------+------+------+---------------------------+
+  | id             | UUID        | PK   |      | uuid4                     |
+  | user_id        | UUID        |      | FK→  | users.id                  |
+  | destination_id | UUID        |      | FK→  | destination.id            |
+  | route_id       | UUID        |      | FK→  | trekking_routes.id        |
+  | pace_type      | ENUM        |      |      | slow/normal/fast          |
+  | budget_type    | ENUM        |      |      | budget/standard/luxury    |
+  | start_date     | DATE?       |      |      |                           |
+  | end_date       | DATE?       |      |      |                           |
+  | status         | ENUM        |      |      | planned/ongoing/completed |
+  +----------------+-------------+------+------+---------------------------+
+
+  TABLE: itinerary
+  +---------------------------+-------------+------+------+---------------------------+
+  | Field                     | Type        | PK   | FK   | Notes                     |
+  +---------------------------+-------------+------+------+---------------------------+
+  | id                        | UUID        | PK   |      | uuid4                     |
+  | trip_id                   | UUID        |      | FK→  | user_trips.id             |
+  | day_number                | INT         |      |      |                           |
+  | start_location            | VARCHAR     |      |      |                           |
+  | end_location              | VARCHAR     |      |      |                           |
+  | overnight_location        | VARCHAR?    |      |      |                           |
+  | estimated_walking_hours   | DECIMAL?    |      |      |                           |
+  | notes                     | TEXT?       |      |      |                           |
+  +---------------------------+-------------+------+------+---------------------------+
+
+  TABLE: saved_destinations
+  +----------------+-------------+------+------+---------------------------+
+  | Field          | Type        | PK   | FK   | Notes                     |
+  +----------------+-------------+------+------+---------------------------+
+  | id             | UUID        | PK   |      | uuid4                     |
+  | user_id        | UUID        |      | FK→  | users.id                  |
+  | destination_id | UUID        |      | FK→  | destination.id            |
+  | created_at     | DATETIME    |      |      |                           |
+  +----------------+-------------+------+------+---------------------------+
+
+  TABLE: chat_conversation
+  +------------+-------------+------+------+---------------------------+
+  | Field      | Type        | PK   | FK   | Notes                     |
+  +------------+-------------+------+------+---------------------------+
+  | id         | UUID        | PK   |      | uuid4                     |
+  | user_id    | UUID        |      | FK→  | users.id                  |
+  | title      | VARCHAR     |      |      | Default: "New Conversation"|
+  | created_at | DATETIME    |      |      |                           |
+  | updated_at | DATETIME    |      |      |                           |
+  +------------+-------------+------+------+---------------------------+
+
+  TABLE: chat_message
+  +-----------------+-------------+------+------+---------------------------+
+  | Field           | Type        | PK   | FK   | Notes                     |
+  +-----------------+-------------+------+------+---------------------------+
+  | id              | UUID        | PK   |      | uuid4                     |
+  | conversation_id | UUID        |      | FK→  | chat_conversation.id      |
+  |                 |             |      |      | ON DELETE CASCADE         |
+  | role            | VARCHAR     |      |      | user/assistant/tool       |
+  | content         | TEXT        |      |      |                           |
+  | created_at      | DATETIME    |      |      |                           |
+  +-----------------+-------------+------+------+---------------------------+
+
+
+9. MAIN CLASSES / MODELS AND THEIR ATTRIBUTES
+-----------------------------------------------
+
+  SQLModel table=True classes (map 1:1 to tables in Section 8):
+
+    User            — id, name, role, email, password, phone,
+                      created_at, updated_at
+    Destination     — id, name, category, description, best_time,
+                      permit_required, rating, created_at, address_id
+    Address         — id, province, district, place, latitude,
+                      longitude, altitude
+    Attraction      — id, destination_id, attraction_types,
+                      opening_hours, visit_duration_hours
+    TrekkingRoute   — id, destination_id, route_name, difficulty,
+                      total_distance_km, recommended_days,
+                      max_altitude, description
+    RoutePoint      — id, route_id, sequence_no, name,
+                      distance_from_previous_km,
+                      walking_hours_from_previous, overnight_stop,
+                      description, address_id, accommodation_id,
+                      food_cost_id
+    Accommodation   — id, budget_price, standard_price, luxury_price
+    FoodCost        — id, budget_price, standard_price, luxury_price
+    EntryFee        — id, attraction_id, category, price
+    Permit          — id, destination_id, category, price
+    Review          — id, user_id, destination_id, rating, comment,
+                      created_at
+    Photo           — id, destination_id, uploaded_by, image_url,
+                      caption
+    SavedDestination — id, user_id, destination_id, created_at
+    UserTrip        — id, user_id, destination_id, route_id,
+                      pace_type, budget_type, start_date, end_date,
+                      status
+    Itinerary       — id, trip_id, day_number, start_location,
+                      end_location, overnight_location,
+                      estimated_walking_hours, notes
+    ChatConversation — id, user_id, title, created_at, updated_at
+    ChatMessage     — id, conversation_id, role, content, created_at
+
+  Service classes (business logic layer):
+
+    UserService, DestinationService, AddressService,
+    AttractionService, AccommodationService, FoodCostService,
+    EntryFeeService, PermitService, ReviewService, PhotoService,
+    RoutePointService, SavedDestinationService,
+    TrekkingRouteService, UserTripService, ItineraryService
+
+  AI Chat classes:
+
+    AIService, ToolRegistry, ToolExecutor, DestinationTool,
+    AttractionTool, AccommodationTool, TrekkingTool, FoodCostTool
+
+
+10. RELATIONSHIPS BETWEEN CLASSES / MODELS
+--------------------------------------------
+
+    User  1──* UserTrip
+    User  1──* SavedDestination
+    User  1──* Review
+    User  1──* Photo
+    User  1──* ChatConversation
+
+    Destination  1──* TrekkingRoute
+    Destination  1──* Permit
+    Destination  1──* Review
+    Destination  1──* Photo
+    Destination  1──* SavedDestination
+    Destination  1──* UserTrip
+    Destination  1──1 Attraction  (unique FK)
+    Destination  *──1 Address
+
+    Attraction  1──* EntryFee
+
+    TrekkingRoute  1──* RoutePoint
+
+    RoutePoint  *──1 Address
+    RoutePoint  *──1 Accommodation (optional)
+    RoutePoint  *──1 FoodCost (optional)
+
+    UserTrip  1──* Itinerary
+
+    ChatConversation  1──* ChatMessage  (CASCADE on delete)
+
+
+11. BUSINESS LOGIC / WORKFLOW
+------------------------------
+
+  DESTINATION CREATION:
+    1. Authenticate as admin
+    2. POST destination data (address, attraction or trekking_routes
+       nested)
+    3. DestinationService.create_destination():
+       a. Create/get address via AddressService.get_or_create_address()
+       b. Create Destination with address FK
+       c. If category == attraction: create Attraction + EntryFee
+          records
+       d. If category == trek: create TrekkingRoute + RoutePoint
+          records
+       e. Refresh and return full destination
+
+  AI CHAT WORKFLOW:
+    1. User sends message -> POST /chat/
+    2. AIService.process_message():
+       a. Load or create ChatConversation
+       b. Save user message to DB
+       c. Load last 30 messages as history
+       d. Send to OpenRouter LLM with system prompt
+       e. Parse response for <tool_call> tags
+       f. If tool call found: execute tool, inject result as user
+          message, re-prompt (up to 5 rounds)
+       g. Save assistant reply to DB
+       h. Return {reply, conversation_id}
+
+  PHOTO UPLOAD:
+    1. Validate file extension (jpg/jpeg/png/gif/webp)
+    2. Validate file size <= 10MB
+    3. Generate UUID filename, save to uploads/ directory
+    4. Create Photo record with image_url = /uploads/{uuid}.{ext}
+    5. Serve statically via FastAPI StaticFiles mount
+
+  USER OWNERSHIP:
+    - Users can only modify their own resources (reviews, photos,
+      trips, itineraries, saved destinations, chat conversations)
+    - Admin has full access override
+
+
+12. SYSTEM STATES
+------------------
+
+  USERTRIP STATES:
+    planned --> ongoing --> completed
+
+  AUTH STATES:
+    unauthenticated -> login/register -> authenticated (JWT)
+    authenticated -> token expires -> re-authenticate
+
+  CHAT PROCESSING STATES:
+    receiving message -> loading history -> calling LLM
+      -> [tool call detected] -> executing tool -> injecting result
+         -> calling LLM (loop up to 5x)
+      -> [no tool call] -> returning reply
+
+
+13. TYPICAL USER FLOWS
+-----------------------
+
+  REGISTRATION:
+    [Browser] -> POST /auth/register (name, email, password, role)
+      -> Validate uniqueness (409 if duplicate)
+      -> Hash password (bcrypt)
+      -> Create User record
+      -> Generate JWT (sub=user.id, exp=24h)
+      -> Return {access_token, token_type: "bearer"}
+
+  LOGIN:
+    [Browser] -> POST /auth/login (email, password)
+      -> Lookup user by email
+      -> Verify password (bcrypt)
+      -> Generate JWT
+      -> Return {access_token, token_type: "bearer"}
+
+  BROWSE + SAVE DESTINATION:
+    [Browser] -> GET /destinations/?category=trek&province=Gandaki
+      (unauthenticated OK)
+      -> Filtered + paginated results
+    [Browser] -> POST /saved-destinations/ (Auth: Bearer token)
+      -> Create SavedDestination {user_id, destination_id}
+
+  PLAN A TRIP:
+    [Browser] -> POST /user-trips/ (Auth)
+      -> Create UserTrip {user_id, destination_id, route_id,
+                          pace, budget, dates}
+    [Browser] -> POST /itineraries/ (Auth)
+      -> Create day-by-day Itinerary entries for the trip
+
+  AI CHAT:
+    [Browser] -> POST /chat/ (Auth)
+      {message: "What are the best treks in Nepal under 7 days?"}
+      -> AIService dispatches to LLM
+      -> LLM calls search_trekking_routes(difficulty="easy")...
+      -> Tool result sent back to LLM
+      -> LLM formulates human-friendly response
+      -> Returns {reply: "...", conversation_id: "..."}
+
+
+14. EXTERNAL SERVICES / APIs
+------------------------------
+
+    Service       | Purpose                    | Integration
+    --------------+----------------------------+------------------------------
+    OpenRouter    | LLM inference for AI       | OpenAI-compatible API,
+                  | chatbot                    | configurable model; API key
+                  |                            | stored in .env
+
+
+15. APPLICATION ARCHITECTURE
+------------------------------
+
+    +-------------------------------------------------------+
+    |                   CLIENT TIER                         |
+    |  React + TypeScript (Vite) . localhost:5173           |
+    +--------------------------+----------------------------+
+                               | HTTP / JSON / JWT Bearer
+                               v
+    +-------------------------------------------------------+
+    |                  API GATEWAY TIER                     |
+    |  FastAPI + Uvicorn (ASGI) . localhost:8000            |
+    |  Middleware: CORS . Rate Limiter (slowapi)            |
+    |  Static: /uploads (photo files)                       |
+    +--------------------------+----------------------------+
+                               |
+               +---------------+------------------+
+               v               v                   v
+    +-----------------+ +-------------+ +----------------------+
+    | ROUTERS         | |  AUTH       | |  AI CHAT            |
+    | (18 modules)    | |  JWT        | |  OpenRouter LLM     |
+    | validate/       | |  bcrypt     | |  Tool Registry      |
+    | delegate        | |  OAuth2     | |  5 Tools / 10 Fn   |
+    +--------+--------+ +-------------+ +----------------------+
+               |
+               v
+    +-------------------------------------------------------+
+    |                   SERVICE TIER                        |
+    |  15 Service Classes (business logic)                  |
+    |  Duplicate checks . Filtering . Pagination            |
+    |  File handling . Owner authorization                  |
+    +--------------------------+----------------------------+
+                               |
+                               v
+    +-------------------------------------------------------+
+    |                   MODEL TIER                          |
+    |  21 SQLModel classes (SQLAlchemy + Pydantic)          |
+    |  Table-per-class . Relationships . Enums              |
+    +--------------------------+----------------------------+
+                               |
+                               v
+    +-------------------------------------------------------+
+    |                  DATABASE TIER                        |
+    |  PostgreSQL . Alembic Migrations (7 versions)         |
+    |  17 tables covering all entities                     |
+    +-------------------------------------------------------+
+
+
+16. DEPLOYMENT ENVIRONMENT
+----------------------------
+
+    Component       | Environment
+    ----------------+-----------------------------------------------
+    Client (FE)     | Vite dev server (localhost:5173);
+                    | production build -> static hosting
+    Server (BE)     | Uvicorn ASGI (localhost:8000);
+                    | production behind reverse proxy (Nginx/etc.)
+    Database        | PostgreSQL (local dev: smart_travel_db);
+                    | production: managed Postgres
+    File Storage    | Local filesystem uploads/ directory;
+                    | production: S3/CDN
+    Cloud/Hosting   | Not specified - currently local development
+
+
+==========================================================================
+UML DIAGRAMS - GENERATION GUIDANCE
+==========================================================================
+
+USE CASE DIAGRAM:
+  Actors: Unauthenticated User, Authenticated Traveler, Admin,
+          AI Assistant (system)
+  Use cases grouped by module:
+    Auth: Register, Login, View Profile
+    Destinations: Browse, Search/Filter, View Details
+    User Actions: Save Destination, Review, Upload Photo, Plan Trip,
+                  Create Itinerary
+    Admin Actions: CRUD all resources
+    AI Chat: Ask Question, Get Recommendations
+
+CLASS DIAGRAM:
+  All 21 SQLModel classes with their attributes, PKs, FKs, and
+  relationship multiplicities (1:1, 1:*, *:1) - see Sections 8, 9, 10.
+
+OBJECT DIAGRAM:
+  Instance example: Destination("Everest Base Camp Trek", category=trek)
+  linked to Address("Khumbu", "Solukhumbu") and
+  TrekkingRoute("EBC Trek", difficulty=hard).
+
+SEQUENCE DIAGRAM (key workflows):
+  1. Registration -> Login -> JWT -> CRUD Destination
+  2. AI Chat: User -> Chat -> AIService -> OpenRouter
+     -> Tool Execution -> LLM -> Reply
+
+ACTIVITY DIAGRAM:
+  Trip Planning: Browse Destinations -> Filter -> View Details
+  -> Save -> Create Trip -> Add Itinerary Days -> Update Status
+
+STATE DIAGRAM:
+  UserTrip: planned -> ongoing -> completed
+  Auth session: unauthenticated -> authenticated (JWT valid)
+  -> expired -> re-authenticate
+
+COMPONENT DIAGRAM:
+  React Frontend -> [HTTP/JSON/JWT] -> FastAPI Server
+  -> [15 Services] -> SQLModel ORM -> PostgreSQL
+
+DEPLOYMENT DIAGRAM:
+  [Browser] --HTTP-- [Uvicorn ASGI Server] --SQL-- [PostgreSQL]
+                        |
+                   [Static Files: /uploads]
+                        |
+                   [OpenRouter API (external)]
+
+ER DIAGRAM:
+  All 17 tables with PKs, FKs, relationship types, and cardinalities
+  as documented in Section 8 + 10.
