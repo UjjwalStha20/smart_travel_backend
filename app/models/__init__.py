@@ -14,3 +14,6 @@ from .blog_model import Blog
 from .chat_model import ChatConversation, ChatMessage
 from .destination_itinerary_model import DestinationItinerary
 from .activity_log_model import ActivityLog
+from .user_preference_model import UserPreferences
+from .user_interaction_model import UserInteraction
+from .recommendation_log_model import RecommendationLog

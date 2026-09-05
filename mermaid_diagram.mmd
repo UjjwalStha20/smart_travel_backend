@@ -1,0 +1,409 @@
+mermaid
+classDiagram
+    %% ============ MODEL CLASSES (from app/models/) ============
+    
+    class User {
+        +id: UUID
+        +name: str
+        +role: UserRole
+        +nationality: str|null
+        +email: EmailStr
+        +phone: str|null
+        +created_at: datetime
+        +updated_at: datetime
+    }
+    class UserRole {
+        <<enumeration>>
+        +traveler: "traveler"
+        +guide: "guide"
+        +admin: "admin"
+    }
+    class PaceType {
+        <<enumeration>>
+        +slow: "slow"
+        +normal: "normal"
+        +fast: "fast"
+    }
+    class BudgetType {
+        <<enumeration>>
+        +budget: "budget"
+        +standard: "standard"
+        +luxury: "luxury"
+    }
+    class TripStatus {
+        <<enumeration>>
+        +planned: "planned"
+        +ongoing: "ongoing"
+        +completed: "completed"
+    }
+    class UserTrip {
+        +id: UUID
+        +user_id: UUID
+        +destination_id: UUID
+        +route_id: UUID
+        +pace_type: PaceType
+        +budget_type: BudgetType
+        +start_date: date|null
+        +end_date: date|null
+        +status: TripStatus
+    }
+    class Itinerary {
+        +id: UUID
+        +trip_id: UUID
+        +day_number: int
+        +start_location: str
+        +end_location: str
+        +overnight_location: str|null
+        +estimated_walking_hours: Decimal|null
+        +notes: str|null
+    }
+    class SavedDestination {
+        +id: UUID
+        +user_id: UUID
+        +destination_id: UUID
+        +created_at: datetime
+    }
+    class DestinationCategory {
+        <<enumeration>>
+        +attraction: "attraction"
+        +trek: "trek"
+    }
+    class Destination {
+        +id: UUID
+        +name: str
+        +category: DestinationCategory
+        +description: str
+        +best_time: list
+        +permit_required: bool
+        +rating: int|null
+        +created_at: datetime
+        +address_id: UUID
+    }
+    class Address {
+        +id: UUID
+        +province: str|null
+        +district: str|null
+        +place: str|null
+        +latitude: float|null
+        +longitude: float|null
+        +altitude: float|null
+    }
+    class TrekkingRoute {
+        +id: UUID
+        +destination_id: UUID
+        +route_name: str
+        +difficulty: Difficulty
+        +total_distance_km: Decimal|null
+        +recommended_days: int|null
+        +max_altitude: int|null
+        +description: str|null
+    }
+    class Difficulty {
+        <<enumeration>>
+        +easy: "easy"
+        +moderate: "moderate"
+        +hard: "hard"
+    }
+    class RoutePoint {
+        +id: UUID
+        +route_id: UUID
+        +sequence_no: int
+        +name: str
+        +distance_from_previous_km: Decimal|null
+        +walking_hours_from_previous: Decimal|null
+        +overnight_stop: bool
+        +description: str|null
+        +address_id: UUID
+        +accommodation_id: UUID|null
+        +food_cost_id: UUID|null
+    }
+    class Accommodation {
+        +id: UUID
+        +budget_price: Decimal
+        +standard_price: Decimal|null
+        +luxury_price: Decimal|null
+    }
+    class FoodCost {
+        +id: UUID
+        +budget_price: Decimal
+        +standard_price: Decimal|null
+        +luxury_price: Decimal|null
+    }
+    class AttractionType {
+        <<enumeration>>
+        +temple: "temple"
+        +heritage: "heritage"
+        +hiking: "hiking"
+        +lake: "lake"
+        +viewpoint: "viewpoint"
+    }
+    class Attraction {
+        +id: UUID
+        +destination_id: UUID
+        +attraction_types: list
+        +opening_hours: str|null
+        +visit_duration_hours: Decimal|null
+    }
+    class EntryCategory {
+        <<enumeration>>
+        +nepali: "Nepali"
+        +saarc: "SAARC"
+        +foreign: "Foreign"
+    }
+    class EntryFee {
+        +id: UUID
+        +attraction_id: UUID
+        +category: EntryCategory
+        +price: Decimal
+    }
+    class PermitCategory {
+        <<enumeration>>
+        +nepali: "Nepali"
+        +saarc: "SAARC"
+        +foreign: "Foreign"
+    }
+    class Permit {
+        +id: UUID
+        +destination_id: UUID
+        +category: PermitCategory
+        +price: Decimal
+    }
+    class Blog {
+        +id: UUID
+        +title: str
+        +slug: str
+        +content: str
+        +excerpt: str|null
+        +author_id: UUID|null
+        +featured_image: str|null
+        +category: str|null
+        +tags: list|null
+        +is_published: bool
+        +published_at: datetime|null
+        +created_at: datetime
+        +updated_at: datetime
+    }
+    class ChatConversation {
+        +id: UUID
+        +user_id: UUID
+        +title: str
+        +created_at: datetime
+        +updated_at: datetime
+    }
+    class ChatMessage {
+        +id: UUID
+        +conversation_id: UUID
+        +role: str
+        +content: str
+        +created_at: datetime
+    }
+    class DestinationItinerary {
+        +id: UUID
+        +destination_id: UUID
+        +day_number: int
+        +title: str|null
+        +start_location: str
+        +end_location: str
+        +overnight_location: str|null
+        +estimated_walking_hours: Decimal|null
+        +notes: str|null
+    }
+    class ActivityLog {
+        +id: UUID
+        +user_id: UUID
+        +user_name: str
+        +action: str
+        +target: str
+        +type: str
+        +created_at: datetime
+    }
+    
+    %% ============ SERVICE CLASSES (from app/services/) ============
+    
+    class UserService {
+        +__init__(session: Session)
+        +get_all_users(offset: int, limit: int): list[User]
+        +get_user_by_id(user_id: UUID): User
+        +get_user_by_email(email: EmailStr): User
+        +create_user(data: User): User
+        +update_user(user_id: UUID, data: User): User
+        +delete_user(user_id: UUID): bool
+    }
+    class UserTripService {
+        +__init__(session: Session)
+        +get_all_user_trips(offset: int, limit: int): list[UserTrip]
+        +get_user_trip_by_id(trip_id: UUID): UserTrip
+        +create_user_trip(data: UserTrip): UserTrip
+        +update_user_trip(trip_id: UUID, data: UserTrip): UserTrip
+        +delete_user_trip(trip_id: UUID): bool
+    }
+    class DestinationService {
+        +__init__(session: Session)
+        +get_destinations(offset: int, limit: int): list[Destination]
+        +get_destinations_stats(): dict
+        +get_destination_by_id(destination_id: UUID): Destination
+        +create_destination(data: Destination): Destination
+        +update_destination(destination_id: UUID, data: Destination): Destination
+        +delete_destination(destination_id: UUID): bool
+        +_apply_filters(filters: dict): list[Destination]
+        +_destination_to_dict(dest: Destination): dict
+        +_sync_photos(destination_id: UUID): bool
+        +_replace_attraction(dest: Destination, attraction_data: dict): Destination
+        +_replace_route_points(dest: Destination, routes_data: list): Destination
+        +_replace_trekking_routes(dest: Destination, routes_data: list): Destination
+    }
+    class TrekkingRouteService {
+        +__init__(session: Session)
+        +get_all_trekking_routes(offset: int, limit: int): list[TrekkingRoute]
+        +get_trekking_route_by_id(route_id: UUID): TrekkingRoute
+        +create_trekking_route(data: TrekkingRoute): TrekkingRoute
+        +update_trekking_route(route_id: UUID, data: TrekkingRoute): TrekkingRoute
+        +delete_trekking_route(route_id: UUID): bool
+    }
+    class RoutePointService {
+        +__init__(session: Session)
+        +get_all_route_points(offset: int, limit: int): list[RoutePoint]
+        +get_route_point_by_id(point_id: UUID): RoutePoint
+        +create_route_point(data: RoutePoint): RoutePoint
+        +update_route_point(point_id: UUID, data: RoutePoint): RoutePoint
+        +delete_route_point(point_id: UUID): bool
+    }
+    class AccommodationService {
+        +__init__(session: Session)
+        +get_all_accommodations(offset: int, limit: int): list[Accommodation]
+        +get_accommodation_by_id(acc_id: UUID): Accommodation
+        +create_accommodation(data: Accommodation): Accommodation
+        +update_accommodation(acc_id: UUID, data: Accommodation): Accommodation
+        +delete_accommodation(acc_id: UUID): bool
+    }
+    class FoodCostService {
+        +__init__(session: Session)
+        +get_all_food_costs(offset: int, limit: int): list[FoodCost]
+        +get_food_cost_by_id(food_id: UUID): FoodCost
+        +create_food_cost(data: FoodCost): FoodCost
+        +update_food_cost(food_id: UUID, data: FoodCost): FoodCost
+        +delete_food_cost(food_id: UUID): bool
+    }
+    class EntryFeeService {
+        +__init__(session: Session)
+        +get_all_entry_fees(offset: int, limit: int): list[EntryFee]
+        +get_entry_fee_by_id(fee_id: UUID): EntryFee
+        +create_entry_fee(fee_data: EntryFee): EntryFee
+        +update_entry_fee(fee_id: UUID, fee_data: EntryFee): EntryFee
+        +delete_entry_fee(fee_id: UUID): bool
+    }
+    class PermitService {
+        +__init__(session: Session)
+        +get_all_permits(offset: int, limit: int): list[Permit]
+        +get_permit_by_id(permit_id: UUID): Permit
+        +create_permit(data: Permit): Permit
+        +update_permit(permit_id: UUID, data: Permit): Permit
+        +delete_permit(permit_id: UUID): bool
+    }
+    class BlogService {
+        +__init__(session: Session)
+        +get_all(offset: int, limit: int): list[Blog]
+        +get_by_id(blog_id: UUID): Blog
+        +get_by_slug(slug: str): Blog
+        +get_by_category(category: str): list[Blog]
+        +create(data: Blog): Blog
+        +update(blog_id: UUID, data: Blog): Blog
+        +delete(blog_id: UUID): dict
+    }
+    class ChatService {
+        +__init__(session: Session)
+        +get_all_conversations(offset: int, limit: int): list[ChatConversation]
+        +get_conversation_by_id(conversation_id: UUID): ChatConversation
+        +create_conversation(user_id: UUID, title: str): ChatConversation
+        +add_message(conversation_id: UUID, role: str, content: str): ChatMessage
+        +get_message_count(conversation_id: UUID): int
+        +get_last_message(conversation_id: UUID): ChatMessage
+    }
+    class ReviewService {
+        +__init__(session: Session)
+        +get_all_reviews(offset: int, limit: int): list[Review]
+        +get_review_by_id(review_id: UUID): Review
+        +create_review(review_data: dict): Review
+        +update_review(review_id: UUID, review_data: Review): Review
+        +delete_review(review_id: UUID): dict
+    }
+    class PhotoService {
+        +__init__(session: Session)
+        +get_all_photos(offset: int, limit: int): list[Photo]
+        +get_photo_by_id(photo_id: UUID): Photo
+        +create_photo(image_data: dict): Photo
+        +create_photo_from_upload(upload_data: dict): Photo
+        +update_photo(photo_id: UUID, data: Photo): Photo
+        +delete_photo(photo_id: UUID): bool
+    }
+    class SavedDestinationService {
+        +__init__(session: Session)
+        +get_all_saved_destinations(offset: int, limit: int): list[SavedDestination]
+        +get_saved_destination_by_id(saved_id: UUID): SavedDestination
+        +create_saved_destination(destination_id: UUID): SavedDestination
+        +update_saved_destination(saved_id: UUID, data: SavedDestination): SavedDestination
+        +delete_saved_destination(saved_id: UUID): bool
+    }
+    class AdminService {
+        +__init__(session: Session)
+        +get_dashboard_stats(): dict
+        +get_weekly_analytics(): list[dict]
+        +get_recent_reviews(limit: int): list[dict]
+        +get_recent_users(limit: int): list[dict]
+        +get_review_ratings_distribution(): dict
+    }
+    class AddressService {
+        +__init__(session: Session)
+        +get_all_addresses(offset: int, limit: int): list[Address]
+        +get_address_by_id(address_id: UUID): Address
+        +get_or_create_address(province: str, district: str, place: str): Address
+        +update_address(address_id: UUID, data: Address): Address
+        +delete_address(address_id: UUID): bool
+    }
+    class ItineraryService {
+        +__init__(session: Session)
+        +get_all_itineraries(offset: int, limit: int): list[DestinationItinerary]
+        +get_itinerary_by_id(itinerary_id: UUID): DestinationItinerary
+        +create_itinerary(data: DestinationItinerary): DestinationItinerary
+        +update_itinerary(itinerary_id: UUID, data: DestinationItinerary): DestinationItinerary
+        +delete_itinerary(itinerary_id: UUID): dict
+    }
+    class DestinationItineraryService {
+        +__init__(session: Session)
+        +get_all_destination_itineraries(offset: int, limit: int): list[DestinationItinerary]
+        +get_by_id(itinerary_id: UUID): DestinationItinerary
+        +create_destination_itinerary(data: DestinationItinerary): DestinationItinerary
+        +update_destination_itinerary(itinerary_id: UUID, data: DestinationItinerary): DestinationItinerary
+        +delete_destination_itinerary(itinerary_id: UUID): dict
+    }
+    
+    %% ============ RELATIONSHIPS ============
+    
+    User "1" -- "0..*" UserTrip : trips
+    User "1" -- "0..*" UserTrip : user_trips (via UserService)
+    UserTrip "1" -- "0..*" RoutePoint : route_points
+    UserTrip "1" -- "0..*" Itinerary : itineraries
+    UserTrip "1" -- "0..*" TrekkingRoute : route
+    UserTrip "1" -- "0..*" Destination : destination
+    
+    Destination "1" -- "0..*" TrekkingRoute : trekking_routes
+    Destination "1" -- "0..*" Permit : permits
+    Destination "1" -- "0..*" SavedDestination : saved_destinations
+    Destination "1" -- "0..*" DestinationItinerary : destination_itineraries
+    Destination "1" -- "0..*" Address : address
+    
+    TrekkingRoute "1" -- "0..*" RoutePoint : route_points
+    Address "1" -- "0..*" RoutePoint : route_points
+    
+    RoutePoint "1" -- "0..*" Accommodation : accommodation
+    RoutePoint "1" -- "0..*" FoodCost : food_cost
+    
+    Attraction "1" -- "0..*" EntryFee : entry_fees
+    
+    Blog "1" -- "0..*" User : author
+    
+    ChatConversation "1" -- "0..*" ChatMessage : messages
+    
+    DestinationItinerary "1" -- "0..*" Destination : destination
+    
+    ActivityLog "1" -- "0..*" User : user_id

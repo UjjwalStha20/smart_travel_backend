@@ -10,6 +10,7 @@ from app.core.rate_limit import limiter
 
 from app.core.logging import setup_logging
 from app.routers import (auth,
+    recommendation,
     accommodation,
     address,
     admin,
@@ -74,6 +75,7 @@ app.include_router(trekking_route.router)
 app.include_router(user.router)
 app.include_router(user_trip.router)
 app.include_router(activity_log.router)
+app.include_router(recommendation.router)
 
 
 
