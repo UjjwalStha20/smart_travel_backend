@@ -4,6 +4,7 @@ from uuid import UUID
 from sqlmodel import Session, select, func
 
 from app.models import User, Destination, UserPreferences, UserInteraction, Review, UserTrip, SavedDestination
+from app.models.recommendation_log_model import RecommendationLog
 from app.services.content_based import ContentBasedFiltering
 from app.services.structured_preferences import StructuredPreferenceMatcher
 from app.services.contextual import ContextAwareFiltering
@@ -126,7 +127,7 @@ class RecommendationService:
         algorithm_version: str = "hybrid_v1",
     ) -> RecommendationLog:
         """Log a recommendation for audit and learning."""
-        from app.models.recommendation_log_model import RecommendationLog as RL
+        RL = RecommendationLog
 
         log_entry = RL(
             user_id=user_id,

@@ -13,7 +13,8 @@ from app.services.recommendation_service import (
     get_recommendation_service,
     RecommendationService,
 )
-from typing import Optional
+from typing import Optional, List
+from uuid import UUID
 
 
 router = APIRouter(prefix="/recommendations", tags=["Recommendations"])
