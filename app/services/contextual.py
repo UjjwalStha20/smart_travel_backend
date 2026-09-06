@@ -1,9 +1,114 @@
 from typing import Dict, Any, List, Optional
 from uuid import UUID
+import time
 
 from sqlmodel import select
 
-from app.models import User, Destination, UserPreferences
+from app.models import User, Destination, TrekkingRoute, UserPreferences, Address
+from app.services.live_data import fetch_weather
+from app.core.config import settings
+
+
+# ---------------------------------------------------------------------------
+# Live-weather signal for the contextual recommender.
+# Offline safe: any lookup failure disables live lookups for a while and the
+# scorer falls back to the static season-based context score (neutral factor).
+# ---------------------------------------------------------------------------
+
+_WEATHER_CACHE: Dict[tuple, tuple] = {}
+_WEATHER_TTL_SECONDS = 1800  # 30 min
+_WEATHER_DISABLE_UNTIL = 0.0
+_WEATHER_DISABLE_WINDOW = 300  # 5 min off-window after a failure
+WEATHER_NOTES: Dict[str, str] = {}
+
+
+def reset_weather_state() -> None:
+    """Clear cached weather and re-enable live lookups (used by tests)."""
+    global _WEATHER_DISABLE_UNTIL
+    _WEATHER_CACHE.clear()
+    _WEATHER_DISABLE_UNTIL = 0.0
+    WEATHER_NOTES.clear()
+
+
+def _get_live_weather(latitude: float, longitude: float) -> Optional[dict]:
+    """Fetch live weather with caching and a circuit breaker for offline use."""
+    global _WEATHER_DISABLE_UNTIL
+    now = time.time()
+    if settings.WEATHER_MODE == "off" or now < _WEATHER_DISABLE_UNTIL:
+        return None
+
+    key = (round(latitude, 4), round(longitude, 4))
+    if key in _WEATHER_CACHE:
+        cached_at, data = _WEATHER_CACHE[key]
+        if now - cached_at < _WEATHER_TTL_SECONDS:
+            return data
+
+    try:
+        data = fetch_weather(latitude, longitude, days=5, timeout=2.0)
+    except Exception:
+        # Offline or upstream failure: stop trying for a while, stay neutral.
+        _WEATHER_DISABLE_UNTIL = now + _WEATHER_DISABLE_WINDOW
+        return None
+
+    _WEATHER_CACHE[key] = (time.time(), data)
+    return data
+
+
+def weather_comfort_factor(weather: dict) -> float:
+    """Map current temp + 3-day rain probability to a 0..1 comfort factor."""
+    factor = 1.0
+    current = weather.get("current") or {}
+    temp = current.get("temperature_c")
+    if temp is not None:
+        if temp < 5:
+            factor *= 0.85
+        elif temp < 10:
+            factor *= 0.95
+        elif temp <= 28:
+            pass
+        elif temp <= 35:
+            factor *= 0.85
+        else:
+            factor *= 0.7
+
+    rain = [
+        d.get("precipitation_probability") or d.get("precipitation_probability_max")
+        for d in weather.get("daily") or []
+    ]
+    rain = [p for p in rain if p is not None]
+    if rain:
+        worst = max(rain)
+        if worst >= 70:
+            factor *= 0.7
+        elif worst >= 40:
+            factor *= 0.85
+        elif worst >= 20:
+            factor *= 0.95
+    return factor
+
+
+def weather_note(weather: dict, factor: float) -> str:
+    """Human-readable note surfaced in the recommendation explanation."""
+    current = weather.get("current") or {}
+    temp = current.get("temperature_c")
+    condition = current.get("condition")
+    rain = [
+        d.get("precipitation_probability") or d.get("precipitation_probability_max")
+        for d in weather.get("daily") or []
+    ]
+    rain = [p for p in rain if p is not None]
+    worst_rain = max(rain) if rain else 0
+
+    parts = []
+    if temp is not None:
+        parts.append(f"{temp:.0f}\u00b0C")
+    if condition:
+        parts.append(condition.lower())
+    if worst_rain > 0:
+        parts.append(f"{worst_rain:.0f}% rain next 3 days")
+
+    verdict = "ideal time" if factor >= 0.95 else "check conditions before you go"
+    return f"Live weather: {', '.join(parts)} \u2014 {verdict}"
 
 
 class ContextAwareFiltering:
@@ -11,6 +116,7 @@ class ContextAwareFiltering:
 
     def __init__(self, session):
         self.session = session
+        self._address_cache: Dict[UUID, Optional[Address]] = {}
 
     def compute_all_context_scores(
         self, user_profile: Dict[str, Any]
@@ -85,8 +191,8 @@ class ContextAwareFiltering:
 
         # 3. Altitude suitability (for treks)
         routes = self.session.exec(
-            select(Destination.trekking_routes).where(
-                Destination.id == dest.id
+            select(TrekkingRoute).where(
+                TrekkingRoute.destination_id == dest.id
             )
         ).all()
         if routes:
@@ -100,7 +206,33 @@ class ContextAwareFiltering:
         if typical_score := self._check_duration_fitting(dest, typical_duration):
             score *= typical_score
 
+        # 5. Live-weather comfort (neutral when offline / unavailable)
+        weather_factor = self._weather_factor(dest)
+        if weather_factor is not None:
+            score *= weather_factor
+
         return min(score, 1.0)
+
+    def _weather_factor(self, dest: Destination) -> Optional[float]:
+        """Live-weather multiplier; None means neutral (offline fallback)."""
+        address_id = getattr(dest, "address_id", None)
+        if address_id is None:
+            return None
+        addr = self._address_cache.get(address_id)
+        if addr is None:
+            addr = self.session.get(Address, address_id)
+            self._address_cache[address_id] = addr
+        if addr is None or addr.latitude is None or addr.longitude is None:
+            return None
+
+        weather = _get_live_weather(addr.latitude, addr.longitude)
+        if weather is None:
+            WEATHER_NOTES.pop(str(dest.id), None)
+            return None
+
+        factor = weather_comfort_factor(weather)
+        WEATHER_NOTES[str(dest.id)] = weather_note(weather, factor)
+        return factor
 
     def _check_season_compatibility(
         self, dest: Destination, selected_season: List[str]
@@ -144,8 +276,8 @@ class ContextAwareFiltering:
     def _get_typical_duration(self, dest: Destination) -> Optional[int]:
         """Get typical duration for a destination."""
         routes = self.session.exec(
-            select(Destination.trekking_routes).where(
-                Destination.id == dest.id
+            select(TrekkingRoute).where(
+                TrekkingRoute.destination_id == dest.id
             )
         ).all()
         if routes:
@@ -164,8 +296,8 @@ class ContextAwareFiltering:
 
         rec_days = 0
         routes = self.session.exec(
-            select(Destination.trekking_routes).where(
-                Destination.id == dest.id
+            select(TrekkingRoute).where(
+                TrekkingRoute.destination_id == dest.id
             )
         ).all()
         if routes:

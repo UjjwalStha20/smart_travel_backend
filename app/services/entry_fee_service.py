@@ -16,6 +16,12 @@ class EntryFeeService:
         total = self.session.exec(select(func.count(EntryFee.id))).one()
         return {"items": items, "total": total, "offset": offset, "limit": limit}
 
+    def get_by_attraction_id(self, attraction_id) -> list[EntryFee]:
+        statement = select(EntryFee).where(
+            EntryFee.attraction_id == UUID(str(attraction_id))
+        )
+        return self.session.exec(statement).all()
+
     def get_entry_fee_by_id(self, fee_id: UUID) -> EntryFee:
         fee = self.session.get(EntryFee, fee_id)
         if not fee:

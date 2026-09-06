@@ -17,3 +17,5 @@ from .user_trip import router as user_trip_router
 from .destination_itinerary import router as destination_itinerary_router
 from .blog import router as blog_router
 from .activity_log import router as activity_log_router
+from .optimization import router as optimization_router
+from .travel_info import router as travel_info_router

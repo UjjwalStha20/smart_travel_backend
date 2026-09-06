@@ -217,6 +217,51 @@ classDiagram
         +type: str
         +created_at: datetime
     }
+    class UserPreferences {
+        +user_id: UUID (PK, FK to users)
+        +preferred_categories: list
+        +preferred_activities: list
+        +budget_preference: str|null
+        +typical_duration: int|null
+        +difficulty_preference: str|null
+        +preferred_season: list
+        +travel_style: str|null
+        +updated_at: datetime
+    }
+    class UserInteraction {
+        +id: UUID
+        +user_id: UUID
+        +destination_id: UUID
+        +interaction_type: str
+        +rating: int|null
+        +created_at: datetime
+        +INDEX(user_id, destination_id, interaction_type)
+    }
+    class RecommendationLog {
+        +id: UUID
+        +user_id: UUID
+        +destination_id: UUID
+        +final_score: float
+        +component_scores: dict
+        +algorithm_version: str
+        +created_at: datetime
+    }
+    class Photo {
+        +id: UUID
+        +destination_id: UUID
+        +uploaded_by: UUID
+        +image_url: str
+        +caption: str|null
+    }
+    class Review {
+        +id: UUID
+        +user_id: UUID
+        +destination_id: UUID
+        +rating: int
+        +comment: str|null
+        +created_at: datetime
+        +UNIQUE(user_id, destination_id)
+    }
     
     %% ============ SERVICE CLASSES (from app/services/) ============
     
@@ -376,6 +421,79 @@ classDiagram
         +update_destination_itinerary(itinerary_id: UUID, data: DestinationItinerary): DestinationItinerary
         +delete_destination_itinerary(itinerary_id: UUID): dict
     }
+
+    %% ============ INTELLIGENCE & SERVICES LAYER ============
+
+    class RecommendationService {
+        +get_recommendations(user_id, limit): list[RecommendationRead]
+        +record_interaction(user_id, destination_id, type): UserInteraction
+        +log_recommendation(...): RecommendationLog
+        +_score_destinations(profile, dests): list[tuple]
+        +_cold_start_recommendations(...): list[RecommendationRead]
+        - hybrid: content .35 + pref .20 + context .20 + collab .15 + pop .10
+    }
+    class ContentBasedFiltering {
+        +compute_user_destination_similarity(profile): dict
+        - TF-IDF + cosine similarity
+    }
+    class StructuredPreferenceMatcher {
+        +compute_all_preference_scores(profile): dict
+        - budget / duration / difficulty / season rules
+    }
+    class ContextAwareFiltering {
+        +compute_all_context_scores(profile): dict
+        +get_context_score(dest, profile): float
+        +_weather_factor(dest): float|null
+        - season, permits, altitude, duration, live weather
+    }
+    class CollaborativeFiltering {
+        +compute_all_collab_scores(profile, dests): dict
+        - user-based Jaccard over weighted interactions
+    }
+    class PopularityBased {
+        +get_popular_destinations(limit): list
+        +_compute_all_popularity_scores(): dict
+        - weighted implicit signals
+    }
+    class WeatherSignal {
+        <<module: contextual>>
+        +weather_comfort_factor(weather): float
+        +weather_note(weather, factor): str
+        +_get_live_weather(lat, lon): dict|null
+        +reset_weather_state(): void
+        +WEATHER_NOTES: dict
+        - 30-min cache + circuit breaker; offline fallback = neutral
+    }
+    class LiveData {
+        <<module: live_data>>
+        +fetch_weather(latitude, longitude, days, timeout): dict
+        +wmo_description(code): str
+        - Open-Meteo (free, no key)
+    }
+    class BudgetOptimizer {
+        +optimize(destination, budget, people, days, category): dict
+        - greedy tier allocation; feasibility + deficit + comfort_score
+    }
+    class RouteOptimizer {
+        +optimize(...): dict
+        - haversine + nearest-neighbour + 2-opt (open-path TSP)
+    }
+    class FlightInfo {
+        <<module: flight_info>>
+        +get_flight_options(session, destination_id): dict
+        - KTM/PKR/LUKA/BWA/BHR/JKR dataset, booking links
+    }
+    class MapService {
+        <<module: map_service>>
+        +destination_geojson(session, destination_id): FeatureCollection
+        - LineStrings + elevation profile + waypoint markers
+    }
+    class ToolRegistry {
+        <<module: chat/tool_registry>>
+        +get_tool_definitions(): list
+        +execute_tool(name, args): dict
+        - 14 tools feeding an LLM agent
+    }
     
     %% ============ RELATIONSHIPS ============
     
@@ -407,3 +525,35 @@ classDiagram
     DestinationItinerary "1" -- "0..*" Destination : destination
     
     ActivityLog "1" -- "0..*" User : user_id
+    Photo "1" -- "0..*" User : uploader
+    Photo "1" -- "0..*" Destination : destination
+    Review "1" -- "0..*" User : user
+    Review "1" -- "0..*" Destination : destination
+    UserInteraction "1" -- "0..*" User : user
+    UserInteraction "1" -- "0..*" Destination : destination
+    RecommendationLog "1" -- "0..*" User : user_id
+    RecommendationLog "1" -- "0..*" Destination : destination
+    UserPreferences "1" -- "1" User : user_id (PK/FK)
+
+    %% ---- intelligence / services connections ----
+    RecommendationService --> ContentBasedFiltering : uses
+    RecommendationService --> StructuredPreferenceMatcher : uses
+    RecommendationService --> ContextAwareFiltering : uses
+    RecommendationService --> CollaborativeFiltering : uses
+    RecommendationService --> PopularityBased : uses
+    ContextAwareFiltering --> WeatherSignal : live multiplier
+    WeatherSignal --> LiveData : Open-Meteo (offline-safe)
+    BudgetOptimizer --> Accommodation : reads prices
+    BudgetOptimizer --> FoodCost : reads prices
+    BudgetOptimizer --> Permit : reads prices
+    BudgetOptimizer --> EntryFee : reads prices
+    RouteOptimizer --> RoutePoint : reads coordinates
+    RouteOptimizer --> Address : reads coordinates
+    FlightInfo --> Destination : keyword match
+    MapService --> TrekkingRoute : geometries
+    MapService --> RoutePoint : waypoints
+    MapService --> Address : coordinates
+    ToolRegistry --> BudgetOptimizer : budget tool
+    ToolRegistry --> RouteOptimizer : route tool
+    ToolRegistry --> WeatherSignal : weather tool
+    ToolRegistry --> FlightInfo : flight tool

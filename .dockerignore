@@ -1,0 +1,15 @@
+.git
+.gitignore
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+tests
+test.db
+uploads
+.env
+*.md
+MERMAID_ANALYSIS.md
+mermaid_diagram.mmd
+MERMAID_FIX_ANALYSIS.md
+uml_analysis.txt

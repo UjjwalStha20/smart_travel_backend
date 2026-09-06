@@ -71,26 +71,55 @@ def main():
         session.add_all([addr_kathmandu, addr_pokhara, addr_nayapul,
                          addr_tikhedhunga, addr_ghorepani])
 
-        accom_budget = Accommodation(budget_price=Decimal("10"),
-                                      standard_price=Decimal("30"),
-                                      luxury_price=Decimal("100"))
-        accom_standard = Accommodation(budget_price=Decimal("20"),
-                                        standard_price=Decimal("50"),
-                                        luxury_price=Decimal("150"))
-        accom_premium = Accommodation(budget_price=Decimal("50"),
-                                       standard_price=Decimal("100"),
-                                       luxury_price=Decimal("300"))
+        # ── ACCOMMODATIONS (UPDATED WITH NAME, DESCRIPTION, LOCATION) ──
+        accom_budget = Accommodation(
+            name="Basic Teahouse",
+            description="Simple, clean rooms with shared bathrooms. Great for budget trekkers.",
+            location="Tikhedhunga / Lower Ghorepani",
+            budget_price=Decimal("10"),
+            standard_price=Decimal("30"),
+            luxury_price=Decimal("100")
+        )
+        accom_standard = Accommodation(
+            name="Standard Lodge",
+            description="Comfortable rooms with attached bathrooms and hot showers.",
+            location="Ghorepani / Tadapani",
+            budget_price=Decimal("20"),
+            standard_price=Decimal("50"),
+            luxury_price=Decimal("150")
+        )
+        accom_premium = Accommodation(
+            name="Premium Mountain Lodge",
+            description="Best available rooms at high altitude, heated dining room, and reliable hot water.",
+            location="Annapurna Base Camp / High Altitude",
+            budget_price=Decimal("50"),
+            standard_price=Decimal("100"),
+            luxury_price=Decimal("300")
+        )
         session.add_all([accom_budget, accom_standard, accom_premium])
 
-        food_budget = FoodCost(budget_price=Decimal("500"),
-                                standard_price=Decimal("1200"),
-                                luxury_price=Decimal("2500"))
-        food_standard = FoodCost(budget_price=Decimal("100"),
-                                  standard_price=Decimal("200"),
-                                  luxury_price=Decimal("400"))
-        food_premium = FoodCost(budget_price=Decimal("150"),
-                                 standard_price=Decimal("350"),
-                                 luxury_price=Decimal("600"))
+        # ── FOOD COSTS (UPDATED WITH NAME, CATEGORY) ──────────────────
+        food_budget = FoodCost(
+            name="Dal Bhat (Basic)",
+            category="Main Meal",
+            budget_price=Decimal("500"),
+            standard_price=Decimal("1200"),
+            luxury_price=Decimal("2500")
+        )
+        food_standard = FoodCost(
+            name="Momos / Thukpa",
+            category="Snack / Light Meal",
+            budget_price=Decimal("100"),
+            standard_price=Decimal("200"),
+            luxury_price=Decimal("400")
+        )
+        food_premium = FoodCost(
+            name="Hot Drinks / Snacks at High Altitude",
+            category="Drink / Snack",
+            budget_price=Decimal("150"),
+            standard_price=Decimal("350"),
+            luxury_price=Decimal("600")
+        )
         session.add_all([food_budget, food_standard, food_premium])
 
         user_john = User(
@@ -501,13 +530,6 @@ def main():
         session.commit()
 
     print("Done! Seed data inserted across all tables.")
-    print()
-    print("Users:")
-    print("  john@example.com / password123  (traveler)")
-    print("  admin@example.com / admin123    (admin)")
-    print()
-    print(f"  Attraction destination: Pashupatinath Temple")
-    print(f"  Trek destination:       Annapurna Base Camp Trek")
 
 
 if __name__ == "__main__":

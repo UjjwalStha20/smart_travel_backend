@@ -37,13 +37,15 @@ CSV_CONFIG = {
     "accommodation": {
         "model": Accommodation,
         "file": "accommodation.csv",
-        "fields": ["budget_price", "standard_price", "luxury_price"],
+        # ✅ UPDATED: Added name, description, and location
+        "fields": ["name", "description", "location", "budget_price", "standard_price", "luxury_price"],
         "fk_map": {},
     },
     "food_cost": {
         "model": FoodCost,
         "file": "food_cost.csv",
-        "fields": ["budget_price", "standard_price", "luxury_price"],
+        # ✅ UPDATED: Added name and category
+        "fields": ["name", "category", "budget_price", "standard_price", "luxury_price"],
         "fk_map": {},
     },
     "destination": {
@@ -67,7 +69,7 @@ CSV_CONFIG = {
     "permit": {
         "model": Permit,
         "file": "permit.csv",
-        "fields": ["category", "price"],
+        "fields": ["permit_type","category", "price"],
         "fk_map": {"destination_key": "destination_id"},
     },
     "trekking_routes": {
@@ -100,8 +102,6 @@ CSV_CONFIG = {
         },
     },
 }
-
-
 def clear_all(session: Session):
     tables = [
         Blog, DestinationItinerary, RoutePoint, Permit, EntryFee, TrekkingRoute,
@@ -122,6 +122,25 @@ def generate_uuid(key: str) -> uuid.UUID:
     return uuid.uuid5(uuid.NAMESPACE_DNS, key)
 
 
+SEASON_MONTHS = {
+    "spring": ["March", "April", "May"],
+    "summer": ["June", "July", "August"],
+    "autumn": ["September", "October", "November"],
+    "winter": ["December", "January", "February"],
+}
+
+
+def expand_seasons_to_months(values):
+    """Expand season keywords (spring/autumn/winter/summer) into month names."""
+    if not values:
+        return values
+    expanded = []
+    for v in values:
+        key = v.strip().lower()
+        expanded.extend(SEASON_MONTHS.get(key, [v]))
+    return expanded
+
+
 def parse_value(value: str, field_name: str):
     if value == "" or value is None:
         return None
@@ -137,7 +156,10 @@ def parse_value(value: str, field_name: str):
     if field_name in ("permit_required", "overnight_stop", "is_published"):
         return value.lower() == "true"
     if field_name in ("best_time", "attraction_types", "tags"):
-        return json.loads(value) if value else None
+        parsed = json.loads(value) if value else None
+        if field_name == "best_time":
+            return expand_seasons_to_months(parsed)
+        return parsed
     return value
 
 

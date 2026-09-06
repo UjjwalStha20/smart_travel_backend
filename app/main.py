@@ -23,6 +23,7 @@ from app.routers import (auth,
     food_cost,
     health,
     itinerary,
+    optimization,
     permit,
     photo,
     review,
@@ -32,6 +33,7 @@ from app.routers import (auth,
     user,
     user_trip,
     activity_log,
+    travel_info,
 )
 
 setup_logging()
@@ -76,6 +78,8 @@ app.include_router(user.router)
 app.include_router(user_trip.router)
 app.include_router(activity_log.router)
 app.include_router(recommendation.router)
+app.include_router(optimization.router)
+app.include_router(travel_info.router)
 
 
 

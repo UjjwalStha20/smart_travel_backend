@@ -17,6 +17,12 @@ class PermitService:
         total = self.session.exec(select(func.count(Permit.id))).one()
         return {"items": items, "total": total, "offset": offset, "limit": limit}
 
+    def get_by_destination_id(self, destination_id) -> list[Permit]:
+        statement = select(Permit).where(
+            Permit.destination_id == UUID(str(destination_id))
+        )
+        return self.session.exec(statement).all()
+
     def get_permit_by_id(self, permit_id: UUID) -> Permit:
         permit = self.session.get(Permit, permit_id)
         if not permit:

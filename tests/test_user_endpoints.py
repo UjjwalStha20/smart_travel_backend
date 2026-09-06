@@ -6,7 +6,7 @@ class TestReview:
         from app.models import Destination, DestinationCategory
         d = Destination(
             name="Test Destination", description="Test", category=DestinationCategory.attraction,
-            best_time_to_visit="Spring", address_id=test_addresses[0].id,
+            best_time=["Spring"], address_id=test_addresses[0].id,
         )
         session.add(d)
         session.commit()
@@ -95,7 +95,7 @@ class TestSavedDestination:
         from app.models import Destination, DestinationCategory
         d = Destination(
             name="Save Test Dest", description="Test", category=DestinationCategory.attraction,
-            best_time_to_visit="Spring", address_id=test_addresses[0].id,
+            best_time=["Spring"], address_id=test_addresses[0].id,
         )
         session.add(d)
         session.commit()

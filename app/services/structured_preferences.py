@@ -3,7 +3,7 @@ from uuid import UUID
 
 from sqlmodel import select
 
-from app.models import User, Destination, UserPreferences, UserInteraction, UserTrip, Review, SavedDestination
+from app.models import User, Destination, TrekkingRoute, UserPreferences, UserInteraction, UserTrip, Review, SavedDestination
 
 
 class StructuredPreferenceMatcher:
@@ -143,7 +143,7 @@ class StructuredPreferenceMatcher:
             return 0.5
         rec_days = 0
         routes = self.session.exec(
-            select(Destination.trekking_routes).where(Destination.id == dest.id)
+            select(TrekkingRoute).where(TrekkingRoute.destination_id == dest.id)
         ).all()
         if routes:
             for route in routes:
@@ -170,7 +170,7 @@ class StructuredPreferenceMatcher:
             return 0.5
         actual_difficulty = None
         routes = self.session.exec(
-            select(Destination.trekking_routes).where(Destination.id == dest.id)
+            select(TrekkingRoute).where(TrekkingRoute.destination_id == dest.id)
         ).all()
         if routes:
             for route in routes:

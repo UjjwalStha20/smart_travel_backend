@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import JSONResponse
+from sqlmodel import select
+from uuid import UUID
 
-from app.core.db import get_session, init_db
+from app.core.db import get_session
 from app.dependencies import CurrentUser, SessionDep
 from app.models import User
 from app.schemas.recommendations.basics import (
@@ -13,7 +15,7 @@ from app.services.recommendation_service import (
     get_recommendation_service,
     RecommendationService,
 )
-from typing import Optional
+from typing import List, Optional
 
 
 router = APIRouter(prefix="/recommendations", tags=["Recommendations"])
@@ -49,7 +51,7 @@ async def get_recommendations(
 
     # Get recommendations
     recommendations = rec_service.get_recommendations(
-        user_id=UUID(current_user.id) if hasattr(current_user, "id") else current_user.id,
+        user_id=current_user.id,
         limit=limit,
     )
 
@@ -74,7 +76,7 @@ async def get_recommendation_summaries(
     """
     rec_service: RecommendationService = get_recommendation_service(session)
     recommendations = rec_service.get_recommendations(
-        user_id=UUID(current_user.id) if hasattr(current_user, "id") else current_user.id,
+        user_id=current_user.id,
         limit=limit,
     )
 
@@ -129,7 +131,7 @@ async def record_interaction(
         rec_service: RecommendationService = get_recommendation_service(session)
 
         interaction = rec_service.record_interaction(
-            user_id=UUID(current_user.id) if hasattr(current_user, "id") else current_user.id,
+            user_id=current_user.id,
             destination_id=destination_id,
             interaction_type=interaction_type,
             rating=rating,
@@ -185,7 +187,7 @@ async def update_preferences(
     from app.models import UserPreferences
     from datetime import datetime, timezone
 
-    user_id = UUID(current_user.id) if hasattr(current_user, "id") else current_user.id
+    user_id = current_user.id
 
     # Check if preferences exist
     stmt = select(UserPreferences).where(UserPreferences.user_id == user_id)

@@ -60,6 +60,7 @@ class TestAccommodation:
 
     def test_create_as_admin(self, client, admin_token):
         resp = client.post("/accommodations/", json={
+            "name": "Test Lodge",
             "budget_price": 5, "standard_price": 20, "luxury_price": 80,
         }, headers={"Authorization": f"Bearer {admin_token}"})
         assert resp.status_code == 201
@@ -83,6 +84,7 @@ class TestFoodCost:
 
     def test_create_as_admin(self, client, admin_token):
         resp = client.post("/food_costs/", json={
+            "name": "Test Food",
             "budget_price": 300, "standard_price": 800, "luxury_price": 2000,
         }, headers={"Authorization": f"Bearer {admin_token}"})
         assert resp.status_code == 201
@@ -99,7 +101,7 @@ class TestPermit:
         from app.models import Destination, DestinationCategory
         d = Destination(
             name="Permit Dest", description="Test", category=DestinationCategory.attraction,
-            best_time_to_visit="Spring", address_id=test_addresses[0].id,
+            best_time=["Spring"], address_id=test_addresses[0].id,
         )
         session.add(d)
         session.commit()
@@ -114,6 +116,7 @@ class TestPermit:
         dest = self._create_test_destination(session, test_addresses)
         resp = client.post("/permits/", json={
             "destination_id": str(dest.id),
+            "permit_type": "TIMS",
             "category": "Nepali",
             "price": 500,
         }, headers={"Authorization": f"Bearer {admin_token}"})
@@ -123,7 +126,7 @@ class TestPermit:
         from app.models import Destination, DestinationCategory
         d = Destination(
             name="Permit Dest 2", description="Test", category=DestinationCategory.attraction,
-            best_time_to_visit="Spring", address_id=test_addresses[0].id,
+            best_time=["Spring"], address_id=test_addresses[0].id,
         )
         session.add(d)
         session.commit()

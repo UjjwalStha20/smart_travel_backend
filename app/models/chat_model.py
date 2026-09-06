@@ -22,6 +22,12 @@ class ChatConversation(SQLModel, table=True):
     user: "User" = Relationship(back_populates="chat_conversations")
 
 
+# Auto-update the timestamp whenever the conversation is modified
+@event.listens_for(ChatConversation, "before_update")
+def receive_before_update(mapper, connection, target):
+    target.updated_at = datetime.utcnow()
+
+
 class ChatMessage(SQLModel, table=True):
     __tablename__ = "chat_message"
 

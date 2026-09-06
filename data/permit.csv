@@ -1,13 +1,51 @@
-key,destination_key,category,price
-perm_abc_nepali,dest_abc_trek,Nepali,100
-perm_abc_foreign,dest_abc_trek,Foreign,3000
-perm_abc_saarc,dest_abc_trek,SAARC,1500
-perm_poon_nepali,dest_poon_hill_trek,Nepali,100
-perm_poon_foreign,dest_poon_hill_trek,Foreign,3000
-perm_poon_saarc,dest_poon_hill_trek,SAARC,1500
-perm_ebc_nepali,dest_ebc_trek,Nepali,500
-perm_ebc_foreign,dest_ebc_trek,Foreign,5000
-perm_ebc_saarc,dest_ebc_trek,SAARC,3000
-perm_langtang_nepali,dest_langtang_trek,Nepali,100
-perm_langtang_foreign,dest_langtang_trek,Foreign,3000
-perm_langtang_saarc,dest_langtang_trek,SAARC,1500
+key,destination_key,permit_type,category,price
+# ─ Annapurna Base Camp (ABC) ─
+timis_abc_foreign,dest_abc_trek,TIMS,Foreign,2000
+timis_abc_saarc,dest_abc_trek,TIMS,SAARC,600
+timis_abc_nepali,dest_abc_trek,TIMS,Nepali,100
+acap_abc_foreign,dest_abc_trek,ACAP,Foreign,3000
+acap_abc_saarc,dest_abc_trek,ACAP,SAARC,200
+acap_abc_nepali,dest_abc_trek,ACAP,Nepali,100
+
+# ── Poon Hill / Ghorepani ──
+timis_poon_foreign,dest_poon_hill_trek,TIMS,Foreign,2000
+timis_poon_saarc,dest_poon_hill_trek,TIMS,SAARC,600
+timis_poon_nepali,dest_poon_hill_trek,TIMS,Nepali,100
+acap_poon_foreign,dest_poon_hill_trek,ACAP,Foreign,3000
+acap_poon_saarc,dest_poon_hill_trek,ACAP,SAARC,200
+acap_poon_nepali,dest_poon_hill_trek,ACAP,Nepali,100
+
+# ── Everest Base Camp (EBC) ──
+timis_ebc_foreign,dest_ebc_trek,TIMS,Foreign,2000
+timis_ebc_saarc,dest_ebc_trek,TIMS,SAARC,600
+timis_ebc_nepali,dest_ebc_trek,TIMS,Nepali,100
+sagarmatha_ebc_foreign,dest_ebc_trek,Sagarmatha_National_Park,Foreign,3000
+sagarmatha_ebc_saarc,dest_ebc_trek,Sagarmatha_National_Park,SAARC,1500
+sagarmatha_ebc_nepali,dest_ebc_trek,Sagarmatha_National_Park,Nepali,100
+
+# ── Langtang Valley ──
+timis_langtang_foreign,dest_langtang_trek,TIMS,Foreign,2000
+timis_langtang_saarc,dest_langtang_trek,TIMS,SAARC,600
+timis_langtang_nepali,dest_langtang_trek,TIMS,Nepali,100
+langtang_np_foreign,dest_langtang_trek,Langtang_National_Park,Foreign,3000
+langtang_np_saarc,dest_langtang_trek,Langtang_National_Park,SAARC,1500
+langtang_np_nepali,dest_langtang_trek,Langtang_National_Park,Nepali,100
+
+# ── Manaslu Circuit (Requires MCAP + Restricted Area Permit) ──
+timis_manaslu_foreign,dest_manaslu_trek,TIMS,Foreign,2000
+timis_manaslu_saarc,dest_manaslu_trek,TIMS,SAARC,600
+timis_manaslu_nepali,dest_manaslu_trek,TIMS,Nepali,100
+mcap_manaslu_foreign,dest_manaslu_trek,MCAP,Foreign,3000
+mcap_manaslu_saarc,dest_manaslu_trek,MCAP,SAARC,200
+mcap_manaslu_nepali,dest_manaslu_trek,MCAP,Nepali,100
+rap_manaslu_foreign,dest_manaslu_trek,Restricted_Area_Permit,Foreign,10000
+rap_manaslu_saarc,dest_manaslu_trek,Restricted_Area_Permit,SAARC,10000
+rap_manaslu_nepali,dest_manaslu_trek,Restricted_Area_Permit,Nepali,1000
+
+# ── Upper Mustang (Requires ACAP + Very Expensive Restricted Permit) ──
+acap_mustang_foreign,dest_mustang_trek,ACAP,Foreign,3000
+acap_mustang_saarc,dest_mustang_trek,ACAP,SAARC,200
+acap_mustang_nepali,dest_mustang_trek,ACAP,Nepali,100
+rap_mustang_foreign,dest_mustang_trek,Restricted_Area_Permit,Foreign,60000
+rap_mustang_saarc,dest_mustang_trek,Restricted_Area_Permit,SAARC,60000
+rap_mustang_nepali,dest_mustang_trek,Restricted_Area_Permit,Nepali,5000

@@ -14,7 +14,6 @@ from app.core.config import settings
 from app.models import User
 from app.models.chat_model import ChatConversation, ChatMessage
 
-
 TOOL_NAME_ALIASES = {
     "get_destination_details": "get_destination_by_id",
 }
@@ -27,8 +26,8 @@ class AIService:
         self.session = session
         self.user = current_user
         self.client = OpenAI(
-            base_url=settings.OPENROUTER_BASE_URL,
-            api_key=settings.OPENROUTER_API_KEY,
+            base_url=settings.LLM_BASE_URL,
+            api_key=settings.LLM_API_KEY or "ollama",
         )
         self.tool_executor = ToolExecutor(ToolRegistry(session))
 
@@ -44,6 +43,7 @@ class AIService:
             ).first()
             if conv:
                 return conv
+        
         conv = ChatConversation(user_id=self.user.id)
         self.session.add(conv)
         self.session.commit()
@@ -56,6 +56,7 @@ class AIService:
             .where(ChatMessage.conversation_id == conversation_id)
             .order_by(ChatMessage.created_at.asc())
         ).all()
+        
         result = []
         for m in messages[-self.MAX_HISTORY :]:
             if m.role == "tool":
@@ -66,6 +67,7 @@ class AIService:
                 except (json.JSONDecodeError, TypeError):
                     tool_name = "unknown"
                     result_content = m.content
+                
                 result.append(
                     {
                         "role": "user",
@@ -95,27 +97,23 @@ class AIService:
 
     def _parse_text_tool_calls(self, content: str) -> list[dict]:
         calls = []
-        blocks = re.findall(
-            r"<tool_call>(.*?)</tool_call>", content, re.DOTALL
-        )
+        blocks = re.findall(r"<tool_call>(.*?)</tool_call>", content, re.DOTALL)
+        
         for block in blocks:
-            func_match = re.search(
-                r"<function(?:_name)?[=>]?\s*(\w+)", block
-            )
+            func_match = re.search(r"<function(?:_name)?[=>]?\s*(\w+)", block)
             if not func_match:
                 continue
+            
             name = func_match.group(1)
             params = {}
+            
             param_matches = re.findall(
-                r"<parameter=(\w+)>\s*(.*?)\s*</parameter>",
-                block,
-                re.DOTALL,
+                r"<parameter=(\w+)>\s*(.*?)\s*</parameter>", block, re.DOTALL
             )
             for key, val in param_matches:
                 params[key] = val.strip()
-            json_match = re.search(
-                r"<parameters>\s*(.*?)\s*</parameters>", block, re.DOTALL
-            )
+                
+            json_match = re.search(r"<parameters>\s*(.*?)\s*</parameters>", block, re.DOTALL)
             if json_match:
                 try:
                     parsed = json.loads(json_match.group(1))
@@ -123,6 +121,7 @@ class AIService:
                         params.update(parsed)
                 except json.JSONDecodeError:
                     pass
+                    
             calls.append({"name": name, "arguments": params})
         return calls
 
@@ -149,7 +148,10 @@ class AIService:
             )
 
     def process_message(
-        self, message: str, conversation_id: Optional[str] = None
+        self, 
+        message: str, 
+        conversation_id: Optional[str] = None,
+        user_profile: Optional[dict] = None
     ) -> dict:
         conversation = self._load_or_create_conversation(conversation_id)
         conv_id = str(conversation.id)
@@ -159,8 +161,21 @@ class AIService:
 
         history = self._get_history_messages(conversation.id)
 
+        # Dynamically inject user profile for adaptability
+        dynamic_system_prompt = SYSTEM_PROMPT
+        if user_profile:
+            profile_text = (
+                f"\n\nCURRENT USER CONTEXT:\n"
+                f"- Traveler Type: {user_profile.get('traveler_type', 'general')}\n"
+                f"- Budget: {user_profile.get('budget', 'moderate')}\n"
+                f"- Fitness Level: {user_profile.get('fitness_level', 'moderate')}\n"
+                f"- Dietary Restrictions: {user_profile.get('dietary_restrictions', 'none')}\n"
+                f"Adapt ALL recommendations to match this specific user profile."
+            )
+            dynamic_system_prompt += profile_text
+
         messages = [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": dynamic_system_prompt},
             *history,
         ]
 
@@ -169,8 +184,10 @@ class AIService:
 
         for _round in range(max_tool_rounds):
             response = self.client.chat.completions.create(
-                model=settings.OPENROUTER_MODEL,
+                model=settings.LLM_MODEL,
                 messages=messages,
+                temperature=0.2,    # Low temp for strict XML tool calling
+                max_tokens=1024,    # Prevent rambling
             )
 
             choice = response.choices[0]

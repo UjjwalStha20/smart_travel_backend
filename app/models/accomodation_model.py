@@ -8,8 +8,6 @@ if TYPE_CHECKING:
     from app.models.attraction_model import Attraction
     from app.models.route_point_model import RoutePoint
 
-
-
 # ---------------------------------------------------------------------------
 # Accommodation
 # ---------------------------------------------------------------------------
@@ -18,6 +16,10 @@ class Accommodation(SQLModel, table=True):
     __tablename__ = "accommodation"
 
     id:             UUID            = Field(default_factory=uuid4, primary_key=True)
+    name:           str             = Field(default="", description="Name of the teahouse/lodge") # Fixed comment
+    description:    Optional[str]   = None
+    location:       Optional[str]   = None               # Added back the location field!
+    
     budget_price:   Decimal         = Field(default=None)
     standard_price: Optional[Decimal] = None
     luxury_price:   Optional[Decimal] = None

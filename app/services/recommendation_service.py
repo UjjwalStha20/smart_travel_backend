@@ -3,10 +3,10 @@ from uuid import UUID
 
 from sqlmodel import Session, select, func
 
-from app.models import User, Destination, UserPreferences, UserInteraction, Review, UserTrip, SavedDestination
+from app.models import User, Destination, UserPreferences, UserInteraction, Review, UserTrip, SavedDestination, RecommendationLog
 from app.services.content_based import ContentBasedFiltering
 from app.services.structured_preferences import StructuredPreferenceMatcher
-from app.services.contextual import ContextAwareFiltering
+from app.services.contextual import ContextAwareFiltering, WEATHER_NOTES
 from app.services.collaborative import CollaborativeFiltering
 from app.services.popularity import PopularityBased
 from app.schemas.recommendations.basics import (
@@ -126,9 +126,7 @@ class RecommendationService:
         algorithm_version: str = "hybrid_v1",
     ) -> RecommendationLog:
         """Log a recommendation for audit and learning."""
-        from app.models.recommendation_log_model import RecommendationLog as RL
-
-        log_entry = RL(
+        log_entry = RecommendationLog(
             user_id=user_id,
             destination_id=destination_id,
             final_score=final_score,
@@ -264,8 +262,12 @@ class RecommendationService:
             )
 
             # Use popularity-based explanation
+            reason = f"Popular destination suitable for general travel"
+            note = WEATHER_NOTES.get(str(dest.id))
+            if note:
+                reason = f"{reason}. {note}"
             explanation = RecommendationExplanation(
-                reason_summary=f"Popular destination suitable for general travel"
+                reason_summary=reason
             )
 
             results.append(
@@ -422,10 +424,12 @@ class RecommendationService:
                 comp = component_scores_map[dest_id]
 
             # Build explanation
+            reason = self._generate_reason(dest, comp)
+            note = WEATHER_NOTES.get(str(dest_id))
+            if note:
+                reason = f"{reason}. {note}" if reason else note
             explanation = RecommendationExplanation(
-                reason_summary=self._generate_reason(
-                    dest, comp
-                )
+                reason_summary=reason
             )
 
             results.append(
