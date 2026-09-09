@@ -260,10 +260,9 @@ class NepalKnowledge:
             return self._nepal_general_answer()
 
         return (
-            "I'm your Nepal travel assistant. I can help with destinations, trekking routes, "
-            "permits, budgets, food, weather, transport and more. Ask me something like "
-            "\u201cWhat are the things to do in Kathmandu?\u201d or \u201cWhich trek is good in "
-            "October?\u201d 😊"
+            "I can help with Nepal destinations, treks, permits, budgets, food, "
+            "weather and transport. Try asking \u201cbest trek in October\u201d or "
+            "\u201cthings to do in Pokhara.\u201d"
         )
 
     # ------------------------------------------------------------------

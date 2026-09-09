@@ -81,3 +81,33 @@ class RecommendationSummary(BaseModel):
     final_score: float
     rank: int
     reason_summary: Optional[str] = None
+
+
+class RequirementsRecommendationRequest(BaseModel):
+    """Trip-plan requirements used to score destination recommendations.
+
+    Mirrors the fields the Plan a Trip form collects; all optional so the engine
+    recommends as soon as enough information is present.
+    """
+    trip_types: Optional[List[str]] = Field(default=None, description="Selected trip types (e.g. trekking, cultural & heritage)")
+    preferences: Optional[Dict[str, Any]] = Field(default=None, description="Preferences object (interests, pace, ...)")
+    answers: Optional[Dict[str, Any]] = Field(default=None, description="Form answers (difficulty, region, ...)")
+    duration_days: Optional[int] = Field(default=None, ge=1, description="Trip duration in days")
+    budget_level: Optional[str] = Field(default=None, description="Budget level: budget, moderate, standard, comfort, luxury")
+    season: Optional[str] = Field(default=None, description="Explicit season override (spring/summer/autumn/winter)")
+    start_date: Optional[str] = Field(default=None, description="Start date ISO; fallback season source")
+    start_location: Optional[str] = None
+    transportation: Optional[List[str]] = None
+    accommodation: Optional[str] = None
+    travelers: Optional[Dict[str, Any]] = None
+    limit: int = Field(default=10, ge=1, le=50, description="Maximum number of recommendations to return")
+
+
+class RequirementsRecommendation(BaseModel):
+    """Scored destination for the Plan a Trip recommendations step."""
+    destination_id: UUID
+    name: str
+    category: str
+    score: float = Field(description="Recommendation score 0-100")
+    reason: str = Field(description="Why this destination matches (built from real destination data)")
+    description: str = Field(default="", description="Short destination description (actual data)")

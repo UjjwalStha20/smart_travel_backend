@@ -72,6 +72,7 @@ def list_conversations(
                 "title": conv.title,
                 "message_count": count_map.get(conv.id, 0),
                 "updated_at": conv.updated_at.isoformat(),
+                "trip_plan_id": str(conv.trip_plan_id) if conv.trip_plan_id else None,
             }
         )
     return {"items": items, "total": total, "offset": offset, "limit": limit}
@@ -103,6 +104,7 @@ def get_conversation(
         "title": conv.title,
         "created_at": conv.created_at.isoformat(),
         "updated_at": conv.updated_at.isoformat(),
+        "trip_plan_id": str(conv.trip_plan_id) if conv.trip_plan_id else None,
         "messages": [
             {
                 "id": str(m.id),

@@ -10,6 +10,8 @@ from app.schemas.recommendations.basics import (
     RecommendationCreate,
     RecommendationRead,
     RecommendationSummary,
+    RequirementsRecommendation,
+    RequirementsRecommendationRequest,
 )
 from app.services.recommendation_service import (
     get_recommendation_service,
@@ -56,6 +58,68 @@ async def get_recommendations(
     )
 
     return recommendations
+
+
+@router.post(
+    "/from-requirements",
+    response_model=list[RequirementsRecommendation],
+    summary="Recommend destinations from trip-plan requirements",
+    description="Score destinations with the existing hybrid recommendation engine, driven by the "
+                "requirements collected in the Plan a Trip form (trip types, preferences, duration, "
+                "budget, dates/season). Explanations are built only from actual destination data.",
+)
+async def get_requirements_recommendations(
+    body: RequirementsRecommendationRequest,
+    session: SessionDep,
+    current_user: CurrentUser,
+) -> list[RequirementsRecommendation]:
+    from app.chat.intent import RECOMMENDATION, season_for_month
+    from app.chat.recommender import UnifiedRecommender
+
+    # Explicit season wins; otherwise fall back to the travel start month.
+    season = (body.season or "").strip() or None
+    if not season and body.start_date:
+        try:
+            month = int(str(body.start_date)[5:7])
+            season = season_for_month(month) or None
+        except (ValueError, IndexError):
+            season = None
+
+    trip = {
+        "budget": {"level": body.budget_level},
+        "preferences": body.preferences or {},
+        "answers": body.answers or {},
+        "destinations": [],
+        "trip_types": body.trip_types or [],
+        "duration_days": body.duration_days,
+        "user_id": str(current_user.id),
+    }
+
+    try:
+        recs = UnifiedRecommender(session).recommend(
+            intent=RECOMMENDATION,
+            message="",
+            trip=trip,
+            user_id=str(current_user.id),
+            limit=body.limit,
+            season=season,
+        )
+    except Exception:
+        # Never let a dataset/scoring hiccup abort the request.
+        session.rollback()
+        return []
+
+    return [
+        RequirementsRecommendation(
+            destination_id=r["destination_id"],
+            name=r["name"],
+            category=r["category"],
+            score=r["score"],
+            reason=r["reason"],
+            description=r["description"],
+        )
+        for r in recs
+    ]
 
 
 @router.get(

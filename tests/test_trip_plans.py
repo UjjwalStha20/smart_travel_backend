@@ -58,6 +58,140 @@ def test_generate_initial_itinerary(client: TestClient, user_token: str, test_de
     assert first["items"][0]["title"]
 
 
+def test_trek_itinerary_uses_route_rows(client: TestClient, user_token: str, test_destinations, session):
+    from app.models import DestinationItinerary
+
+    abc = test_destinations[0]
+    session.add_all([
+        DestinationItinerary(
+            destination_id=abc.id, day_number=1, title="Kathmandu to Pokhara",
+            start_location="Kathmandu", end_location="Pokhara", overnight_location="Pokhara",
+        ),
+        DestinationItinerary(
+            destination_id=abc.id, day_number=2, title="Pokhara to Ghandruk",
+            start_location="Pokhara", end_location="Ghandruk", overnight_location="Ghandruk",
+        ),
+        DestinationItinerary(
+            destination_id=abc.id, day_number=3, title="Ghandruk to Tolka",
+            start_location="Ghandruk", end_location="Tolka", overnight_location="Tolka",
+        ),
+    ])
+    session.commit()
+
+    data = _create_trip(
+        client, user_token,
+        name="ABC Trek", destinations=["Annapurna Base Camp Trek"],
+        duration_days=3, trip_types=["trekking", "mountain"],
+    )
+    trip_id = data["id"]
+    resp = client.post(f"/trip-plans/{trip_id}/generate", headers=_auth(user_token))
+    assert resp.status_code == 200, resp.text
+    days = resp.json()["trip"]["itinerary_days"]
+    assert [d["title"] for d in days] == ["Kathmandu to Pokhara", "Pokhara to Ghandruk", "Ghandruk to Tolka"]
+    assert len(days) == 3
+    assert any(it["category"] == "travel" for it in days[0]["items"])
+    assert all(not ("— Day" in d["title"]) for d in days)
+
+
+def test_trek_itinerary_caps_at_duration(client: TestClient, user_token: str, test_destinations, session):
+    from app.models import DestinationItinerary
+
+    abc = test_destinations[0]
+    session.add_all([
+        DestinationItinerary(
+            destination_id=abc.id, day_number=n, title=f"Stage {n}",
+            start_location=f"S{n}", end_location=f"E{n}",
+        )
+        for n in range(1, 5)
+    ])
+    session.commit()
+
+    data = _create_trip(client, user_token, name="Short ABC", destinations=["Annapurna Base Camp Trek"], duration_days=2, trip_types=["trekking"])
+    trip_id = data["id"]
+    resp = client.post(f"/trip-plans/{trip_id}/generate", headers=_auth(user_token))
+    days = resp.json()["trip"]["itinerary_days"]
+    assert [d["title"] for d in days] == ["Stage 1", "Stage 2"]
+
+
+def test_sightseeing_destination_not_repeated_across_days(client: TestClient, user_token: str, test_destinations, session):
+    from app.models import DestinationThingToDo
+
+    pat = test_destinations[1]
+    session.add_all([
+        DestinationThingToDo(destination_id=pat.id, position=0, title="Visit the main temple", duration="1-2 hours"),
+        DestinationThingToDo(destination_id=pat.id, position=1, title="Watch the evening aarti", duration="1 hour"),
+    ])
+    session.commit()
+
+    data = _create_trip(client, user_token, name="Kathmandu", destinations=["Pashupatinath Temple"], duration_days=5, trip_types=["cultural"])
+    trip_id = data["id"]
+    resp = client.post(f"/trip-plans/{trip_id}/generate", headers=_auth(user_token))
+    days = resp.json()["trip"]["itinerary_days"]
+    assert len(days) == 1, "a single sightseeing destination must get exactly one day"
+    assert days[0]["title"] == "Pashupatinath Temple"
+    titles = [it["title"] for it in days[0]["items"]]
+    assert "Visit the main temple" in titles
+    assert "Watch the evening aarti" in titles
+    assert not any("— Day" in d["title"] for d in days)
+
+
+def test_sightseeing_grouped_when_days_short(client: TestClient, user_token: str, test_destinations, test_addresses, session):
+    from app.models import Destination, DestinationCategory, DestinationThingToDo
+
+    buddha = Destination(
+        name="Boudhanath Stupa", category=DestinationCategory.attraction,
+        description="Buddhist stupa in Kathmandu.", best_time=[], permit_required=False,
+        rating=4, address_id=test_addresses[0].id,
+    )
+    session.add(buddha)
+    session.flush()
+    session.add_all([
+        DestinationThingToDo(destination_id=buddha.id, position=0, title="Circumambulate the stupa", duration="1 hour"),
+    ])
+    session.commit()
+
+    data = _create_trip(
+        client, user_token, name="Kathmandu Darshan",
+        destinations=["Pashupatinath Temple", "Boudhanath Stupa"],
+        duration_days=1, trip_types=["cultural"],
+    )
+    trip_id = data["id"]
+    resp = client.post(f"/trip-plans/{trip_id}/generate", headers=_auth(user_token))
+    days = resp.json()["trip"]["itinerary_days"]
+    assert len(days) == 1
+    assert days[0]["title"] == "Pashupatinath Temple & Boudhanath Stupa"
+
+
+def test_route_trip_keeps_selected_sightseeing(client: TestClient, user_token: str, test_destinations, test_addresses, session):
+    from app.models import Destination, DestinationCategory, DestinationItinerary, DestinationThingToDo
+
+    abc = test_destinations[0]
+    session.add_all([
+        DestinationItinerary(
+            destination_id=abc.id, day_number=n, title=f"Stage {n}",
+            start_location=f"S{n}", end_location=f"E{n}",
+        )
+        for n in range(1, 4)
+    ])
+    pat = test_destinations[1]
+    session.add(DestinationThingToDo(destination_id=pat.id, position=0, title="Visit the main temple"))
+    session.flush()
+    session.commit()
+
+    data = _create_trip(
+        client, user_token, name="Trek plus culture",
+        destinations=["Annapurna Base Camp Trek", "Pashupatinath Temple"],
+        duration_days=3, trip_types=["trekking"],
+    )
+    trip_id = data["id"]
+    resp = client.post(f"/trip-plans/{trip_id}/generate", headers=_auth(user_token))
+    days = resp.json()["trip"]["itinerary_days"]
+    assert len(days) == 3
+    assert [d["title"] for d in days] == ["Stage 1", "Stage 2", "Stage 3"]
+    assert any(it["title"] == "Visit the main temple" for d in days for it in d["items"]), \
+        "selected sightseeing destination must not be silently dropped"
+
+
 def test_ownership_enforced(client: TestClient, session, user_token, admin_token):
     from app.core.security import hash_password
     from app.models import User
@@ -98,7 +232,10 @@ def test_update_trip_and_answers(client: TestClient, user_token: str):
 def test_apply_edit_regenerates_affected_day(client: TestClient, user_token: str, test_destinations):
     from uuid import uuid4
 
-    data = _create_trip(client, user_token, duration_days=3)
+    data = _create_trip(
+        client, user_token, duration_days=3,
+        destinations=["Pashupatinath Temple", "Annapurna Base Camp Trek"],
+    )
     trip_id = data["id"]
     client.post(f"/trip-plans/{trip_id}/generate", headers=_auth(user_token))
     plan = client.get(f"/trip-plans/{trip_id}", headers=_auth(user_token)).json()
@@ -130,7 +267,7 @@ def test_apply_edit_regenerates_affected_day(client: TestClient, user_token: str
     assert any(it["title"] == "Boudhanath Stupa" for it in new_day2["items"])
     assert updated["preferences"]["pace"] == "relaxed"
     # unchanged days preserved
-    assert len(updated["itinerary_days"]) == 3
+    assert len(updated["itinerary_days"]) == 2
 
 
 def test_trip_chat_persists_messages(client: TestClient, user_token: str, monkeypatch):

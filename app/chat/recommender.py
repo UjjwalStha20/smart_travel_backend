@@ -61,9 +61,10 @@ class UnifiedRecommender:
         trip: Optional[dict] = None,
         user_id: Optional[str] = None,
         limit: int = 6,
+        season: Optional[str] = None,
     ) -> List[dict]:
         """Return ranked destination recommendations (score 0-100)."""
-        req = build_requirements(intent, message, trip, user_id=user_id)
+        req = build_requirements(intent, message, trip, user_id=user_id, season=season)
 
         # Component scores from existing algorithms.
         from app.services.content_based import ContentBasedFiltering
@@ -247,12 +248,17 @@ def build_requirements(
     trip: Optional[dict],
     user_profile: Optional[dict] = None,
     user_id: Optional[str] = None,
+    season: Optional[str] = None,
 ) -> dict:
-    """Extract normalized requirements from the message + saved trip."""
+    """Extract normalized requirements from the message + saved trip.
+
+    `season` is an optional explicit override (e.g. derived from travel dates
+    in the Plan a Trip form); when absent it is inferred from the message.
+    """
     from app.chat.intent import extract_destination_names
 
     months = extract_months(message)
-    season = season_for_month(months[0]) if months else ""
+    season_value = (season or "").strip() or (season_for_month(months[0]) if months else "")
 
     budget_level = None
     difficulty = None
@@ -314,7 +320,7 @@ def build_requirements(
         "typical_duration": (trip or {}).get("duration_days") or 0,
         "difficulty_preference": difficulty or "moderate",
         "difficulty": difficulty or "moderate",
-        "preferred_season": [season] if season else [],
+        "preferred_season": [season_value] if season_value else [],
         "travel_style": (trip or {}).get("preferences", {}).get("pace") or "cultural",
     }
 
@@ -322,7 +328,7 @@ def build_requirements(
         "intent": intent,
         "text": message,
         "months": months,
-        "season": season,
+        "season": season_value,
         "budget_level": budget_level,
         "difficulty": difficulty,
         "interests": interests,
