@@ -58,6 +58,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+@app.get("/")
+def root():
+    return {
+        "message": "Smart Travel Planner API is running",
+        "status": "healthy",
+        "docs": "/docs",
+        "health": "/health",
+    }
+
+
 app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(accommodation.router)
@@ -89,10 +99,4 @@ app.include_router(optimization.router)
 app.include_router(travel_info.router)
 app.include_router(destination_content.router)
 app.include_router(trip_plan.router)
-
-
-
- 
-
-
 
