@@ -1,0 +1,17 @@
+{
+  "id": "ITIN-002",
+  "endpoint": "/itineraries/",
+  "method": "POST",
+  "title": "Create itinerary - day_number=0",
+  "expected_status": 422,
+  "auth": "traveler",
+  "body": {
+    "trip_id": "{{user_trip_id}}",
+    "day_number": 0,
+    "start_location": "A",
+    "end_location": "B"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

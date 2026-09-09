@@ -1,0 +1,14 @@
+{
+  "id": "FOOD-007",
+  "endpoint": "/food_costs/{{food_new_id}}",
+  "method": "PUT",
+  "title": "Admin update",
+  "expected_status": 200,
+  "auth": "admin",
+  "body": {
+    "standard_price": 650
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 2
+}

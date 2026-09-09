@@ -1,0 +1,17 @@
+{
+  "id": "ATTR-007",
+  "endpoint": "/attractions/{{attraction_new_id}}",
+  "method": "PUT",
+  "title": "Admin update",
+  "expected_status": 200,
+  "auth": "admin",
+  "body": {
+    "destination_id": "{{destination_id}}",
+    "attraction_types": [
+      "lake"
+    ]
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 1
+}

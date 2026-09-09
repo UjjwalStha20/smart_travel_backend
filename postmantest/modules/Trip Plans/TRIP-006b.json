@@ -1,0 +1,14 @@
+{
+  "id": "TRIP-006b",
+  "endpoint": "/trip-plans/",
+  "method": "POST",
+  "title": "Create trip - name not a string",
+  "expected_status": 422,
+  "auth": "traveler",
+  "body": {
+    "name": 123
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

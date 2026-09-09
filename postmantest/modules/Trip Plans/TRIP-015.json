@@ -1,0 +1,12 @@
+{
+  "id": "TRIP-015",
+  "endpoint": "/trip-plans/{{trip_id}}/messages",
+  "method": "GET",
+  "title": "GET messages after sending",
+  "expected_status": 200,
+  "auth": "traveler",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 1
+}

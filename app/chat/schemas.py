@@ -8,13 +8,35 @@ from pydantic import BaseModel
 class ChatRequest(BaseModel):
     message: str
     conversation_id: Optional[str] = None
+    # Binds this chat (and future messages) to a saved trip plan.
+    trip_plan_id: Optional[str] = None
     # Added to enable AI adaptability (budget, fitness, dietary needs, etc.)
-    user_profile: Optional[dict] = None 
+    user_profile: Optional[dict] = None
+
+
+class ChatRecommendation(BaseModel):
+    destination_id: str
+    name: str
+    category: str
+    score: float
+    reason: str
+    description: Optional[str] = None
+
+
+class ConversationSummary(BaseModel):
+    id: str
+    title: str
+    trip_plan_id: Optional[str] = None
+    updated_at: str
+    message_count: int
 
 
 class ChatResponse(BaseModel):
     reply: str
     conversation_id: str
+    message_id: str
+    conversation: ConversationSummary
+    recommendations: list[ChatRecommendation] = []
 
 
 class ConversationListItem(BaseModel):

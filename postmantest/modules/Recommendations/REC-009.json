@@ -1,0 +1,25 @@
+{
+  "id": "REC-009",
+  "endpoint": "/recommendations/interaction",
+  "method": "POST",
+  "title": "Record interaction - rating=6 invalid",
+  "expected_status": 422,
+  "auth": "traveler",
+  "body": null,
+  "query": [
+    [
+      "destination_id",
+      "{{destination_id}}"
+    ],
+    [
+      "interaction_type",
+      "rating"
+    ],
+    [
+      "rating",
+      "6"
+    ]
+  ],
+  "note": "",
+  "script_assertions": 0
+}

@@ -19,6 +19,7 @@ from app.routers import (auth,
     chat,
     destination,
     destination_itinerary,
+    destination_content,
     entry_fee,
     food_cost,
     health,
@@ -34,6 +35,7 @@ from app.routers import (auth,
     user_trip,
     activity_log,
     travel_info,
+    trip_plan,
 )
 
 setup_logging()
@@ -80,6 +82,8 @@ app.include_router(activity_log.router)
 app.include_router(recommendation.router)
 app.include_router(optimization.router)
 app.include_router(travel_info.router)
+app.include_router(destination_content.router)
+app.include_router(trip_plan.router)
 
 
 

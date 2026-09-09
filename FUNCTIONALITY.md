@@ -37,7 +37,7 @@ app/
 alembic/           # migrations (head: d0edc8b86582)
 data/              # seed CSVs — full Nepal catalog (~30 per table)
 scripts/           # seed.py (CSV-driven full seed), import_csv.py
-tests/             # pytest suite (88 tests)
+tests/             # pytest suite (107 tests)
 ```
 
 ---
@@ -104,6 +104,17 @@ Final blend: `content 0.35 + preference 0.20 + context 0.20 + collaborative 0.15
 - Output: per-day plan (tiers + costs), fee breakdown, totals, per-person and
   per-day averages, surplus, `comfort_score`.
 
+**Per-destination average budget** — `GET /destinations/{id}/budget-estimate?days=7&fee_category=Foreign`
+
+- Reuses the same cost model (`_cost_model`) **without** running the allocation.
+- Returns the standard-tier guide: `per_person_per_day`, the all-budget
+  `minimum_per_person_per_day`, one-time `one_time_fees_per_person`, and the
+  resulting `estimated_total_per_person` / `minimum_total_per_person` for the
+  requested duration — so the suggested budget varies by destination (fees,
+  food, accommodation from the real seed data).
+- Public (no auth); powers the budget-planner pre-fill and the destination
+  detail page's "Plan Your Budget" section.
+
 ### 4.4 Route Optimizer
 `app/services/route_optimizer.py` — `POST /optimization/route`
 
@@ -113,6 +124,9 @@ Final blend: `content 0.35 + preference 0.20 + context 0.20 + collaborative 0.15
 - Accepts a `route_id`, a `destination_id`, or custom waypoints.
 - Output: original vs optimized order, per-stop distance/cumulative, km + % savings,
   total walking hours. (On real ABC data it saved ~27% distance.)
+- Both optimization endpoints are **public** (no auth) — they are pure, deterministic
+  computation over public route/budget data and are called from page load (e.g. the
+  trek detail page) by logged-out users too.
 
 ### 4.5 AI Chat Agent
 Local Ollama (qwen3:8b) with a tool registry (`app/chat/tool_registry.py`) exposing
@@ -165,6 +179,47 @@ Robustness features added after live testing:
   waypoint markers (name, sequence, overnight, altitude, linked teahouse/food), and
   the destination point. The frontend renders this offline against bundled tiles.
 
+### 4.9 Per-Destination Content (auto-generated)
+`app/services/destination_content_service.py` +
+`app/routers/destination_content.py` (prefix `/destinations/{destination_id}/content`):
+
+- Tables `destination_highlight`, `destination_thing_to_do`, `destination_faq`
+  (migration `b7c8d9e0f1a2`) auto-generate content **on first access** for any
+  destination — derived from stored data (category, best time, trekking routes,
+  per-day itinerary start/end locations, the trek's highest-altitude route point,
+  attraction, permits via `permit_type`) — so every destination gets rich,
+  destination-specific Highlights / Things To Do / FAQs without hand-authoring.
+- The Things To Do list is a **prioritized essentials checklist** built from real
+  data: e.g. for a trek it names the actual entry point ("Arrive at Lukla..."), a
+  real mid-route waypoint, the pinnacle day ("Reach Everest Base Camp...") and
+  permit logistics; for an attraction it names visiting hours + entry + photography.
+- `GET /destinations/{id}/content/` returns the persisted block
+  (highlights, things_to_do, faqs). Admin only: `POST .../content/regenerate`,
+  `POST .../content/highlights`, `/things-to-do`, `/faqs` (201) to add specific
+  items. Non-admin gets 403.
+
+### 4.10 Nearby Destinations (genuinely-near, distance-based)
+`app/services/nearby_destinations.py` — `GET /travel/destinations/{id}/nearby?limit=6`:
+
+- Haversine great-circle distance over stored address lat/lon, sorted nearest-first,
+  excluding self. Each result includes id/name/category/rating/distance_km/district/
+  place/photo plus an `airport_hint` derived from `flight_info.AIRPORTS` keywords.
+- **Proximity policy**: only destinations within `config.NEARBY_MIN_KM` (80 km)
+  count as nearby. If fewer than `NEARBY_MIN_RESULTS` (3) qualify, the radius widens
+  in 50 km steps up to `NEARBY_MAX_KM` (150 km) — so a far place is never listed
+  just to fill the carousel. (Kathmandu cluster ≈ 2–9 km; Pokhara cluster ≈ 2–51 km.)
+
+### 4.11 Point-to-Point Directions (your location → destination)
+`app/services/directions.py` — `GET /travel/directions?from_lat&from_lon&to_lat&to_lon&destination_name`:
+
+- Uses the free public **OSRM** routing API for `driving` and `walking` profiles
+  (GeoJSON polylines + real distance/duration). If OSRM is unreachable it degrades
+  to a great-circle straight line with speed-based duration estimates so the UI
+  always has a route to draw (`source: osrm | estimate`).
+- Derives a **local bus** estimate from the driving route (road-length overhead +
+  wait time) with an online-booking tip; flags `walkable` when the straight-line
+  distance ≤ 5 km (OSRM walking is only queried ≤ 15 km).
+
 ---
 
 ## 5. API Surface (route groups)
@@ -177,7 +232,8 @@ Robustness features added after live testing:
 | `/blog`, `/review`, `/photo`, `/saved-destination`, `/user-trip`, `/activity-log`, `/user`, `/admin` | community & management |
 | `/recommendations` | hybrid recommendations + signals |
 | `/optimization` | budget optimizer, route optimizer |
-| `/travel` | live weather, flight info, offline map GeoJSON |
+| `/destinations/{id}/content` | per-destination highlights / things-to-do / FAQs |
+| `/travel` | live weather, flight info, offline map GeoJSON, nearby destinations, directions |
 | `/chat` | LLM chat session |
 | `/health` | liveness |
 
@@ -187,8 +243,9 @@ Interactive docs at `/docs` (Swagger) and `/redoc`.
 
 ## 6. Current Status
 
-- **Migrations**: all applied, head `d0edc8b86582` (includes sync migration for
-  accommodation/food/permit columns + intelligence tables).
+- **Migrations**: all applied, head `b7c8d9e0f1a2` (sync migration for
+  accommodation/food/permit columns + intelligence tables + destination content
+  tables).
 - **Seed data** (CSV-driven, `uv run python scripts/seed.py`): loads the whole
   `data/*.csv` catalog — **30 destinations** (14 attractions + 8 treks → 22
   attractions; treks: ABC, Poon Hill, EBC, Langtang, Mardi Himal, Manaslu, Gokyo,
@@ -198,8 +255,11 @@ Interactive docs at `/docs` (Swagger) and `/redoc`.
   `user_trip.csv`) with itineraries, reviews, photos and saved destinations.
   Pre-existing data bugs (comment rows, dead `dest_mustang_trek` permits, duplicate
   `mcap_manaslu_*`, dangling `food_budget_plus` refs) were cleaned up.
-- **Tests**: 88 passing (auth, CRUD, recommendations, optimizers, travel info,
-  chat tools, weather-in-recommender, chat titles + tool-call nudge).
+- **Tests**: 107 passing (auth, CRUD, recommendations, optimizers, travel info,
+  chat tools, weather-in-recommender, chat titles + tool-call nudge, destination
+  content generation, nearby destinations + proximity policy, point-to-point
+  directions, unauthenticated optimization access, per-destination budget
+  estimate).
 - **Verified live**: Open-Meteo returns real current + forecast data; flight resolver
   maps ABC→Pokhara, Pashupatinath→Kathmandu; GeoJSON includes route + elevation;
   recommendation explanations include live weather notes.

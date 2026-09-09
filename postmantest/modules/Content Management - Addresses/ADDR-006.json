@@ -1,0 +1,18 @@
+{
+  "id": "ADDR-006",
+  "endpoint": "/addresses/",
+  "method": "POST",
+  "title": "Create address - altitude zero",
+  "expected_status": 422,
+  "auth": "admin",
+  "body": {
+    "province": "X",
+    "district": "X",
+    "latitude": 27,
+    "longitude": 85,
+    "altitude": 0
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

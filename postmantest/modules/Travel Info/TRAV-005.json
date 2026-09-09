@@ -1,0 +1,20 @@
+{
+  "id": "TRAV-005",
+  "endpoint": "/travel/destinations/{{destination_id}}/weather",
+  "method": "GET",
+  "title": "Weather - destination",
+  "expected_status": [
+    200,
+    502
+  ],
+  "auth": "public",
+  "body": null,
+  "query": [
+    [
+      "days",
+      "5"
+    ]
+  ],
+  "note": "",
+  "script_assertions": 0
+}

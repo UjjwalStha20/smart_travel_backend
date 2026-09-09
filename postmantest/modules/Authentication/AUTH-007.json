@@ -1,0 +1,19 @@
+{
+  "id": "AUTH-007",
+  "endpoint": "/auth/register",
+  "method": "POST",
+  "title": "Register - invalid email",
+  "expected_status": [
+    422,
+    429
+  ],
+  "auth": "public",
+  "body": {
+    "name": "Bad Email",
+    "email": "not-an-email",
+    "password": "Secret123!"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

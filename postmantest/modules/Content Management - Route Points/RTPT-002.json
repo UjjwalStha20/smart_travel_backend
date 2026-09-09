@@ -1,0 +1,21 @@
+{
+  "id": "RTPT-002",
+  "endpoint": "/route-points/",
+  "method": "POST",
+  "title": "Admin create route point",
+  "expected_status": 201,
+  "auth": "admin",
+  "body": {
+    "route_id": "{{route_id}}",
+    "sequence_no": 1,
+    "name": "Postman Point {{uniq}}",
+    "distance_from_previous_km": 2,
+    "walking_hours_from_previous": 1,
+    "overnight_stop": false,
+    "description": "Postman",
+    "address_id": "{{address_id}}"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 4
+}

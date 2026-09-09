@@ -1,0 +1,16 @@
+{
+  "id": "TREK-003",
+  "endpoint": "/trekking-routes/",
+  "method": "POST",
+  "title": "Create - invalid difficulty",
+  "expected_status": 422,
+  "auth": "admin",
+  "body": {
+    "destination_id": "{{destination_id}}",
+    "route_name": "X",
+    "difficulty": "extreme"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

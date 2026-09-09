@@ -1,0 +1,14 @@
+{
+  "id": "AUTH-022",
+  "endpoint": "/auth/me",
+  "method": "PATCH",
+  "title": "PATCH /auth/me - no token",
+  "expected_status": 401,
+  "auth": "public",
+  "body": {
+    "name": "X"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

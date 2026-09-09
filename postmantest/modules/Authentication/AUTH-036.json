@@ -1,0 +1,14 @@
+{
+  "id": "AUTH-036",
+  "endpoint": "/auth/reset-password",
+  "method": "POST",
+  "title": "Reset-password - missing fields",
+  "expected_status": 422,
+  "auth": "public",
+  "body": {
+    "new_password": "X"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

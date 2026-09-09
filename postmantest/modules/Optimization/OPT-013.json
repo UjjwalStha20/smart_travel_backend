@@ -1,0 +1,14 @@
+{
+  "id": "OPT-013",
+  "endpoint": "/optimization/route",
+  "method": "POST",
+  "title": "Route - uses a DB trekking route",
+  "expected_status": 200,
+  "auth": "public",
+  "body": {
+    "route_id": "{{route_id}}"
+  },
+  "query": [],
+  "note": "route_id is discovered in Setup; requires seeded trekking route with >=2 GPS waypoints",
+  "script_assertions": 4
+}

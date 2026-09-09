@@ -1,0 +1,15 @@
+{
+  "id": "AUTH-026",
+  "endpoint": "/auth/login",
+  "method": "POST",
+  "title": "Login NEW password works",
+  "expected_status": 200,
+  "auth": "public",
+  "body": {
+    "email": "john@example.com",
+    "password": "NewSecret456!"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 1
+}

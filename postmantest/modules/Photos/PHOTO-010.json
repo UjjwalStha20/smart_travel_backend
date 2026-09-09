@@ -1,0 +1,14 @@
+{
+  "id": "PHOTO-010",
+  "endpoint": "/photos/{{photo_id}}",
+  "method": "PUT",
+  "title": "Update own photo",
+  "expected_status": 200,
+  "auth": "traveler",
+  "body": {
+    "caption": "Updated caption"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 2
+}

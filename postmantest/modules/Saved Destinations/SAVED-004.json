@@ -1,0 +1,12 @@
+{
+  "id": "SAVED-004",
+  "endpoint": "/saved-destinations/?limit=5",
+  "method": "GET",
+  "title": "List saved destinations",
+  "expected_status": 200,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 4
+}

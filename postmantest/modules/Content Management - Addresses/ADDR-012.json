@@ -1,0 +1,12 @@
+{
+  "id": "ADDR-012",
+  "endpoint": "/addresses/00000000-0000-0000-0000-000000000000",
+  "method": "DELETE",
+  "title": "Delete address - unknown id",
+  "expected_status": 404,
+  "auth": "admin",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

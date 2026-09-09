@@ -1,0 +1,17 @@
+{
+  "id": "USER-009",
+  "endpoint": "/users/",
+  "method": "POST",
+  "title": "Create user - weak password",
+  "expected_status": 422,
+  "auth": "admin",
+  "body": {
+    "name": "Weak",
+    "role": "traveler",
+    "email": "weak{{uniq}}@example.com",
+    "password": "123"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

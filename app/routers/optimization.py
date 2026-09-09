@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.dependencies import CurrentUser, SessionDep
+from app.dependencies import SessionDep
 from app.schemas.optimization_schema import (
     BudgetOptimizeRequest,
     BudgetOptimizeResult,
@@ -24,7 +24,6 @@ router = APIRouter(prefix="/optimization", tags=["Optimization"])
 def optimize_budget(
     body: BudgetOptimizeRequest,
     session: SessionDep,
-    _: CurrentUser,
 ) -> BudgetOptimizeResult:
     optimizer = BudgetOptimizer(session)
     return optimizer.optimize(
@@ -46,7 +45,6 @@ def optimize_budget(
 def optimize_route(
     body: RouteOptimizeRequest,
     session: SessionDep,
-    _: CurrentUser,
 ) -> RouteOptimizeResult:
     optimizer = RouteOptimizer(session)
     return optimizer.optimize(

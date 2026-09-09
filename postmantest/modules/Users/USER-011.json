@@ -1,0 +1,14 @@
+{
+  "id": "USER-011",
+  "endpoint": "/users/{{user_id}}",
+  "method": "PUT",
+  "title": "Update own profile (owner)",
+  "expected_status": 200,
+  "auth": "traveler",
+  "body": {
+    "name": "John (Owner Updated)"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 2
+}

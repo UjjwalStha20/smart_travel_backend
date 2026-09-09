@@ -1,0 +1,12 @@
+{
+  "id": "DESTCONT-002",
+  "endpoint": "/destinations/00000000-0000-0000-0000-000000000000/content/",
+  "method": "GET",
+  "title": "Get content - unknown destination",
+  "expected_status": 404,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

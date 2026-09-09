@@ -1,0 +1,28 @@
+{
+  "id": "TRAV-001",
+  "endpoint": "/travel/weather/general",
+  "method": "GET",
+  "title": "Weather - general coordinates",
+  "expected_status": [
+    200,
+    502
+  ],
+  "auth": "public",
+  "body": null,
+  "query": [
+    [
+      "latitude",
+      "27.7172"
+    ],
+    [
+      "longitude",
+      "85.3240"
+    ],
+    [
+      "days",
+      "5"
+    ]
+  ],
+  "note": "Reaches Open-Meteo; 502 when the service is unreachable",
+  "script_assertions": 0
+}

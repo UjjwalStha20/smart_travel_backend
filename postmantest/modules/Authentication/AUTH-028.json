@@ -1,0 +1,14 @@
+{
+  "id": "AUTH-028",
+  "endpoint": "/auth/change-password",
+  "method": "POST",
+  "title": "Change-password - missing fields",
+  "expected_status": 422,
+  "auth": "traveler",
+  "body": {
+    "new_password": "X"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

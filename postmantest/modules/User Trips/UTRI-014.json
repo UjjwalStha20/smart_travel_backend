@@ -1,0 +1,16 @@
+{
+  "id": "UTRI-014",
+  "endpoint": "/user-trips/",
+  "method": "POST",
+  "title": "Create second (disposable) trip for deletion test",
+  "expected_status": 201,
+  "auth": "traveler",
+  "body": {
+    "destination_id": "{{destination_id}}",
+    "pace_type": "fast",
+    "budget_type": "budget"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

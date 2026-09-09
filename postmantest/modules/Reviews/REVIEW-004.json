@@ -1,0 +1,14 @@
+{
+  "id": "REVIEW-004",
+  "endpoint": "/reviews/",
+  "method": "POST",
+  "title": "Create review - missing destination",
+  "expected_status": 422,
+  "auth": "traveler",
+  "body": {
+    "rating": 4
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

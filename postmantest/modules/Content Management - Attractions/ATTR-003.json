@@ -1,0 +1,17 @@
+{
+  "id": "ATTR-003",
+  "endpoint": "/attractions/",
+  "method": "POST",
+  "title": "Create as traveler (forbidden)",
+  "expected_status": 403,
+  "auth": "traveler",
+  "body": {
+    "destination_id": "{{destination_id}}",
+    "attraction_types": [
+      "temple"
+    ]
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

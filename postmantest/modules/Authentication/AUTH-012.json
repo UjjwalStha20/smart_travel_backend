@@ -1,0 +1,15 @@
+{
+  "id": "AUTH-012",
+  "endpoint": "/auth/login",
+  "method": "POST",
+  "title": "Login - invalid email format",
+  "expected_status": 422,
+  "auth": "public",
+  "body": {
+    "email": "john@@example",
+    "password": "password123"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

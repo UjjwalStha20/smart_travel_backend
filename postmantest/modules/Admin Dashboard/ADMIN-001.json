@@ -1,0 +1,12 @@
+{
+  "id": "ADMIN-001",
+  "endpoint": "/admin/dashboard",
+  "method": "GET",
+  "title": "Admin dashboard",
+  "expected_status": 200,
+  "auth": "admin",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 5
+}

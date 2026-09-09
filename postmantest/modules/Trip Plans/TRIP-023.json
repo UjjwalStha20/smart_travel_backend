@@ -1,0 +1,12 @@
+{
+  "id": "TRIP-023",
+  "endpoint": "/trip-plans/{{trip_id}}/generate",
+  "method": "POST",
+  "title": "Generate - no token",
+  "expected_status": 401,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

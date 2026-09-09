@@ -1,0 +1,12 @@
+{
+  "id": "REC-005",
+  "endpoint": "/recommendations/summary?limit=5",
+  "method": "GET",
+  "title": "Get recommendation summaries",
+  "expected_status": 200,
+  "auth": "traveler",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 1
+}

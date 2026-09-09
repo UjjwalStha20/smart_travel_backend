@@ -1,0 +1,17 @@
+{
+  "id": "DEST-004",
+  "endpoint": "/destinations/",
+  "method": "GET",
+  "title": "List - rating_min=5",
+  "expected_status": 200,
+  "auth": "public",
+  "body": null,
+  "query": [
+    [
+      "rating_min",
+      "5"
+    ]
+  ],
+  "note": "",
+  "script_assertions": 2
+}

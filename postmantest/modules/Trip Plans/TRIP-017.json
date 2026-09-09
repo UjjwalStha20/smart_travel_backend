@@ -1,0 +1,20 @@
+{
+  "id": "TRIP-017",
+  "endpoint": "/trip-plans/{{trip_id}}/recommendations",
+  "method": "POST",
+  "title": "Add recommendation",
+  "expected_status": 201,
+  "auth": "traveler",
+  "body": {
+    "kind": "trek",
+    "destination_id": "{{destination_id}}",
+    "title": "Postman Rec {{uniq}}",
+    "subtitle": "test",
+    "payload": {
+      "days": 3
+    }
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 4
+}

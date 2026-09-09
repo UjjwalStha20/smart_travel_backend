@@ -1,0 +1,14 @@
+{
+  "id": "AUTH-013",
+  "endpoint": "/auth/login",
+  "method": "POST",
+  "title": "Login - missing password",
+  "expected_status": 422,
+  "auth": "public",
+  "body": {
+    "email": "john@example.com"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

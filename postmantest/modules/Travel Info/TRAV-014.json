@@ -1,0 +1,17 @@
+{
+  "id": "TRAV-014",
+  "endpoint": "/travel/destinations/{{destination_id}}/nearby",
+  "method": "GET",
+  "title": "Nearby - limit out of range",
+  "expected_status": 422,
+  "auth": "public",
+  "body": null,
+  "query": [
+    [
+      "limit",
+      "0"
+    ]
+  ],
+  "note": "",
+  "script_assertions": 0
+}

@@ -1,0 +1,21 @@
+{
+  "id": "OPT-011",
+  "endpoint": "/optimization/route",
+  "method": "POST",
+  "title": "Route - custom waypoint missing latitude",
+  "expected_status": 422,
+  "auth": "public",
+  "body": {
+    "points": [
+      {
+        "name": "A"
+      },
+      {
+        "name": "B"
+      }
+    ]
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

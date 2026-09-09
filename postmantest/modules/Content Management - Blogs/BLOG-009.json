@@ -1,0 +1,12 @@
+{
+  "id": "BLOG-009",
+  "endpoint": "/blogs/by-category/trekking",
+  "method": "GET",
+  "title": "Get by category",
+  "expected_status": 200,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 1
+}

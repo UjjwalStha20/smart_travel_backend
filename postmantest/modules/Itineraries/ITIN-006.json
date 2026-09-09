@@ -1,0 +1,12 @@
+{
+  "id": "ITIN-006",
+  "endpoint": "/itineraries/{{itinerary_id}}",
+  "method": "GET",
+  "title": "Get itinerary",
+  "expected_status": 200,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 3
+}

@@ -1,0 +1,12 @@
+{
+  "id": "DESTCONT-001",
+  "endpoint": "/destinations/{{new_destination_id}}/content/",
+  "method": "GET",
+  "title": "Get destination content (auto-generates)",
+  "expected_status": 200,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "Auto-generation may call the LLM; if Ollama is down this may 500",
+  "script_assertions": 5
+}

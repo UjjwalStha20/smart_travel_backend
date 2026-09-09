@@ -104,3 +104,38 @@ def test_recommendation_ranking(client: TestClient, user_token: str, test_destin
         for i in range(len(data) - 1):
             assert data[i]["final_score"] >= data[i + 1]["final_score"], \
                 f"Recommendations not sorted: {data[i]['final_score']} < {data[i + 1]['final_score']}"
+
+
+def test_preferences_defaults_and_round_trip(client: TestClient, user_token: str):
+    """GET /recommendations/preferences returns defaults, POST persists them."""
+    first = client.get("/recommendations/preferences", headers=_auth_headers(user_token))
+    assert first.status_code == 200, first.text
+    first_data = first.json()
+    assert first_data["preferred_categories"] == []
+    assert first_data["budget_preference"] is None
+
+    resp = client.post(
+        "/recommendations/preferences",
+        headers=_auth_headers(user_token),
+        params={
+            "preferred_categories": ["trek", "attraction"],
+            "preferred_activities": ["hiking", "cultural"],
+            "budget_preference": "standard",
+            "typical_duration": 8,
+            "difficulty_preference": "moderate",
+            "preferred_season": ["spring", "autumn"],
+            "travel_style": "adventure",
+        },
+    )
+    assert resp.status_code == 201, resp.text
+
+    second = client.get("/recommendations/preferences", headers=_auth_headers(user_token))
+    assert second.status_code == 200, second.text
+    data = second.json()
+    assert data["preferred_categories"] == ["trek", "attraction"]
+    assert data["preferred_activities"] == ["hiking", "cultural"]
+    assert data["budget_preference"] == "standard"
+    assert data["typical_duration"] == 8
+    assert data["difficulty_preference"] == "moderate"
+    assert data["preferred_season"] == ["spring", "autumn"]
+    assert data["travel_style"] == "adventure"

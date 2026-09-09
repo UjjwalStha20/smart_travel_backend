@@ -1,0 +1,18 @@
+{
+  "id": "AUTH-006",
+  "endpoint": "/auth/register",
+  "method": "POST",
+  "title": "Register - missing name",
+  "expected_status": [
+    422,
+    429
+  ],
+  "auth": "public",
+  "body": {
+    "email": "noname{{uniq}}@example.com",
+    "password": "Secret123!"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

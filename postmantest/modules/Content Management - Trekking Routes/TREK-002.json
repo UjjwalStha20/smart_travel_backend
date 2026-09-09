@@ -1,0 +1,20 @@
+{
+  "id": "TREK-002",
+  "endpoint": "/trekking-routes/",
+  "method": "POST",
+  "title": "Admin create trekking route",
+  "expected_status": 201,
+  "auth": "admin",
+  "body": {
+    "destination_id": "{{destination_id}}",
+    "route_name": "Postman Route {{uniq}}",
+    "difficulty": "moderate",
+    "total_distance_km": 10,
+    "recommended_days": 2,
+    "max_altitude": 2800,
+    "description": "Postman"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 4
+}

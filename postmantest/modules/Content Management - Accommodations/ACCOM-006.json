@@ -1,0 +1,12 @@
+{
+  "id": "ACCOM-006",
+  "endpoint": "/accommodations/{{accommodation_new_id}}",
+  "method": "GET",
+  "title": "Get by id",
+  "expected_status": 200,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 2
+}

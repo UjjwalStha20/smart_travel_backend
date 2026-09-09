@@ -1,0 +1,15 @@
+{
+  "id": "TRIP-019",
+  "endpoint": "/trip-plans/{{trip_id}}/recommendations",
+  "method": "POST",
+  "title": "Add recommendation - no token",
+  "expected_status": 401,
+  "auth": "public",
+  "body": {
+    "kind": "trek",
+    "title": "x"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

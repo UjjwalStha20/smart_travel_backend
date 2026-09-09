@@ -1,0 +1,14 @@
+{
+  "id": "ITIN-009",
+  "endpoint": "/itineraries/{{itinerary_id}}",
+  "method": "PUT",
+  "title": "Update itinerary - other user (forbidden)",
+  "expected_status": 403,
+  "auth": "second",
+  "body": {
+    "notes": "hijack"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

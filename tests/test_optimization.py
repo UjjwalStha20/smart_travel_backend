@@ -48,6 +48,27 @@ def test_budget_optimizer_infeasible(session, test_destinations, test_accommodat
     assert result["grand_total"] > 100
 
 
+def test_budget_optimizer_per_destination_estimate(session, test_destinations, test_accommodation, test_food_cost):
+    """Estimate derives a destination-specific average budget from real prices."""
+    trek = test_destinations[0]
+    session.add(Permit(destination_id=trek.id, permit_type="TIMS", category="Foreign", price=2000))
+    session.commit()
+
+    est = BudgetOptimizer(session).estimate(str(trek.id), days=7, fee_category="Foreign")
+
+    assert est["destination_name"] == "Annapurna Base Camp Trek"
+    assert est["per_person_per_day"] > 0
+    assert est["minimum_per_person_per_day"] > 0
+    assert est["one_time_fees_per_person"] >= 2000
+    assert est["estimated_total_per_person"] > est["per_person_per_day"] * 7
+    assert est["minimum_total_per_person"] < est["estimated_total_per_person"]
+
+    # Different duration scales the daily portion only.
+    week = BudgetOptimizer(session).estimate(str(trek.id), days=7)
+    two_weeks = BudgetOptimizer(session).estimate(str(trek.id), days=14)
+    assert two_weeks["estimated_total_per_person"] > week["estimated_total_per_person"]
+
+
 # ---------------------------------------------------------------------------
 # Unit tests: RouteOptimizer
 # ---------------------------------------------------------------------------
@@ -167,9 +188,50 @@ def test_optimization_route_endpoint(client, user_token, session, test_destinati
     assert body["optimized_order"][0]["name"] == "Start"
 
 
-def test_optimization_requires_auth(client, test_destinations):
+def test_optimization_works_without_auth(client, test_destinations):
+    """Optimization endpoints are pure public computation — no login required."""
     response = client.post(
         "/optimization/budget",
-        json={"destination_id": str(test_destinations[0].id), "total_budget": 5000},
+        json={
+            "destination_id": str(test_destinations[0].id),
+            "total_budget": 5000,
+            "party_size": 1,
+            "days": 3,
+        },
     )
-    assert response.status_code == 401
+    assert response.status_code == 200
+    assert "destination_name" in response.json()
+
+    response = client.post(
+        "/optimization/route",
+        json={
+            "points": [
+                {"name": "Start", "latitude": 28.2, "longitude": 84.0, "overnight": False},
+                {"name": "Far", "latitude": 28.3, "longitude": 84.3, "overnight": True},
+                {"name": "End", "latitude": 28.4, "longitude": 84.0, "overnight": False},
+            ]
+        },
+    )
+    assert response.status_code == 200
+    assert response.json()["optimized_order"][0]["name"] == "Start"
+
+
+def test_destination_budget_estimate_endpoint(
+    client, session, test_destinations, test_accommodation, test_food_cost
+):
+    trek = test_destinations[0]
+    session.add(Permit(destination_id=trek.id, permit_type="TIMS", category="Foreign", price=2000))
+    session.commit()
+
+    response = client.get(f"/destinations/{trek.id}/budget-estimate?days=7&fee_category=Foreign")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["destination_name"] == "Annapurna Base Camp Trek"
+    assert body["days"] == 7
+    assert body["per_person_per_day"] > 0
+    assert body["estimated_total_per_person"] > 0
+
+    # Missing destination → 404.
+    response = client.get("/destinations/00000000-0000-0000-0000-000000000000/budget-estimate")
+    assert response.status_code == 404

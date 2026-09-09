@@ -1,0 +1,12 @@
+{
+  "id": "AUTH-014",
+  "endpoint": "/auth/login",
+  "method": "POST",
+  "title": "Login - empty body",
+  "expected_status": 422,
+  "auth": "public",
+  "body": {},
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

@@ -1,0 +1,17 @@
+{
+  "id": "ALOG-002",
+  "endpoint": "/activity-logs/",
+  "method": "GET",
+  "title": "List - type filter",
+  "expected_status": 200,
+  "auth": "public",
+  "body": null,
+  "query": [
+    [
+      "type",
+      "user"
+    ]
+  ],
+  "note": "",
+  "script_assertions": 2
+}

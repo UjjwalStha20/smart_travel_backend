@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 from uuid import UUID, uuid4
 
 from sqlmodel import Field, Relationship, SQLModel
@@ -12,11 +12,12 @@ if TYPE_CHECKING:
 class ChatConversation(SQLModel, table=True):
     __tablename__ = "chat_conversation"
 
-    id:         UUID     = Field(default_factory=uuid4, primary_key=True)
-    user_id:    UUID     = Field(foreign_key="users.id")
-    title:      str      = "New Conversation"
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    id:          UUID     = Field(default_factory=uuid4, primary_key=True)
+    user_id:     UUID     = Field(foreign_key="users.id", index=True)
+    trip_plan_id: Optional[UUID] = Field(default=None, foreign_key="trip_plans.id")
+    title:       str      = "New Conversation"
+    created_at:  datetime = Field(default_factory=datetime.utcnow)
+    updated_at:  datetime = Field(default_factory=datetime.utcnow)
 
     messages: List["ChatMessage"] = Relationship(back_populates="conversation")
     user: "User" = Relationship(back_populates="chat_conversations")

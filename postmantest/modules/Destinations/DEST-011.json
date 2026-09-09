@@ -1,0 +1,17 @@
+{
+  "id": "DEST-011",
+  "endpoint": "/destinations/{{destination_id}}/budget-estimate",
+  "method": "GET",
+  "title": "Budget estimate - days=0",
+  "expected_status": 422,
+  "auth": "public",
+  "body": null,
+  "query": [
+    [
+      "days",
+      "0"
+    ]
+  ],
+  "note": "",
+  "script_assertions": 0
+}

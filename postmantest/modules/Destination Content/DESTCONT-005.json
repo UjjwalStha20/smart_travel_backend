@@ -1,0 +1,15 @@
+{
+  "id": "DESTCONT-005",
+  "endpoint": "/destinations/{{new_destination_id}}/content/highlights",
+  "method": "POST",
+  "title": "Create highlight as traveler (forbidden)",
+  "expected_status": 403,
+  "auth": "traveler",
+  "body": {
+    "title": "x",
+    "description": "x"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

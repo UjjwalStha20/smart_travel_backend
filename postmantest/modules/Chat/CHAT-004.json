@@ -1,0 +1,14 @@
+{
+  "id": "CHAT-004",
+  "endpoint": "/chat/",
+  "method": "POST",
+  "title": "Chat - trekking in autumn",
+  "expected_status": 200,
+  "auth": "traveler",
+  "body": {
+    "message": "Tell me about trekking in Nepal in autumn."
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 2
+}

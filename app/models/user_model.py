@@ -9,7 +9,7 @@ from sqlalchemy import UniqueConstraint
 from sqlmodel import Column, DateTime, Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from app.models import Blog, ChatConversation, Destination , Photo , Review, TrekkingRoute
+    from app.models import Blog, ChatConversation, Destination , Photo , Review, TripPlan, TrekkingRoute
    
 class UserRole(str, Enum):
     traveler = "traveler"
@@ -58,6 +58,7 @@ class User(SQLModel, table=True):
     saved_destinations: List["SavedDestination"] = Relationship(back_populates="user")
     chat_conversations: List["ChatConversation"] = Relationship(back_populates="user")
     blogs: List["Blog"] = Relationship(back_populates="author")
+    trip_plans: List["TripPlan"] = Relationship(back_populates="user")
 
 
 # ---------------------------------------------------------------------------
@@ -70,7 +71,7 @@ class UserTrip(SQLModel, table=True):
     id:             UUID          = Field(default_factory=uuid4, primary_key=True)
     user_id:        UUID          = Field(foreign_key="users.id")
     destination_id: UUID          = Field(foreign_key="destination.id")
-    route_id:       UUID          = Field(foreign_key="trekking_routes.id")
+    route_id:       Optional[UUID] = Field(default=None, foreign_key="trekking_routes.id")
     pace_type:      PaceType
     budget_type:    BudgetType
     start_date:     Optional[date] = None

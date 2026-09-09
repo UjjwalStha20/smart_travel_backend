@@ -1,0 +1,17 @@
+{
+  "id": "USER-010",
+  "endpoint": "/users/",
+  "method": "POST",
+  "title": "Create user - bad email",
+  "expected_status": 422,
+  "auth": "admin",
+  "body": {
+    "name": "Bad",
+    "role": "traveler",
+    "email": "bad",
+    "password": "secret123"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

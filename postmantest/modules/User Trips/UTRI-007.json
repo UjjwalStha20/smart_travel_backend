@@ -1,0 +1,14 @@
+{
+  "id": "UTRI-007",
+  "endpoint": "/user-trips/{{user_trip_id}}",
+  "method": "PUT",
+  "title": "Update own user trip",
+  "expected_status": 200,
+  "auth": "traveler",
+  "body": {
+    "budget_type": "luxury"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 2
+}

@@ -1,0 +1,25 @@
+{
+  "id": "REC-008",
+  "endpoint": "/recommendations/interaction",
+  "method": "POST",
+  "title": "Record interaction - rating",
+  "expected_status": 201,
+  "auth": "traveler",
+  "body": null,
+  "query": [
+    [
+      "destination_id",
+      "{{destination_id}}"
+    ],
+    [
+      "interaction_type",
+      "rating"
+    ],
+    [
+      "rating",
+      "4"
+    ]
+  ],
+  "note": "",
+  "script_assertions": 2
+}

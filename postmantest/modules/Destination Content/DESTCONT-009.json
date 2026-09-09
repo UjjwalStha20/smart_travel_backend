@@ -1,0 +1,16 @@
+{
+  "id": "DESTCONT-009",
+  "endpoint": "/destinations/{{new_destination_id}}/content/faqs",
+  "method": "POST",
+  "title": "Admin create FAQ",
+  "expected_status": 201,
+  "auth": "admin",
+  "body": {
+    "position": 0,
+    "question": "Postman question?",
+    "answer": "Postman answer."
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 3
+}

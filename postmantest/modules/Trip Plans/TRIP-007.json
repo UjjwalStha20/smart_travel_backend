@@ -1,0 +1,14 @@
+{
+  "id": "TRIP-007",
+  "endpoint": "/trip-plans/",
+  "method": "POST",
+  "title": "Create trip - no token",
+  "expected_status": 401,
+  "auth": "public",
+  "body": {
+    "name": "No Auth Trip"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

@@ -1,0 +1,15 @@
+{
+  "id": "AUTH-001",
+  "endpoint": "/auth/login",
+  "method": "POST",
+  "title": "Login seeded traveler (john@example.com)",
+  "expected_status": 200,
+  "auth": "public",
+  "body": {
+    "email": "john@example.com",
+    "password": "password123"
+  },
+  "query": [],
+  "note": "Requires 'python scripts/seed.py' to have run",
+  "script_assertions": 3
+}

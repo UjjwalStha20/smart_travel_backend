@@ -1,0 +1,12 @@
+{
+  "id": "PHOTO-008",
+  "endpoint": "/photos/{{photo_id}}",
+  "method": "GET",
+  "title": "Get photo",
+  "expected_status": 200,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 3
+}

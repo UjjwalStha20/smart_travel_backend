@@ -1,0 +1,12 @@
+{
+  "id": "TRAV-011",
+  "endpoint": "/travel/destinations/{{destination_id}}/map",
+  "method": "GET",
+  "title": "Map - destination GeoJSON",
+  "expected_status": 200,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

@@ -1,0 +1,14 @@
+{
+  "id": "UTRI-009",
+  "endpoint": "/user-trips/{{user_trip_id}}",
+  "method": "PUT",
+  "title": "Update - no token",
+  "expected_status": 401,
+  "auth": "public",
+  "body": {
+    "budget_type": "budget"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

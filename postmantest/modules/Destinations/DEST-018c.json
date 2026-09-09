@@ -1,0 +1,12 @@
+{
+  "id": "DEST-018c",
+  "endpoint": "/destinations/",
+  "method": "POST",
+  "title": "Create destination - duplicate best_time months",
+  "expected_status": 422,
+  "auth": "admin",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

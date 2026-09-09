@@ -1,0 +1,12 @@
+{
+  "id": "CHAT-007",
+  "endpoint": "/chat/",
+  "method": "POST",
+  "title": "Chat - empty body (missing message)",
+  "expected_status": 422,
+  "auth": "traveler",
+  "body": {},
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

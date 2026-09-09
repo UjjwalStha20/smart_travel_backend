@@ -27,6 +27,7 @@ def chat(
         message=body.message,
         conversation_id=body.conversation_id,
         user_profile=body.user_profile,  # <-- ADDED: Passes budget/fitness to the AI!
+        trip_plan_id=body.trip_plan_id,  # <-- ADDED: Bind chat to a saved trip plan
     )
     return ChatResponse(**result)
 

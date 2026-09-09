@@ -1,0 +1,12 @@
+{
+  "id": "CHAT-010",
+  "endpoint": "/chat/conversations/{{conversation_id}}",
+  "method": "GET",
+  "title": "Get conversation",
+  "expected_status": 200,
+  "auth": "traveler",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 3
+}

@@ -1,0 +1,15 @@
+{
+  "id": "DESTCONT-010",
+  "endpoint": "/destinations/{{new_destination_id}}/content/faqs",
+  "method": "POST",
+  "title": "Create FAQ - empty answer",
+  "expected_status": 422,
+  "auth": "admin",
+  "body": {
+    "question": "Q",
+    "answer": ""
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

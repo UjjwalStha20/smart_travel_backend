@@ -238,31 +238,35 @@ class RecommendationService:
         limit: int,
     ) -> List[RecommendationRead]:
         """Generate recommendations for new users with no interaction history."""
-        from .content_based import ContentBasedFiltering
-        from .popularity import PopularityBased
         from .contextual import ContextAwareFiltering
 
-        # Use popularity as primary signal for cold-start
-        popularity = PopularityBased(self.session)
-        popular_dests = popularity.get_popular_destinations(limit=limit * 2)
+        # Top-rated destinations as the primary signal for cold-start
+        ranked = sorted(
+            all_destinations,
+            key=lambda d: (getattr(d, "rating", 0.0) or 0.0),
+            reverse=True,
+        )
+        with_rating = [d for d in ranked if d.rating and d.rating > 0]
+        candidates = with_rating if with_rating else ranked
 
-        # Apply contextual filtering
         contextual = ContextAwareFiltering(self.session)
-        filtered = contextual.filter_by_context(popular_dests, user)
+        filtered = contextual.filter_by_context(
+            [(d, min((d.rating or 0.0) / 5.0, 1.0)) for d in candidates[: limit * 2]],
+            user,
+        )
 
-        # Build recommendation objects
         results = []
         for rank, (dest, score) in enumerate(filtered[:limit], start=1):
             comp_scores = ComponentScores(
-                popularity=min(score, 1.0),
+                popularity=round(score, 4),
                 content=0.0,  # No profile to compute content from
                 preference=0.0,
                 context=contextual.get_context_score(dest, {"user_id": str(user.id)}),
                 collaborative=0.0,
             )
 
-            # Use popularity-based explanation
-            reason = f"Popular destination suitable for general travel"
+            # Use top-rated explanation
+            reason = "Top-rated Nepal destination"
             note = WEATHER_NOTES.get(str(dest.id))
             if note:
                 reason = f"{reason}. {note}"

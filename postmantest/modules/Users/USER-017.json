@@ -1,0 +1,12 @@
+{
+  "id": "USER-017",
+  "endpoint": "/users/{{user_id}}",
+  "method": "DELETE",
+  "title": "Delete another user as non-admin",
+  "expected_status": 403,
+  "auth": "second",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

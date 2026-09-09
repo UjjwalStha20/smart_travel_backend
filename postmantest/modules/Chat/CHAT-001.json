@@ -1,0 +1,14 @@
+{
+  "id": "CHAT-001",
+  "endpoint": "/chat/",
+  "method": "POST",
+  "title": "Chat - greeting",
+  "expected_status": 200,
+  "auth": "traveler",
+  "body": {
+    "message": "Hello!"
+  },
+  "query": [],
+  "note": "Requires Ollama (qwen3:8b) to be running",
+  "script_assertions": 2
+}

@@ -1,0 +1,17 @@
+{
+  "id": "USER-007",
+  "endpoint": "/users/",
+  "method": "POST",
+  "title": "Create user - no token",
+  "expected_status": 401,
+  "auth": "public",
+  "body": {
+    "name": "Nope",
+    "role": "traveler",
+    "email": "nope2{{uniq}}@example.com",
+    "password": "secret123"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

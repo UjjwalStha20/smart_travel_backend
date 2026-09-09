@@ -1,0 +1,21 @@
+{
+  "id": "TRAV-002",
+  "endpoint": "/travel/weather/general",
+  "method": "GET",
+  "title": "Weather - latitude out of range",
+  "expected_status": 422,
+  "auth": "public",
+  "body": null,
+  "query": [
+    [
+      "latitude",
+      "91"
+    ],
+    [
+      "longitude",
+      "0"
+    ]
+  ],
+  "note": "",
+  "script_assertions": 0
+}

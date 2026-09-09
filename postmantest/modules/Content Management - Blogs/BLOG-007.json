@@ -1,0 +1,12 @@
+{
+  "id": "BLOG-007",
+  "endpoint": "/blogs/by-slug/{{blog_slug}}",
+  "method": "GET",
+  "title": "Get by slug",
+  "expected_status": 200,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 2
+}

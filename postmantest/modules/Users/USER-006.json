@@ -1,0 +1,17 @@
+{
+  "id": "USER-006",
+  "endpoint": "/users/",
+  "method": "POST",
+  "title": "Create user as traveler (forbidden)",
+  "expected_status": 403,
+  "auth": "traveler",
+  "body": {
+    "name": "Nope",
+    "role": "traveler",
+    "email": "nope{{uniq}}@example.com",
+    "password": "secret123"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

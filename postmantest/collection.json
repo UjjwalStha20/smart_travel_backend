@@ -1,0 +1,39 @@
+{
+  "name": "Nepal Travel Planner - Postman suite index",
+  "doc": "Human-readable index. The runnable collection is 'Nepal-Travel-Planner.postman_collection.json'. Per-endpoint details live in modules/<module>/<ID>.json.",
+  "total_test_cases": 369,
+  "environment_file": "Nepal-Travel-Planner.postman_environment.json",
+  "sample_files": [
+    "sample-files/sample.png",
+    "sample-files/sample.txt"
+  ],
+  "folders": {
+    "01 Setup & Health": 7,
+    "02 Authentication": 36,
+    "03 Users": 18,
+    "04 Destinations": 29,
+    "05 Destination Content": 15,
+    "06 Optimization": 15,
+    "07 Recommendations": 15,
+    "08 Travel Info": 15,
+    "09 Chat": 16,
+    "10 Activity Logs": 3,
+    "11 Trip Plans": 31,
+    "12 User Trips": 19,
+    "13 Itineraries": 12,
+    "14 Reviews": 15,
+    "15 Saved Destinations": 11,
+    "16 Photos": 14,
+    "18 Admin Dashboard": 3,
+    "17 Content Management - Addresses": 12,
+    "17 Content Management - Accommodations": 9,
+    "17 Content Management - Attractions": 8,
+    "17 Content Management - Blogs": 14,
+    "17 Content Management - Entry Fees": 9,
+    "17 Content Management - Food Costs": 8,
+    "17 Content Management - Permits": 9,
+    "17 Content Management - Destination Itineraries": 10,
+    "17 Content Management - Trekking Routes": 8,
+    "17 Content Management - Route Points": 8
+  }
+}

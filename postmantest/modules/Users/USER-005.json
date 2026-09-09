@@ -1,0 +1,19 @@
+{
+  "id": "USER-005",
+  "endpoint": "/users/",
+  "method": "POST",
+  "title": "Admin create user",
+  "expected_status": 200,
+  "auth": "admin",
+  "body": {
+    "name": "Created By Admin",
+    "role": "traveler",
+    "email": "{{created_user_email}}",
+    "password": "secret123",
+    "nationality": "Nepal",
+    "phone": "+977-9800000999"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 2
+}

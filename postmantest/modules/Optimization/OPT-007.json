@@ -1,0 +1,16 @@
+{
+  "id": "OPT-007",
+  "endpoint": "/optimization/budget",
+  "method": "POST",
+  "title": "Budget - days=61",
+  "expected_status": 422,
+  "auth": "public",
+  "body": {
+    "destination_id": "{{destination_id}}",
+    "total_budget": 1000,
+    "days": 61
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

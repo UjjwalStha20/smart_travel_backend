@@ -1,0 +1,12 @@
+{
+  "id": "CHAT-015",
+  "endpoint": "/chat/conversations/{{conversation_id}}",
+  "method": "DELETE",
+  "title": "Delete conversation - other user's",
+  "expected_status": 404,
+  "auth": "second",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

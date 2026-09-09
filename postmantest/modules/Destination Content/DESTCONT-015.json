@@ -1,0 +1,12 @@
+{
+  "id": "DESTCONT-015",
+  "endpoint": "/destinations/00000000-0000-0000-0000-000000000000",
+  "method": "DELETE",
+  "title": "Delete destination - unknown id",
+  "expected_status": 404,
+  "auth": "admin",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

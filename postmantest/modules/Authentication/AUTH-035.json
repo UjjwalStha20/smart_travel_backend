@@ -1,0 +1,15 @@
+{
+  "id": "AUTH-035",
+  "endpoint": "/auth/reset-password",
+  "method": "POST",
+  "title": "Reset-password - malformed token",
+  "expected_status": 400,
+  "auth": "public",
+  "body": {
+    "token": "not-a-jwt",
+    "new_password": "X"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

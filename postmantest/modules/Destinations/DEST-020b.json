@@ -1,0 +1,12 @@
+{
+  "id": "DEST-020b",
+  "endpoint": "/destinations/{{new_destination_id}}",
+  "method": "PUT",
+  "title": "Update destination - no token",
+  "expected_status": 401,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

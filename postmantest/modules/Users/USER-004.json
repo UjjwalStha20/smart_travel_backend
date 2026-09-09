@@ -1,0 +1,12 @@
+{
+  "id": "USER-004",
+  "endpoint": "/users/00000000-0000-0000-0000-000000000000",
+  "method": "GET",
+  "title": "Get user - unknown id",
+  "expected_status": 404,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

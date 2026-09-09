@@ -1,0 +1,12 @@
+{
+  "id": "TRIP-016",
+  "endpoint": "/trip-plans/{{trip_id}}/edits",
+  "method": "GET",
+  "title": "GET edits list",
+  "expected_status": 200,
+  "auth": "traveler",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 1
+}

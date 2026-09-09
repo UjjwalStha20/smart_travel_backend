@@ -1,0 +1,12 @@
+{
+  "id": "BLOG-008",
+  "endpoint": "/blogs/by-slug/nonexistent-slug-{{uniq}}",
+  "method": "GET",
+  "title": "Get by slug - unknown",
+  "expected_status": 404,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

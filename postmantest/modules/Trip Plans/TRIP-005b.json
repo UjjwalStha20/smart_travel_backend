@@ -1,0 +1,12 @@
+{
+  "id": "TRIP-005b",
+  "endpoint": "/trip-plans/{{trip_id}}",
+  "method": "PATCH",
+  "title": "Update trip - no-op empty body",
+  "expected_status": 200,
+  "auth": "traveler",
+  "body": {},
+  "query": [],
+  "note": "",
+  "script_assertions": 1
+}

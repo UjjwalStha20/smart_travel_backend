@@ -1,0 +1,17 @@
+{
+  "id": "REC-010",
+  "endpoint": "/recommendations/interaction",
+  "method": "POST",
+  "title": "Record interaction - missing destination_id",
+  "expected_status": 422,
+  "auth": "traveler",
+  "body": null,
+  "query": [
+    [
+      "interaction_type",
+      "view"
+    ]
+  ],
+  "note": "",
+  "script_assertions": 0
+}

@@ -1,0 +1,12 @@
+{
+  "id": "UTRI-006",
+  "endpoint": "/user-trips/mine",
+  "method": "GET",
+  "title": "List my trips - no token",
+  "expected_status": 401,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

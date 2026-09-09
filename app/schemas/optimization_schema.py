@@ -52,6 +52,23 @@ class BudgetOptimizeResult(BaseModel):
     one_time_fees: List[FeeBreakdown] = Field(default_factory=list)
 
 
+class BudgetEstimateResult(BaseModel):
+    """Average per-destination budget guide (standard-tier cost model)."""
+
+    destination_id: UUID
+    destination_name: str
+    fee_category: str = Field(description="Pricing tier used for permits/entry fees")
+    days: int = Field(description="Trip duration the estimate is based on")
+    per_person_per_day: float = Field(description="Average daily cost per person (food + accommodation)")
+    minimum_per_person_per_day: float = Field(description="Cheapest daily cost per person")
+    one_time_fees_per_person: float = Field(description="Permits/entry fees paid once per person")
+    estimated_total_per_person: float = Field(
+        description="Average per person for the given days including one-time fees"
+    )
+    minimum_total_per_person: float = Field(description="Cheapest per person for the given days")
+    method: str = Field(description="How the estimate is derived")
+
+
 class RouteStopInput(BaseModel):
     name: str
     latitude: float

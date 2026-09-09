@@ -1,0 +1,14 @@
+{
+  "id": "BLOG-012",
+  "endpoint": "/blogs/{{blog_id}}",
+  "method": "PUT",
+  "title": "Admin update",
+  "expected_status": 200,
+  "auth": "admin",
+  "body": {
+    "title": "Postman Blog Updated {{uniq}}"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 2
+}

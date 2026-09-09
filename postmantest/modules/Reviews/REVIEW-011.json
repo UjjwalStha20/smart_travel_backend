@@ -1,0 +1,14 @@
+{
+  "id": "REVIEW-011",
+  "endpoint": "/reviews/{{review_id}}",
+  "method": "PUT",
+  "title": "Update review - rating out of range",
+  "expected_status": 422,
+  "auth": "traveler",
+  "body": {
+    "rating": 7
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

@@ -1,0 +1,20 @@
+{
+  "id": "ITIN-001",
+  "endpoint": "/itineraries/",
+  "method": "POST",
+  "title": "Create itinerary for own user trip",
+  "expected_status": 201,
+  "auth": "traveler",
+  "body": {
+    "trip_id": "{{user_trip_id}}",
+    "day_number": 1,
+    "start_location": "Kathmandu",
+    "end_location": "Pokhara",
+    "overnight_location": "Gorkha",
+    "estimated_walking_hours": 5,
+    "notes": "Postman day 1"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 5
+}

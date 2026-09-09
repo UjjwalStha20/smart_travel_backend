@@ -1,0 +1,17 @@
+{
+  "id": "ALOG-003",
+  "endpoint": "/activity-logs/",
+  "method": "GET",
+  "title": "List - limit out of range",
+  "expected_status": 422,
+  "auth": "public",
+  "body": null,
+  "query": [
+    [
+      "limit",
+      "0"
+    ]
+  ],
+  "note": "",
+  "script_assertions": 0
+}

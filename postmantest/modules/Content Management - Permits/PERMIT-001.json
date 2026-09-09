@@ -1,0 +1,12 @@
+{
+  "id": "PERMIT-001",
+  "endpoint": "/permits/?limit=5",
+  "method": "GET",
+  "title": "List permits",
+  "expected_status": 200,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 4
+}

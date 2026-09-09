@@ -1,0 +1,12 @@
+{
+  "id": "DEST-018d",
+  "endpoint": "/destinations/",
+  "method": "POST",
+  "title": "Create destination - latitude out of range",
+  "expected_status": 422,
+  "auth": "admin",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

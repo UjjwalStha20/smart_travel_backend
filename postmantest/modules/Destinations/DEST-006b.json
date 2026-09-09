@@ -1,0 +1,17 @@
+{
+  "id": "DEST-006b",
+  "endpoint": "/destinations/",
+  "method": "GET",
+  "title": "List - offset negative",
+  "expected_status": 422,
+  "auth": "public",
+  "body": null,
+  "query": [
+    [
+      "offset",
+      "-1"
+    ]
+  ],
+  "note": "",
+  "script_assertions": 0
+}

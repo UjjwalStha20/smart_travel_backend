@@ -1,0 +1,12 @@
+{
+  "id": "ADDR-007",
+  "endpoint": "/addresses/{{address_new_id}}",
+  "method": "GET",
+  "title": "Get address by id",
+  "expected_status": 200,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 2
+}

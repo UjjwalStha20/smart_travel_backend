@@ -1,0 +1,16 @@
+{
+  "id": "ENTRY-002",
+  "endpoint": "/entry-fees/",
+  "method": "POST",
+  "title": "Admin create entry fee",
+  "expected_status": 201,
+  "auth": "admin",
+  "body": {
+    "attraction_id": "{{attraction_id}}",
+    "category": "Foreign",
+    "price": 1500
+  },
+  "query": [],
+  "note": "Requires an existing attraction (discovered in Setup)",
+  "script_assertions": 4
+}

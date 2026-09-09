@@ -1,0 +1,12 @@
+{
+  "id": "ADMIN-002",
+  "endpoint": "/admin/dashboard",
+  "method": "GET",
+  "title": "Admin dashboard as traveler (forbidden)",
+  "expected_status": 403,
+  "auth": "traveler",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

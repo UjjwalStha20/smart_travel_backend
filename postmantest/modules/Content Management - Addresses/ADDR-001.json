@@ -1,0 +1,12 @@
+{
+  "id": "ADDR-001",
+  "endpoint": "/addresses/?limit=5",
+  "method": "GET",
+  "title": "List addresses",
+  "expected_status": 200,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 4
+}

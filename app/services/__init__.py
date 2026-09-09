@@ -14,5 +14,6 @@ from .trekking_route_service import TrekkingRouteService
 from .user_service import UserService
 from .user_trip_service import UserTripService
 from .destination_itinerary_service import DestinationItineraryService
+from .destination_content_service import DestinationContentService
 from .blog_service import BlogService
 from .activity_log_service import ActivityLogService

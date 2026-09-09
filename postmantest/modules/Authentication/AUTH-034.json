@@ -1,0 +1,15 @@
+{
+  "id": "AUTH-034",
+  "endpoint": "/auth/reset-password",
+  "method": "POST",
+  "title": "Reset-password - login token (wrong token type)",
+  "expected_status": 400,
+  "auth": "traveler",
+  "body": {
+    "token": "{{traveler_token}}",
+    "new_password": "X"
+  },
+  "query": [],
+  "note": "Login JWT lacks type=reset",
+  "script_assertions": 0
+}

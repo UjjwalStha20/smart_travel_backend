@@ -1,0 +1,12 @@
+{
+  "id": "PHOTO-012",
+  "endpoint": "/photos/{{photo_id}}",
+  "method": "DELETE",
+  "title": "Delete photo - other user (forbidden)",
+  "expected_status": 403,
+  "auth": "second",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

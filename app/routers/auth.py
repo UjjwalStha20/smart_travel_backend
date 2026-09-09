@@ -1,4 +1,5 @@
 from datetime import timedelta
+from typing import Optional
 from uuid import UUID
 
 from jose import JWTError, jwt
@@ -13,7 +14,7 @@ from app.core.db import get_session
 from app.core.rate_limit import limiter
 from app.core.security import hash_password, verify_password
 from app.models import User
-from app.schemas.auth_schema import LoginRequest, RegisterRequest, TokenResponse, UserOut
+from app.schemas.auth_schema import LoginRequest, RegisterRequest, TokenResponse, UpdateProfileRequest, UserOut
 from app.services.activity_log_service import ActivityLogService
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -61,6 +62,24 @@ def login(request: Request, body: LoginRequest, session: Session = Depends(get_s
 
 @router.get("/me", response_model=UserOut)
 def get_me(current_user: User = Depends(get_current_user)):
+    return current_user
+
+
+@router.patch("/me", response_model=UserOut)
+def update_me(
+    body: UpdateProfileRequest,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    if body.name is not None:
+        current_user.name = body.name
+    if body.phone is not None:
+        current_user.phone = body.phone
+    if body.nationality is not None:
+        current_user.nationality = body.nationality
+    session.add(current_user)
+    session.commit()
+    session.refresh(current_user)
     return current_user
 
 

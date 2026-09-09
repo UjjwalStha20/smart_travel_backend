@@ -1,0 +1,12 @@
+{
+  "id": "ENTRY-009",
+  "endpoint": "/entry-fees/{{entry_fee_id}}",
+  "method": "DELETE",
+  "title": "Admin delete",
+  "expected_status": 200,
+  "auth": "admin",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 1
+}

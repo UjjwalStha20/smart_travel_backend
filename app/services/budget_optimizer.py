@@ -69,19 +69,18 @@ class BudgetOptimizer:
     def __init__(self, session: Session):
         self.session = session
 
-    def optimize(
-        self,
-        destination_id,
-        total_budget: float,
-        party_size: int = 1,
-        days: int = 1,
-        fee_category: str = "Foreign",
-    ) -> dict:
+    def _cost_model(self, destination_id, fee_category: str = "Foreign") -> dict:
+        """Build the per-tier cost model for a destination.
+
+        Returns callables/values shared by ``optimize`` and ``estimate``:
+        - ``accom_price(tier_idx)``: price per room/night at a tier (0=budget..2=luxury)
+        - ``food_daily(tier_idx)``:  total daily food cost per person at a tier
+        - ``one_time_per_person``:   permits + entry fees for the requested category
+        - ``destination``:           the destination model
+        """
         destination = self.session.get(Destination, UUID(str(destination_id)))
         if not destination:
             raise HTTPException(status_code=404, detail="Destination not found")
-
-        budget = Decimal(str(total_budget))
 
         # ---- Cost model -------------------------------------------------------
         accommodations = self.session.exec(select(Accommodation)).all()
@@ -130,6 +129,75 @@ class BudgetOptimizer:
                 {"name": "Entry fee", "category": _category_value(entry), "price": float(entry.price or 0)}
             )
         one_time_per_person = Decimal(str(sum(p["price"] for p in fee_parts)))
+
+        return {
+            "destination": destination,
+            "accom_price": accom_price,
+            "food_daily": food_daily,
+            "one_time_per_person": one_time_per_person,
+            "fee_parts": fee_parts,
+        }
+
+    def estimate(
+        self,
+        destination_id,
+        days: int = 7,
+        fee_category: str = "Foreign",
+    ) -> dict:
+        """Per-destination average budget guide.
+
+        Uses the standard tier of the shared cost model (food + a room/night for
+        one person) plus one-time permits/entry fees, so the "average budget"
+        varies by destination based on its real seeded prices.
+        """
+        model = self._cost_model(destination_id, fee_category)
+        destination = model["destination"]
+        accom_price = model["accom_price"]
+        food_daily = model["food_daily"]
+        one_time_per_person = model["one_time_per_person"]
+
+        def per_person_day(tier_idx: int) -> Decimal:
+            return food_daily(tier_idx) + accom_price(tier_idx)
+
+        minimum_daily = per_person_day(0)
+        average_daily = per_person_day(1)
+        minimum_total = minimum_daily * days + one_time_per_person
+        average_total = average_daily * days + one_time_per_person
+
+        return {
+            "destination_id": destination.id,
+            "destination_name": destination.name,
+            "fee_category": fee_category,
+            "days": days,
+            "per_person_per_day": float(average_daily),
+            "minimum_per_person_per_day": float(minimum_daily),
+            "one_time_fees_per_person": float(one_time_per_person),
+            "estimated_total_per_person": float(
+                average_total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+            ),
+            "minimum_total_per_person": float(
+                minimum_total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+            ),
+            "method": "Standard-tier daily food + accommodation for one person, "
+            "plus one-time permits/entry fees",
+        }
+
+    def optimize(
+        self,
+        destination_id,
+        total_budget: float,
+        party_size: int = 1,
+        days: int = 1,
+        fee_category: str = "Foreign",
+    ) -> dict:
+        model = self._cost_model(destination_id, fee_category)
+        destination = model["destination"]
+        accom_price = model["accom_price"]
+        food_daily = model["food_daily"]
+        one_time_per_person = model["one_time_per_person"]
+        fee_parts = model["fee_parts"]
+
+        budget = Decimal(str(total_budget))
 
         def daily_total(food_idx: int, accom_idx: int) -> Decimal:
             return food_daily(food_idx) * party_size + accom_price(accom_idx)

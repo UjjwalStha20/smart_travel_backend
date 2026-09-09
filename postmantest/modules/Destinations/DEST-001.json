@@ -1,0 +1,12 @@
+{
+  "id": "DEST-001",
+  "endpoint": "/destinations/",
+  "method": "GET",
+  "title": "List destinations",
+  "expected_status": 200,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 4
+}

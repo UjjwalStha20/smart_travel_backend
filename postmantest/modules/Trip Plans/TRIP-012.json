@@ -1,0 +1,14 @@
+{
+  "id": "TRIP-012",
+  "endpoint": "/trip-plans/{{trip_id}}/messages",
+  "method": "POST",
+  "title": "Send follow-up trip message",
+  "expected_status": 200,
+  "auth": "traveler",
+  "body": {
+    "message": "Make it cheaper."
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 4
+}

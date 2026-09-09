@@ -1,0 +1,14 @@
+{
+  "id": "AUTH-030",
+  "endpoint": "/auth/forgot-password",
+  "method": "POST",
+  "title": "Forgot-password - existing email",
+  "expected_status": 200,
+  "auth": "public",
+  "body": {
+    "email": "{{reg_email}}"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 2
+}

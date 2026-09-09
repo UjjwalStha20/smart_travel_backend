@@ -1,0 +1,17 @@
+{
+  "id": "PERMIT-004",
+  "endpoint": "/permits/",
+  "method": "POST",
+  "title": "Create - invalid category",
+  "expected_status": 422,
+  "auth": "admin",
+  "body": {
+    "destination_id": "{{destination_id}}",
+    "permit_type": "X",
+    "category": "LOL",
+    "price": 10
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

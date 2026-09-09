@@ -1,0 +1,12 @@
+{
+  "id": "AUTH-015",
+  "endpoint": "/auth/me",
+  "method": "GET",
+  "title": "GET /auth/me (traveler)",
+  "expected_status": 200,
+  "auth": "traveler",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 5
+}

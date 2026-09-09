@@ -1,0 +1,12 @@
+{
+  "id": "DEST-015",
+  "endpoint": "/destinations/",
+  "method": "POST",
+  "title": "Create destination - no files",
+  "expected_status": 422,
+  "auth": "admin",
+  "body": null,
+  "query": [],
+  "note": "Endpoint requires at least one photo",
+  "script_assertions": 0
+}

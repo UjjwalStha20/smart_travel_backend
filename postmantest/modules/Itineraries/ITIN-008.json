@@ -1,0 +1,14 @@
+{
+  "id": "ITIN-008",
+  "endpoint": "/itineraries/{{itinerary_id}}",
+  "method": "PUT",
+  "title": "Update own itinerary",
+  "expected_status": 200,
+  "auth": "traveler",
+  "body": {
+    "notes": "Updated by Postman"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 2
+}

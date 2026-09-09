@@ -1,0 +1,21 @@
+{
+  "id": "REC-007",
+  "endpoint": "/recommendations/interaction",
+  "method": "POST",
+  "title": "Record interaction - view",
+  "expected_status": 201,
+  "auth": "traveler",
+  "body": null,
+  "query": [
+    [
+      "destination_id",
+      "{{destination_id}}"
+    ],
+    [
+      "interaction_type",
+      "view"
+    ]
+  ],
+  "note": "",
+  "script_assertions": 2
+}

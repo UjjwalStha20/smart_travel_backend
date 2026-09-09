@@ -1,0 +1,14 @@
+{
+  "id": "ACCOM-004",
+  "endpoint": "/accommodations/",
+  "method": "POST",
+  "title": "Create - missing budget_price",
+  "expected_status": 422,
+  "auth": "admin",
+  "body": {
+    "name": "X"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

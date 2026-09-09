@@ -1,0 +1,14 @@
+{
+  "id": "SAVED-002",
+  "endpoint": "/saved-destinations/",
+  "method": "POST",
+  "title": "Save duplicate is idempotent",
+  "expected_status": 201,
+  "auth": "traveler",
+  "body": {
+    "destination_id": "{{destination_id}}"
+  },
+  "query": [],
+  "note": "Service returns existing row instead of 409",
+  "script_assertions": 1
+}

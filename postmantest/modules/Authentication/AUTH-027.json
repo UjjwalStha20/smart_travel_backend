@@ -1,0 +1,15 @@
+{
+  "id": "AUTH-027",
+  "endpoint": "/auth/change-password",
+  "method": "POST",
+  "title": "Change-password - wrong current password",
+  "expected_status": 400,
+  "auth": "traveler",
+  "body": {
+    "current_password": "nope",
+    "new_password": "X12345678!"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

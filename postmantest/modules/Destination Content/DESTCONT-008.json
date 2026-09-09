@@ -1,0 +1,14 @@
+{
+  "id": "DESTCONT-008",
+  "endpoint": "/destinations/{{new_destination_id}}/content/things-to-do",
+  "method": "POST",
+  "title": "Create thing-to-do as traveler (forbidden)",
+  "expected_status": 403,
+  "auth": "traveler",
+  "body": {
+    "title": "x"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

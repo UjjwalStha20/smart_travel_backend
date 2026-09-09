@@ -1,0 +1,15 @@
+{
+  "id": "AUTH-029",
+  "endpoint": "/auth/change-password",
+  "method": "POST",
+  "title": "Change-password - no token",
+  "expected_status": 401,
+  "auth": "public",
+  "body": {
+    "current_password": "x",
+    "new_password": "y"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

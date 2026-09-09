@@ -1,0 +1,14 @@
+{
+  "id": "REVIEW-010",
+  "endpoint": "/reviews/{{review_id}}",
+  "method": "PUT",
+  "title": "Update review - other user (forbidden)",
+  "expected_status": 403,
+  "auth": "second",
+  "body": {
+    "rating": 1
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

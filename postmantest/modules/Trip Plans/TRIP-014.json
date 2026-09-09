@@ -1,0 +1,14 @@
+{
+  "id": "TRIP-014",
+  "endpoint": "/trip-plans/{{trip_id}}/messages",
+  "method": "POST",
+  "title": "Send trip message - no token",
+  "expected_status": 401,
+  "auth": "public",
+  "body": {
+    "message": "hi"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

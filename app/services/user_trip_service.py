@@ -10,10 +10,15 @@ class UserTripService:
     def __init__(self, session: Session):
         self.session = session
 
-    def get_all_user_trips(self, offset: int = 0, limit: int = 100):
-        statement = select(UserTrip).offset(offset).limit(limit)
+    def get_all_user_trips(self, offset: int = 0, limit: int = 100, user_id: UUID | None = None):
+        statement = select(UserTrip)
+        total_statement = select(func.count(UserTrip.id))
+        if user_id:
+            statement = statement.where(UserTrip.user_id == user_id)
+            total_statement = total_statement.where(UserTrip.user_id == user_id)
+        statement = statement.offset(offset).limit(limit)
         items = self.session.exec(statement).all()
-        total = self.session.exec(select(func.count(UserTrip.id))).one()
+        total = self.session.exec(total_statement).one()
         return {"items": items, "total": total, "offset": offset, "limit": limit}
 
     def get_user_trip_by_id(self, trip_id: UUID) -> UserTrip:

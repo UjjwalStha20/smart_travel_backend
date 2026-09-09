@@ -1,0 +1,15 @@
+{
+  "id": "UTRI-012",
+  "endpoint": "/user-trips/",
+  "method": "POST",
+  "title": "Create - missing destination_id",
+  "expected_status": 422,
+  "auth": "traveler",
+  "body": {
+    "pace_type": "normal",
+    "budget_type": "standard"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

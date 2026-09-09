@@ -1,0 +1,14 @@
+{
+  "id": "ACCOM-008",
+  "endpoint": "/accommodations/{{accommodation_new_id}}",
+  "method": "PUT",
+  "title": "Admin update",
+  "expected_status": 200,
+  "auth": "admin",
+  "body": {
+    "standard_price": 2800
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 2
+}

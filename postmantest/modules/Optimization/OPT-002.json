@@ -1,0 +1,18 @@
+{
+  "id": "OPT-002",
+  "endpoint": "/optimization/budget",
+  "method": "POST",
+  "title": "Budget - tiny budget may be infeasible (deficit present)",
+  "expected_status": 200,
+  "auth": "public",
+  "body": {
+    "destination_id": "{{destination_id}}",
+    "total_budget": 5,
+    "party_size": 2,
+    "days": 5,
+    "fee_category": "Foreign"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 2
+}

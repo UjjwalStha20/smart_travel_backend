@@ -6,9 +6,11 @@ from sqlmodel import Session, select
 
 from app.dependencies import SessionDep
 from app.models import Address, Destination
+from app.services.directions import get_directions
 from app.services.flight_info import get_flight_options
 from app.services.live_data import LiveDataError, fetch_weather
 from app.services.map_service import destination_geojson
+from app.services.nearby_destinations import get_nearby_destinations
 
 
 router = APIRouter(prefix="/travel", tags=["Travel Info"])
@@ -60,6 +62,23 @@ def destination_weather(
 
 
 @router.get(
+    "/directions",
+    summary="Point-to-point route from an origin to a destination",
+    description="OSRM (free, public) driving + walking routes with distance/duration, a "
+    "derived local-bus estimate, and a straight-line fallback when offline. "
+    "Everything is a route drawing — there is no live traffic/booking.",
+)
+def directions(
+    from_lat: float = Query(..., ge=-90, le=90),
+    from_lon: float = Query(..., ge=-180, le=180),
+    to_lat: float = Query(..., ge=-90, le=90),
+    to_lon: float = Query(..., ge=-180, le=180),
+    destination_name: Optional[str] = Query(default=None),
+):
+    return get_directions(from_lat, from_lon, to_lat, to_lon, destination_name=destination_name)
+
+
+@router.get(
     "/destinations/{destination_id}/flights",
     summary="Flight & how-to-reach info (informational, no booking)",
     description="Closest airports, airlines, indicative fares/duration and booking portals. "
@@ -77,3 +96,17 @@ def destination_flights(destination_id: UUID, session: SessionDep):
 )
 def destination_map(destination_id: UUID, session: SessionDep):
     return destination_geojson(session, destination_id)
+
+
+@router.get(
+    "/destinations/{destination_id}/nearby",
+    summary="Nearby destinations by great-circle distance",
+    description="Return the closest destinations to the given one, computed via haversine "
+    "distance over stored latitude/longitude coordinates.",
+)
+def nearby_destinations(
+    destination_id: UUID,
+    session: SessionDep,
+    limit: int = Query(default=6, ge=1, le=20),
+):
+    return get_nearby_destinations(session, destination_id, limit=limit)

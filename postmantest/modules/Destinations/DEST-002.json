@@ -1,0 +1,17 @@
+{
+  "id": "DEST-002",
+  "endpoint": "/destinations/",
+  "method": "GET",
+  "title": "List - category=attraction",
+  "expected_status": 200,
+  "auth": "public",
+  "body": null,
+  "query": [
+    [
+      "category",
+      "attraction"
+    ]
+  ],
+  "note": "",
+  "script_assertions": 2
+}

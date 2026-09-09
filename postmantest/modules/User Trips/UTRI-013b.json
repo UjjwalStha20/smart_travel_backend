@@ -1,0 +1,17 @@
+{
+  "id": "UTRI-013b",
+  "endpoint": "/user-trips/",
+  "method": "POST",
+  "title": "Create - invalid date format",
+  "expected_status": 422,
+  "auth": "traveler",
+  "body": {
+    "destination_id": "{{destination_id}}",
+    "pace_type": "normal",
+    "budget_type": "standard",
+    "start_date": "not-a-date"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

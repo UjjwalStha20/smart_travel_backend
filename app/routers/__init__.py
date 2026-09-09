@@ -19,3 +19,4 @@ from .blog import router as blog_router
 from .activity_log import router as activity_log_router
 from .optimization import router as optimization_router
 from .travel_info import router as travel_info_router
+from .destination_content import router as destination_content_router

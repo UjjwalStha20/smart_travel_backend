@@ -1,0 +1,12 @@
+{
+  "id": "USER-016",
+  "endpoint": "/users/{{created_user_id}}",
+  "method": "GET",
+  "title": "Deleted user is gone",
+  "expected_status": 404,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

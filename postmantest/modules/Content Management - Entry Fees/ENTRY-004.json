@@ -1,0 +1,16 @@
+{
+  "id": "ENTRY-004",
+  "endpoint": "/entry-fees/",
+  "method": "POST",
+  "title": "Create - invalid category",
+  "expected_status": 422,
+  "auth": "admin",
+  "body": {
+    "attraction_id": "{{attraction_id}}",
+    "category": "VIP",
+    "price": 100
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

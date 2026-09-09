@@ -1,0 +1,12 @@
+{
+  "id": "UTRI-018",
+  "endpoint": "/user-trips/{{user_trip_id}}",
+  "method": "DELETE",
+  "title": "Delete - no token",
+  "expected_status": 401,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

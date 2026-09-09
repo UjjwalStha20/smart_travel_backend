@@ -1,0 +1,33 @@
+{
+  "id": "TRAV-007",
+  "endpoint": "/travel/directions",
+  "method": "GET",
+  "title": "Directions - valid coords",
+  "expected_status": [
+    200,
+    502,
+    503
+  ],
+  "auth": "public",
+  "body": null,
+  "query": [
+    [
+      "from_lat",
+      "27.7172"
+    ],
+    [
+      "from_lon",
+      "85.3240"
+    ],
+    [
+      "to_lat",
+      "27.6000"
+    ],
+    [
+      "to_lon",
+      "85.5400"
+    ]
+  ],
+  "note": "Uses OSRM; straight-line fallback exists",
+  "script_assertions": 0
+}

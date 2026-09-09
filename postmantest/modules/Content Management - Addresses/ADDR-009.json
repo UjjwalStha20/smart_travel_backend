@@ -1,0 +1,14 @@
+{
+  "id": "ADDR-009",
+  "endpoint": "/addresses/{{address_new_id}}",
+  "method": "PUT",
+  "title": "Admin update address",
+  "expected_status": 200,
+  "auth": "admin",
+  "body": {
+    "district": "Lalitpur"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 2
+}

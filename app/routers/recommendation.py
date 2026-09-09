@@ -97,6 +97,45 @@ async def get_recommendation_summaries(
     return summaries
 
 
+@router.get(
+    "/preferences",
+    summary="Get current user preferences",
+    description="Return the authenticated user's declared preferences used by the "
+    "recommendation engine, or safe defaults if none have been saved yet.",
+)
+async def get_preferences(
+    session: SessionDep,
+    current_user: CurrentUser,
+) -> dict:
+    from app.models import UserPreferences
+
+    stmt = select(UserPreferences).where(UserPreferences.user_id == current_user.id)
+    prefs = session.exec(stmt).first()
+
+    if not prefs:
+        return {
+            "preferred_categories": [],
+            "preferred_activities": [],
+            "budget_preference": None,
+            "typical_duration": None,
+            "difficulty_preference": None,
+            "preferred_season": [],
+            "travel_style": None,
+            "updated_at": None,
+        }
+
+    return {
+        "preferred_categories": prefs.preferred_categories or [],
+        "preferred_activities": prefs.preferred_activities or [],
+        "budget_preference": prefs.budget_preference,
+        "typical_duration": prefs.typical_duration,
+        "difficulty_preference": prefs.difficulty_preference,
+        "preferred_season": prefs.preferred_season or [],
+        "travel_style": prefs.travel_style,
+        "updated_at": prefs.updated_at.isoformat() if prefs.updated_at else None,
+    }
+
+
 @router.post(
     "/interaction",
     summary="Record user-interaction for a destination",

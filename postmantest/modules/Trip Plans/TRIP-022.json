@@ -1,0 +1,12 @@
+{
+  "id": "TRIP-022",
+  "endpoint": "/trip-plans/{{trip_id}}/generate",
+  "method": "POST",
+  "title": "Generate itinerary",
+  "expected_status": 200,
+  "auth": "traveler",
+  "body": null,
+  "query": [],
+  "note": "May rely on LLM or deterministic builder; verify implementation",
+  "script_assertions": 3
+}

@@ -1,0 +1,12 @@
+{
+  "id": "DEST-014",
+  "endpoint": "/destinations/",
+  "method": "POST",
+  "title": "Admin create destination (multipart + file)",
+  "expected_status": 201,
+  "auth": "admin",
+  "body": null,
+  "query": [],
+  "note": "Attach postmantest/sample-files/sample.png to the 'files' form-data field before running (set in the request body, may need re-selecting locally).",
+  "script_assertions": 2
+}

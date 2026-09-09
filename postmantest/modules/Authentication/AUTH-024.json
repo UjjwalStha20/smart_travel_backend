@@ -1,0 +1,15 @@
+{
+  "id": "AUTH-024",
+  "endpoint": "/auth/change-password",
+  "method": "POST",
+  "title": "POST /auth/change-password - valid",
+  "expected_status": 200,
+  "auth": "traveler",
+  "body": {
+    "current_password": "password123",
+    "new_password": "NewSecret456!"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 1
+}

@@ -1,0 +1,30 @@
+{
+  "id": "OPT-010",
+  "endpoint": "/optimization/route",
+  "method": "POST",
+  "title": "Route - custom waypoints",
+  "expected_status": 200,
+  "auth": "public",
+  "body": {
+    "points": [
+      {
+        "name": "Start",
+        "latitude": 28.21,
+        "longitude": 83.9609
+      },
+      {
+        "name": "Mid",
+        "latitude": 28.22,
+        "longitude": 83.97
+      },
+      {
+        "name": "End",
+        "latitude": 28.23,
+        "longitude": 83.96
+      }
+    ]
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 12
+}

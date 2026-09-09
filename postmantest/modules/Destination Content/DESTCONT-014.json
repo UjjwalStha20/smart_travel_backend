@@ -1,0 +1,12 @@
+{
+  "id": "DESTCONT-014",
+  "endpoint": "/destinations/{{new_destination_id}}",
+  "method": "GET",
+  "title": "Deleted destination is gone",
+  "expected_status": 404,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

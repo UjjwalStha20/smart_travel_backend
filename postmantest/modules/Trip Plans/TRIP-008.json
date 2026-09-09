@@ -1,0 +1,12 @@
+{
+  "id": "TRIP-008",
+  "endpoint": "/trip-plans/{{trip_b_id}}",
+  "method": "GET",
+  "title": "Get trip - other user's plan",
+  "expected_status": 404,
+  "auth": "traveler",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

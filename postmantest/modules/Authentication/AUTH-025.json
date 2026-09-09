@@ -1,0 +1,15 @@
+{
+  "id": "AUTH-025",
+  "endpoint": "/auth/login",
+  "method": "POST",
+  "title": "Login OLD password now fails",
+  "expected_status": 401,
+  "auth": "public",
+  "body": {
+    "email": "john@example.com",
+    "password": "password123"
+  },
+  "query": [],
+  "note": "Proves AUTH-024 took effect",
+  "script_assertions": 0
+}

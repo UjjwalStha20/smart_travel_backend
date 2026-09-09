@@ -1,0 +1,14 @@
+{
+  "id": "AUTH-019",
+  "endpoint": "/auth/me",
+  "method": "PATCH",
+  "title": "PATCH /auth/me - update name",
+  "expected_status": 200,
+  "auth": "traveler",
+  "body": {
+    "name": "John (Postman Updated)"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 1
+}

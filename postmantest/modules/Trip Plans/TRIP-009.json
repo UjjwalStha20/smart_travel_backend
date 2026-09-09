@@ -1,0 +1,14 @@
+{
+  "id": "TRIP-009",
+  "endpoint": "/trip-plans/{{trip_b_id}}/messages",
+  "method": "POST",
+  "title": "POST message - other user's plan",
+  "expected_status": 404,
+  "auth": "traveler",
+  "body": {
+    "message": "hi"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

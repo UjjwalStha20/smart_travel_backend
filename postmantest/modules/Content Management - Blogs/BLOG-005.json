@@ -1,0 +1,16 @@
+{
+  "id": "BLOG-005",
+  "endpoint": "/blogs/",
+  "method": "POST",
+  "title": "Create as traveler (forbidden)",
+  "expected_status": 403,
+  "auth": "traveler",
+  "body": {
+    "title": "X",
+    "slug": "x-{{uniq}}",
+    "content": "body"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

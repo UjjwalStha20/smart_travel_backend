@@ -1,0 +1,18 @@
+{
+  "id": "CHAT-006",
+  "endpoint": "/chat/",
+  "method": "POST",
+  "title": "Chat - with user_profile",
+  "expected_status": 200,
+  "auth": "traveler",
+  "body": {
+    "message": "Plan a budget-friendly trip.",
+    "user_profile": {
+      "budget": "low",
+      "dietary": "veg"
+    }
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 2
+}

@@ -1,0 +1,12 @@
+{
+  "id": "PHOTO-007",
+  "endpoint": "/photos/?limit=5",
+  "method": "GET",
+  "title": "List photos",
+  "expected_status": 200,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 4
+}

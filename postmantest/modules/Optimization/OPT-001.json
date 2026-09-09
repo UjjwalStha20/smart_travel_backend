@@ -1,0 +1,18 @@
+{
+  "id": "OPT-001",
+  "endpoint": "/optimization/budget",
+  "method": "POST",
+  "title": "Budget - feasible plan",
+  "expected_status": 200,
+  "auth": "public",
+  "body": {
+    "destination_id": "{{destination_id}}",
+    "total_budget": 500000,
+    "party_size": 2,
+    "days": 5,
+    "fee_category": "Foreign"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 19
+}

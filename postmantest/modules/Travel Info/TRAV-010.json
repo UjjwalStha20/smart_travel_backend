@@ -1,0 +1,12 @@
+{
+  "id": "TRAV-010",
+  "endpoint": "/travel/destinations/00000000-0000-0000-0000-000000000000/flights",
+  "method": "GET",
+  "title": "Flights - unknown destination",
+  "expected_status": 404,
+  "auth": "public",
+  "body": null,
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}

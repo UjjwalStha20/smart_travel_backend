@@ -10,6 +10,8 @@ from app.core.db import get_session
 from app.dependencies import SessionDep, require_admin
 from app.models import User
 from app.schemas.destination_schema import DestinationCreate, DestinationRead, DestinationUpdate
+from app.schemas.optimization_schema import BudgetEstimateResult
+from app.services.budget_optimizer import BudgetOptimizer
 from app.services.destination_service import DestinationService
 from app.services.activity_log_service import ActivityLogService
 
@@ -56,6 +58,22 @@ class DestinationRouter:
     @router.get("/{destination_id}")
     async def get_destination_by_id(session: SessionDep, destination_id: uuid.UUID):
         return DestinationService(session).get_destination_by_id(str(destination_id))
+
+    @router.get("/{destination_id}/budget-estimate")
+    def get_destination_budget_estimate(
+        session: SessionDep,
+        destination_id: uuid.UUID,
+        days: int = Query(7, ge=1, le=60),
+        fee_category: str = Query("Foreign"),
+    ) -> BudgetEstimateResult:
+        """Per-destination average budget guide used to pre-fill the budget planner.
+
+        Standard-tier food + accommodation (one person) plus one-time
+        permits/entry fees, so the suggested budget varies by destination.
+        """
+        return BudgetOptimizer(session).estimate(
+            str(destination_id), days=days, fee_category=fee_category
+        )
 
     @router.post("/", status_code=201)
     async def create_destination(

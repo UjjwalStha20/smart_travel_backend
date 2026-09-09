@@ -1,0 +1,14 @@
+{
+  "id": "AUTH-031",
+  "endpoint": "/auth/forgot-password",
+  "method": "POST",
+  "title": "Forgot-password - nonexistent email (generic message)",
+  "expected_status": 200,
+  "auth": "public",
+  "body": {
+    "email": "ghost{{uniq}}@example.com"
+  },
+  "query": [],
+  "note": "Security by design: same message, reset_token null",
+  "script_assertions": 2
+}

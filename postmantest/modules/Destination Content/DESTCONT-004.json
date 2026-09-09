@@ -1,0 +1,15 @@
+{
+  "id": "DESTCONT-004",
+  "endpoint": "/destinations/{{new_destination_id}}/content/highlights",
+  "method": "POST",
+  "title": "Create highlight - empty title",
+  "expected_status": 422,
+  "auth": "admin",
+  "body": {
+    "title": "",
+    "description": "x"
+  },
+  "query": [],
+  "note": "",
+  "script_assertions": 0
+}
