@@ -58,6 +58,58 @@ def test_generate_initial_itinerary(client: TestClient, user_token: str, test_de
     assert first["items"][0]["title"]
 
 
+def test_preview_endpoint_works_without_auth(client: TestClient, test_destinations, session):
+    from app.models import Destination, DestinationThingToDo
+
+    pat = test_destinations[1]
+    session.add_all([
+        DestinationThingToDo(destination_id=pat.id, position=0, title="Visit the main temple", duration="1-2 hours"),
+        DestinationThingToDo(destination_id=pat.id, position=1, title="Watch the evening aarti", duration="1 hour"),
+    ])
+    session.commit()
+
+    resp = client.post("/trip-plans/preview", json={
+        "destinations": ["Pashupatinath Temple"],
+        "duration_days": 3,
+        "transportation": ["private"],
+    })
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["status"] == "preview"
+    days = body["days"]
+    assert len(days) == 1, "a single sightseeing destination must get exactly one preview day"
+    assert days[0]["day_number"] == 1
+    titles = [it["title"] for it in days[0]["items"]]
+    assert "Visit the main temple" in titles
+    assert days[0]["transportation"] == ["private"]
+
+
+def test_preview_for_trek_uses_route_rows(client: TestClient, test_destinations, session):
+    from app.models import DestinationItinerary
+
+    abc = test_destinations[0]
+    session.add_all([
+        DestinationItinerary(
+            destination_id=abc.id, day_number=1, title="Kathmandu to Pokhara",
+            start_location="Kathmandu", end_location="Pokhara", overnight_location="Pokhara",
+        ),
+        DestinationItinerary(
+            destination_id=abc.id, day_number=2, title="Pokhara to Ghandruk",
+            start_location="Pokhara", end_location="Ghandruk", overnight_location="Ghandruk",
+        ),
+    ])
+    session.commit()
+
+    resp = client.post("/trip-plans/preview", json={
+        "destinations": ["Annapurna Base Camp Trek"],
+        "duration_days": 4,
+    })
+    assert resp.status_code == 200, resp.text
+    days = resp.json()["days"]
+    assert len(days) == 2, "preview should walk only the real route rows for a trek"
+    assert "Kathmandu" in days[0]["items"][0]["title"], "trek preview should include the travel leg"
+
+
 def test_trek_itinerary_uses_route_rows(client: TestClient, user_token: str, test_destinations, session):
     from app.models import DestinationItinerary
 

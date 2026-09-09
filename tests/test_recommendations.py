@@ -7,8 +7,8 @@ def _auth_headers(token: str) -> dict:
     return {"Authorization": f"Bearer {token}"}
 
 
-def test_new_user_cold_start(client: TestClient, user_token: str, test_destinations):
-    """Test that new users receive recommendations (cold start)."""
+def test_new_user_with_no_signals_gets_no_recommendations(client: TestClient, user_token: str, test_destinations):
+    """Cold start: users with no signals must NOT get random/popularity recommendations."""
     recs = client.get(
         "/recommendations/",
         headers=_auth_headers(user_token),
@@ -17,8 +17,30 @@ def test_new_user_cold_start(client: TestClient, user_token: str, test_destinati
 
     assert recs.status_code == 200, f"Expected 200, got {recs.status_code}: {recs.text}"
     data = recs.json()
+    assert data == [], "Expected no recommendations until the user has real signals"
+
+
+def test_user_with_preferences_gets_recommendations(client: TestClient, user_token: str, test_destinations):
+    """Declared preferences are a real signal and unlock recommendations."""
+    resp = client.post(
+        "/recommendations/preferences",
+        headers=_auth_headers(user_token),
+        params={
+            "preferred_categories": ["trek"],
+            "preferred_activities": ["hiking"],
+        },
+    )
+    assert resp.status_code == 201, resp.text
+
+    recs = client.get(
+        "/recommendations/",
+        headers=_auth_headers(user_token),
+        params={"limit": 5},
+    )
+    assert recs.status_code == 200, f"Expected 200, got {recs.status_code}: {recs.text}"
+    data = recs.json()
     assert isinstance(data, list)
-    assert len(data) > 0, "Should return at least one recommendation"
+    assert len(data) > 0, "Preferences should unlock recommendations"
 
     for rec in data:
         assert "destination_id" in rec, f"Missing destination_id in {rec}"
@@ -62,7 +84,14 @@ def test_recommendation_with_interactions(client: TestClient, user_token: str, t
 
 
 def test_recommendation_schema(client: TestClient, user_token: str, test_destinations):
-    """Test that recommendations have the expected schema."""
+    """Test that recommendations have the expected schema (user has preferences)."""
+    resp = client.post(
+        "/recommendations/preferences",
+        headers=_auth_headers(user_token),
+        params={"preferred_categories": ["trek", "attraction"]},
+    )
+    assert resp.status_code == 201, resp.text
+
     recs = client.get(
         "/recommendations/",
         headers=_auth_headers(user_token),
@@ -92,6 +121,13 @@ def test_recommendation_schema(client: TestClient, user_token: str, test_destina
 
 def test_recommendation_ranking(client: TestClient, user_token: str, test_destinations):
     """Test that recommendations are properly sorted by score."""
+    resp = client.post(
+        "/recommendations/preferences",
+        headers=_auth_headers(user_token),
+        params={"preferred_categories": ["trek", "attraction"]},
+    )
+    assert resp.status_code == 201, resp.text
+
     recs = client.get(
         "/recommendations/",
         headers=_auth_headers(user_token),

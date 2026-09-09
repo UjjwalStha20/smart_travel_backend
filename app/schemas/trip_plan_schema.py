@@ -133,6 +133,18 @@ class PlanGenerateResponse(BaseModel):
     status: str = "generated"
 
 
+class PlanPreviewRequest(BaseModel):
+    destinations: List[str] = Field(default_factory=list)
+    duration_days: int = 4
+    transportation: List[str] = Field(default_factory=list)
+    start_location: Optional[str] = None
+
+
+class PlanPreviewResponse(BaseModel):
+    days: List[Dict] = Field(default_factory=list)
+    status: str = "preview"
+
+
 class TripChatRequest(BaseModel):
     message: str
 

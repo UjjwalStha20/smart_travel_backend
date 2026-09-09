@@ -41,6 +41,12 @@ class RecommendationService:
         if not user:
             raise ValueError(f"User {user_id} not found")
 
+        # Never serve random/popularity-only recommendations to a user with no
+        # real signals yet. Require at least one interaction, declared
+        # preference, trip, saved destination or review before recommending.
+        if not self._user_has_signals(user_id):
+            return []
+
         # Check for interaction history
         interaction_count = self._get_interaction_count(user_id)
 
@@ -147,6 +153,34 @@ class RecommendationService:
         )
         count = self.session.exec(stmt).one()
         return count
+
+    def _user_has_signals(self, user_id: UUID) -> bool:
+        """True only when the user has real data to base recommendations on."""
+        if self._get_interaction_count(user_id) > 0:
+            return True
+
+        prefs = self.session.exec(
+            select(UserPreferences).where(UserPreferences.user_id == user_id)
+        ).first()
+        if prefs:
+            meaningful = any([
+                getattr(prefs, "preferred_categories", None) or [],
+                getattr(prefs, "preferred_activities", None) or [],
+                getattr(prefs, "preferred_season", None) or [],
+                getattr(prefs, "budget_preference", None),
+                getattr(prefs, "travel_style", None),
+                getattr(prefs, "difficulty_preference", None),
+            ])
+            if meaningful:
+                return True
+
+        for model in (UserTrip, SavedDestination, Review):
+            count = self.session.exec(
+                select(func.count(model.id)).where(model.user_id == user_id)
+            ).one()
+            if count:
+                return True
+        return False
 
     def _build_user_profile(self, user_id: UUID, interaction_count: int) -> Dict[str, Any]:
         """Build comprehensive user profile from all available data."""

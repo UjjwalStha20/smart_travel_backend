@@ -71,6 +71,168 @@ def _things_for(dest: Destination) -> List[DestinationThingToDo]:
     return list(getattr(dest, "things_to_do", []) or [])
 
 
+def _fetch_itinerary_rows(session: Session, dest: Destination) -> List[DestinationItinerary]:
+    return list(session.exec(
+        select(DestinationItinerary)
+        .where(DestinationItinerary.destination_id == dest.id)
+        .order_by(DestinationItinerary.day_number.asc())
+    ).all())
+
+
+def build_itinerary_days(
+    session: Session,
+    *,
+    names: List[str],
+    duration_days: Optional[int],
+    transportation: Optional[List[str]] = None,
+    start_location: Optional[str] = None,
+) -> List[dict]:
+    """Compute the initial itinerary for a set of destinations WITHOUT persisting.
+
+    Returns day dicts shaped like ``to_day_out`` (no ids/dates). Shared by both
+    the authenticated plan generation and the anonymous guest preview so the
+    output is always identical and driven by real destination data only.
+
+    Modes:
+    - Route-like destination categories (trek/hike/mountain): walk the
+      destination's structured day-by-day itinerary rows (never repeating the
+      destination and never inventing trek stages).
+    - Sightseeing destinations (city/lake/cultural/religious/historical/nature…):
+      one day per destination built from the destination's real activity data,
+      packed several-per-day only when the trip is shorter than the chosen set.
+    No durations, permits, altitudes or routes are invented.
+    """
+    total_days = max(int(duration_days or 4), 1)
+    dests = _resolve_destinations(session, names or [])
+    if not dests and start_location:
+        dests = _resolve_destinations(session, [start_location])
+
+    transport = transportation or []
+    route_dests = [d for d in dests if _category(d) in _ROUTE_LIKE_CATEGORIES]
+    sight_dests = [d for d in dests if _category(d) not in _ROUTE_LIKE_CATEGORIES]
+
+    days: List[dict] = []
+    counter = 1
+
+    # Route-like destinations use their structured day-by-day itinerary.
+    for dest in route_dests:
+        if counter > total_days:
+            break
+        rows = _fetch_itinerary_rows(session, dest)
+        if rows:
+            for template in rows[: total_days - counter + 1]:
+                location = (
+                    template.overnight_location
+                    or template.end_location
+                    or template.start_location
+                    or dest.name
+                )
+                items: List[dict] = []
+                if (
+                    template.start_location
+                    and template.end_location
+                    and template.start_location != template.end_location
+                ):
+                    items.append({
+                        "title": f"Travel {template.start_location} → {template.end_location}",
+                        "category": "travel",
+                        "location": template.start_location,
+                    })
+                days.append({
+                    "day_number": counter,
+                    "location": location,
+                    "title": template.title or dest.name,
+                    "transportation": transport,
+                    "estimated_duration_hours": float(template.estimated_walking_hours)
+                    if template.estimated_walking_hours else None,
+                    "notes": template.notes,
+                    "items": items,
+                })
+                counter += 1
+        else:
+            # route-like category without structured rows: single activity day
+            days.append({
+                "day_number": counter,
+                "location": dest.name,
+                "title": dest.name,
+                "transportation": transport,
+                "items": [
+                    {"title": t.title, "category": "adventure", "location": dest.name, "notes": t.duration}
+                    for t in _things_for(dest)
+                ],
+            })
+            counter += 1
+
+    # Sightseeing destinations: one day per destination (grouped if short).
+    remaining = total_days - (counter - 1)
+    if sight_dests:
+        if remaining <= 0:
+            # no free days left — fold activities into the last day instead of dropping
+            if days:
+                last = days[-1]
+                seen = {it["title"].lower() for it in last.get("items", [])}
+                merged = list(last["items"])
+                for dest in sight_dests:
+                    for t in _things_for(dest):
+                        if t.title.lower() in seen or len(merged) >= 8:
+                            continue
+                        seen.add(t.title.lower())
+                        merged.append({
+                            "title": t.title, "category": "sightseeing",
+                            "location": dest.name, "notes": t.duration,
+                        })
+                last["items"] = merged
+        elif remaining >= len(sight_dests):
+            for dest in sight_dests:
+                days.append({
+                    "day_number": counter,
+                    "location": dest.name,
+                    "title": dest.name,
+                    "transportation": transport,
+                    "items": [
+                        {"title": t.title, "category": "sightseeing", "location": dest.name, "notes": t.duration}
+                        for t in _things_for(dest)
+                    ],
+                })
+                counter += 1
+        else:
+            group_size = (len(sight_dests) + remaining - 1) // remaining
+            for group in _chunk(sight_dests, group_size):
+                names_joined = " & ".join(d.name for d in group)
+                items: List[dict] = []
+                for dest in group:
+                    for t in _things_for(dest):
+                        if len(items) >= 10:
+                            break
+                        items.append({
+                            "title": t.title, "category": "sightseeing",
+                            "location": dest.name, "notes": t.duration,
+                        })
+                days.append({
+                    "day_number": counter,
+                    "location": group[0].name,
+                    "title": names_joined,
+                    "transportation": transport,
+                    "items": items,
+                })
+                counter += 1
+
+    # Guarantee every produced day has at least one item.
+    for day in days:
+        if not day.get("items"):
+            seen = set()
+            for it in (day.get("items") or []):
+                seen.add(it.get("title", "").lower())
+            seen.add("")
+            fallback = f"Explore {day.get('title', 'your itinerary')} at your own pace"
+            if fallback.lower() not in seen:
+                day.setdefault("items", []).append({
+                    "title": fallback, "category": "sightseeing", "location": day.get("location"),
+                })
+
+    return days
+
+
 def to_day_out(day: TripItineraryDay, items: Optional[List[TripItineraryItem]] = None) -> dict:
     if items is None:
         items = sorted(day.items, key=lambda x: x.position)
@@ -244,63 +406,15 @@ class TripPlanService:
         self.session.commit()
 
     # ---- itinerary generation ----------------------------------------------
-    def _build_day(self, trip: TripPlan, *, day_number: int, location: str, title: str,
-                   notes: Optional[str] = None, estimated_duration_hours: Optional[float] = None,
-                   items: Optional[List[dict]] = None) -> TripItineraryDay:
-        day = TripItineraryDay(
-            trip_id=trip.id,
-            day_number=day_number,
-            location=location,
-            title=title,
-            notes=notes,
-            estimated_duration_hours=estimated_duration_hours,
-            status=TripDaySource.generated,
-            transportation=trip.transportation or [],
-        )
-        self.session.add(day)
-        self.session.flush()
-        seen = set()
-        added = 0
-        for pos, raw in enumerate(items or []):
-            t = (raw.get("title") if isinstance(raw, dict) else str(raw)).strip()
-            if not t or t.lower() in seen:
-                continue
-            seen.add(t.lower())
-            self.session.add(TripItineraryItem(
-                day_id=day.id,
-                position=pos,
-                title=t,
-                category=raw.get("category") if isinstance(raw, dict) else "sightseeing",
-                location=raw.get("location") if isinstance(raw, dict) else None,
-                notes=raw.get("notes") if isinstance(raw, dict) else None,
-            ))
-            added += 1
-        if not added:
-            self.session.add(TripItineraryItem(
-                day_id=day.id,
-                position=0,
-                title=f"Explore {title} at your own pace",
-                category="sightseeing",
-                location=location,
-            ))
-        return day
-
     def generate_initial_itinerary(self, trip: TripPlan) -> List[TripItineraryDay]:
-        """Generate the initial itinerary from real destination data only.
-
-        Modes:
-        - Route-like destination categories (trek/hike/mountain): walk the
-          destination's structured day-by-day itinerary rows (never repeating the
-          destination and never inventing trek stages).
-        - Sightseeing destinations (city/lake/cultural/religious/historical/nature…):
-          one day per destination built from the destination's real activity data,
-          packed several-per-day only when the trip is shorter than the chosen set.
-        No durations, permits, altitudes or routes are invented.
-        """
-        total_days = max(int(trip.duration_days or 4), 1)
-        dests = _resolve_destinations(self.session, trip.destinations or [])
-        if not dests and trip.start_location:
-            dests = _resolve_destinations(self.session, [trip.start_location])
+        """Generate and persist the initial itinerary from real destination data."""
+        days_dicts = build_itinerary_days(
+            self.session,
+            names=trip.destinations or [],
+            duration_days=trip.duration_days,
+            transportation=trip.transportation,
+            start_location=trip.start_location,
+        )
 
         # clear any previous automatically-generated days
         existing = self.session.exec(
@@ -310,125 +424,41 @@ class TripPlanService:
             self.session.delete(d)
         self.session.flush()
 
-        route_dests = [d for d in dests if _category(d) in _ROUTE_LIKE_CATEGORIES]
-        sight_dests = [d for d in dests if _category(d) not in _ROUTE_LIKE_CATEGORIES]
-
         new_days: List[TripItineraryDay] = []
-        counter = 1
-
-        # Route-like destinations use their structured day-by-day itinerary.
-        for dest in route_dests:
-            if counter > total_days:
-                break
-            rows = self.session.exec(
-                select(DestinationItinerary)
-                .where(DestinationItinerary.destination_id == dest.id)
-                .order_by(DestinationItinerary.day_number.asc())
-            ).all()
-            if rows:
-                for template in rows[: total_days - counter + 1]:
-                    location = (
-                        template.overnight_location
-                        or template.end_location
-                        or template.start_location
-                        or dest.name
-                    )
-                    items: List[dict] = []
-                    if (
-                        template.start_location
-                        and template.end_location
-                        and template.start_location != template.end_location
-                    ):
-                        items.append({
-                            "title": f"Travel {template.start_location} → {template.end_location}",
-                            "category": "travel",
-                            "location": template.start_location,
-                        })
-                    new_days.append(self._build_day(
-                        trip,
-                        day_number=counter,
-                        location=location,
-                        title=template.title or dest.name,
-                        notes=template.notes,
-                        estimated_duration_hours=float(template.estimated_walking_hours)
-                        if template.estimated_walking_hours else None,
-                        items=items,
+        for d in days_dicts:
+            day = TripItineraryDay(
+                trip_id=trip.id,
+                day_number=d["day_number"],
+                location=d["location"],
+                title=d["title"],
+                transportation=d.get("transportation") or [],
+                estimated_duration_hours=d.get("estimated_duration_hours"),
+                notes=d.get("notes"),
+                status=TripDaySource.generated,
+            )
+            self.session.add(day)
+            self.session.flush()
+            items = d.get("items") or []
+            if items:
+                for pos, raw in enumerate(items):
+                    t = (raw.get("title") if isinstance(raw, dict) else str(raw)).strip()
+                    if not t:
+                        continue
+                    self.session.add(TripItineraryItem(
+                        day_id=day.id,
+                        position=pos,
+                        title=t,
+                        category=raw.get("category") if isinstance(raw, dict) else "sightseeing",
+                        location=raw.get("location") if isinstance(raw, dict) else None,
+                        notes=raw.get("notes") if isinstance(raw, dict) else None,
                     ))
-                    counter += 1
             else:
-                # route-like category without structured rows: single activity day
-                new_days.append(self._build_day(
-                    trip,
-                    day_number=counter,
-                    location=dest.name,
-                    title=dest.name,
-                    items=[
-                        {"title": t.title, "category": "adventure", "location": dest.name, "notes": t.duration}
-                        for t in _things_for(dest)
-                    ],
+                self.session.add(TripItineraryItem(
+                    day_id=day.id, position=0,
+                    title=f"Explore {d['title']} at your own pace",
+                    category="sightseeing", location=d["location"],
                 ))
-                counter += 1
-
-        # Sightseeing destinations: one day per destination.
-        remaining = total_days - (counter - 1)
-        if sight_dests:
-            if remaining <= 0:
-                # no free days left — fold activities into the last day instead of dropping
-                if new_days:
-                    last = new_days[-1]
-                    last_items = self.session.exec(
-                        select(TripItineraryItem)
-                        .where(TripItineraryItem.day_id == last.id)
-                        .order_by(TripItineraryItem.position.desc())
-                    ).first()
-                    pos = (last_items.position + 1) if last_items else 0
-                    seen = set()
-                    for dest in sight_dests:
-                        for t in _things_for(dest):
-                            if t.title.lower() in seen or pos >= 8:
-                                continue
-                            seen.add(t.title.lower())
-                            self.session.add(TripItineraryItem(
-                                day_id=last.id, position=pos, title=t.title,
-                                category="sightseeing", location=dest.name,
-                            ))
-                            pos += 1
-            elif remaining >= len(sight_dests):
-                for dest in sight_dests:
-                    new_days.append(self._build_day(
-                        trip,
-                        day_number=counter,
-                        location=dest.name,
-                        title=dest.name,
-                        items=[
-                            {"title": t.title, "category": "sightseeing", "location": dest.name, "notes": t.duration}
-                            for t in _things_for(dest)
-                        ],
-                    ))
-                    counter += 1
-            else:
-                group_size = (len(sight_dests) + remaining - 1) // remaining
-                for group in _chunk(sight_dests, group_size):
-                    names = " & ".join(d.name for d in group)
-                    items: List[dict] = []
-                    for dest in group:
-                        for t in _things_for(dest):
-                            if len(items) >= 10:
-                                break
-                            items.append({
-                                "title": t.title,
-                                "category": "sightseeing",
-                                "location": dest.name,
-                                "notes": t.duration,
-                            })
-                    new_days.append(self._build_day(
-                        trip,
-                        day_number=counter,
-                        location=group[0].name,
-                        title=names,
-                        items=items,
-                    ))
-                    counter += 1
+            new_days.append(day)
 
         trip.status = TripPlanStatus.planning
         trip.summary = "; ".join(trip.destinations or [])

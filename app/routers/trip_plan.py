@@ -24,9 +24,11 @@ from app.schemas.trip_plan_schema import (
     ApplyEditRequest,
     ApplyEditResponse,
     AddRecommendationResponse,
+    PlanPreviewRequest,
+    PlanPreviewResponse,
     TripRecommendationOut,
 )
-from app.services.trip_plan_service import TripPlanService, build_read
+from app.services.trip_plan_service import TripPlanService, build_itinerary_days, build_read
 
 router = APIRouter(prefix="/trip-plans", tags=["Trip Plans"])
 
@@ -71,6 +73,18 @@ def get_trip_plan(trip_id: str, session: SessionDep, current_user: CurrentUser):
     service = TripPlanService(session)
     trip = _get_owned_trip(service, trip_id, current_user.id)
     return build_read(session, trip)
+
+
+@router.post("/preview", response_model=PlanPreviewResponse, status_code=200)
+def preview_trip_plan(body: PlanPreviewRequest, session: SessionDep):
+    days = build_itinerary_days(
+        session,
+        names=body.destinations,
+        duration_days=body.duration_days,
+        transportation=body.transportation,
+        start_location=body.start_location,
+    )
+    return {"days": days, "status": "preview"}
 
 
 @router.patch("/{trip_id}", response_model=TripPlanRead, status_code=200)
