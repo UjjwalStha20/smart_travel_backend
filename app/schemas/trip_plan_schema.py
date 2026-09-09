@@ -188,6 +188,7 @@ class TripChatResponse(BaseModel):
     intent: Optional[str] = None
     proposed_plan_change: Optional[TripPlanChange] = None
     conversation_id: UUID
+    suggested_questions: List[str] = Field(default_factory=list)
 
 
 class AddRecommendationRequest(BaseModel):

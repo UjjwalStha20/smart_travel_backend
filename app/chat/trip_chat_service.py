@@ -1,7 +1,7 @@
 """Per-trip chat: builds a compact trip context, calls the LLM, applies plan changes."""
 import json
 import re
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 
 from openai import OpenAI
@@ -193,12 +193,16 @@ class TripChatService:
         conv.updated_at = self.trip.updated_at
         self.session.commit()
 
+        # Generate context-aware suggested questions
+        suggested_questions = self._suggested_questions()
+
         return {
             "reply": clean_reply,
             "message_id": str(assistant.id),
             "intent": proposed_change.get("intent") if proposed_change else intent,
             "proposed_plan_change": proposed_change,
             "conversation_id": str(conv.id),
+            "suggested_questions": suggested_questions,
         }
 
     def messages(self, limit: int = 100) -> list:
@@ -220,3 +224,96 @@ class TripChatService:
             }
             for m in msgs
         ]
+
+    def _suggested_questions(self) -> List[str]:
+        """Generate context-aware suggested questions based on the current trip
+        and conversation intent."""
+        trip = self.trip
+        prefs = trip.preferences or {}
+        budget = trip.budget or {}
+        dest_names = trip.destinations or []
+        styles = prefs.get("pace", "") or ""
+        interests = prefs.get("interests") or []
+        days = trip.duration_days
+
+        questions: List[str] = []
+
+        # Build questions based on trip characteristics
+        if not dest_names:
+            # No trip planned yet - generic questions
+            questions = [
+                "Where would you like to travel?",
+                "How many days do you have?",
+                "What kind of trip are you after?",
+                "What's your budget range?"
+            ]
+        else:
+            # Trip is in progress - generate relevant questions
+            cat = trip.trip_types or []
+            budget_level = budget.get("level", "") if isinstance(budget, dict) else ""
+
+            # Cultural/religious questions
+            if "cultural" in (interests or []) or "cultural_site" in (cat or []):
+                questions = [
+                    "Show me more cultural places.",
+                    "Which sites are best for a one-day trip?",
+                    "Can you make a cultural itinerary?",
+                ]
+
+            # Religious questions
+            if "religious" in (interests or []) or "religious_site" in (cat or []):
+                questions = [
+                    "Show me more religious sites.",
+                    "Which temples can I visit in one day?",
+                    "Can you create a religious heritage itinerary?",
+                ]
+
+            # Trekking questions
+            if "trek" in (cat or []) or "trekking" in (interests or []):
+                if days:
+                    questions = [
+                        f"Show me trekking routes for a {days}-day trip.",
+                        "Which trek has the best acclimatization schedule?",
+                        "What permits are needed for this trek?",
+                    ]
+                else:
+                    questions = [
+                        "Show me trekking routes in Nepal.",
+                        "Which trek is best for beginners?",
+                        "What permits do I need for trekking?",
+                    ]
+
+            # Nature questions
+            if "nature" in (interests or []) or any(c in (cat or []) for c in ["nature", "lake", "waterfall", "viewpoint"]):
+                questions = [
+                    "Show me more nature attractions.",
+                    "Which viewpoints are best for sunrise?",
+                    "What lakes or waterfalls can I visit?",
+                ]
+
+            # Budget questions
+            if budget_level and budget_level.lower() == "budget":
+                questions = [
+                    "Can you make a budget-friendly itinerary?",
+                    "What are the free or low-cost attractions?",
+                    "How does the budget affect accommodation options?",
+                ]
+
+            # Default: if no specific questions matched, use generic
+            if not questions:
+                questions = [
+                    "What else can I add to my trip?",
+                    "Can you adjust the pace?",
+                    "Suggest some places to visit?",
+                    "How can I improve this itinerary?",
+                ]
+
+        # Deduplicate while preserving order
+        seen = set()
+        unique_questions = []
+        for q in questions:
+            if q not in seen:
+                seen.add(q)
+                unique_questions.append(q)
+
+        return unique_questions[:4]

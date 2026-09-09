@@ -120,6 +120,10 @@ def collect_facts(history: list, current: str = "") -> dict:
     Newest user text wins, so a later "actually 10 days" overrides an
     earlier "5 days". Only user turns are read (assistant questions contain
     the option words we are matching against and must not count as answers).
+
+    Returns dict with: days, styles (trekking/hiking/nature/sightseeing/culture/adventure/mix),
+    season, interests (list of destination names or user-declared interests),
+    budget_level, pace, and any other trip details found in the conversation.
     """
     texts = []
     if current:
@@ -131,17 +135,42 @@ def collect_facts(history: list, current: str = "") -> dict:
     days = None
     styles = []
     season = ""
+    interests = []
+    budget_level = None
+    pace = None
+
     for t in texts:
+        # Extract days (duration) - first value wins
         if days is None:
             days = extract_days(t)
-        for s in extract_styles(t):
+        # Extract styles
+        found_styles = extract_styles(t)
+        for s in found_styles:
             if s not in styles:
                 styles.append(s)
+        # Extract season
         if not season:
             season = extract_season(t)
-        if days is not None and styles and season:
-            break
-    return {"days": days, "styles": styles, "season": season}
+        # Extract interests/destination names
+        extracted_names = extract_destination_names(t)
+        for name in extracted_names:
+            if name not in interests:
+                interests.append(name)
+        # Extract budget hints
+        if not budget_level and re.search(r"budget|cheap|\bnpr\b|\bus\b|money", t, re.I):
+            budget_level = "budget"
+        # Extract pace
+        if not pace and re.search(r"\b(slow|relaxed|normal|fast)\b", t, re.I):
+            pace = "relaxed" if re.search(r"\b(slow|relaxed)\b", t, re.I) else ("normal" if re.search(r"\bnormal\b", t, re.I) else "fast")
+
+    return {
+        "days": days,
+        "styles": styles,
+        "season": season,
+        "interests": interests,
+        "budget_level": budget_level,
+        "pace": pace,
+    }
 
 
 def is_in_gather_flow(history: list) -> bool:

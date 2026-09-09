@@ -18,7 +18,11 @@ from sqlmodel import Session, select
 
 from app.chat.intent import (
     BUDGET,
+    CULTURE,
+    DESTINATION,
+    FOOD,
     RECOMMENDATION,
+    RELIGION,
     TREKKING,
     WEATHER,
     extract_months,
@@ -125,7 +129,13 @@ class UnifiedRecommender:
             )
 
         results.sort(key=lambda r: r["score"], reverse=True)
-        return results[:limit]
+        # Apply intent-based relevance filtering: remove destinations that
+        # don't match the user's current intent unless the intent is general.
+        filtered = self._filter_by_intent(results, intent, req)
+        if len(filtered) < len(results):
+            pass  # filtering was applied; caller handles "limited results" display
+        results = filtered[:limit]
+        return results
 
     # ------------------------------------------------------------------
     # Internals
@@ -168,7 +178,7 @@ class UnifiedRecommender:
         dname = dest.name.lower()
         for n in req.get("interests", []):
             n = str(n).lower()
-            if n and (n in dname or dname in n or n in dest.description.lower() if dest.description else False):
+            if n and (n in dname or dname in n or (dest.description or "").lower().find(n) >= 0):
                 return 0.9
         return 0.0
 
@@ -209,6 +219,86 @@ class UnifiedRecommender:
                 return 0.85
             return 0.6
         return 0.7
+
+    @staticmethod
+    def _intent_relevance_score_by_category(cat: str, intent: str) -> float:
+        """Return a relevance multiplier based on destination category and intent.
+
+        Returns 1.0 if the destination matches the intent, 0.0 if it does not,
+        and 1.0 for general/intents that should include everything."""
+        # Cultural intent: cultural_site, religious_site, historical_site, attraction
+        if intent == CULTURE:
+            if cat in ("cultural_site", "religious_site", "historical_site", "attraction"):
+                return 1.0
+            return 0.0
+        # Religious intent: only religious_site
+        if intent == RELIGION:
+            if cat == "religious_site":
+                return 1.0
+            return 0.0
+        # Trekking intent: only trek
+        if intent == TREKKING:
+            if cat == "trek":
+                return 1.0
+            return 0.0
+        # Nature intent: nature, lake, waterfall, viewpoint
+        if intent == "nature":
+            if cat in ("nature", "lake", "waterfall", "viewpoint"):
+                return 1.0
+            return 0.0
+        # General/default: allow all
+        return 1.0
+
+    def _filter_by_intent(self, results: List[dict], intent: str, req: dict) -> List[dict]:
+        """Filter recommendations to only include destinations matching the user's intent.
+
+        If fewer than 3 relevant destinations remain for a specific intent
+        (culture/religion/trekking), return only the relevant ones so the agent
+        says "limited matching results" rather than filling with unrelated places."""
+        if not results:
+            return results
+
+        # Build relevance filter based on intent
+        relevant: List[dict] = []
+        for r in results:
+            dest_id = r.get("destination_id")
+            if dest_id is not None:
+                try:
+                    dest = self.session.get(Destination, UUID(dest_id))
+                except (ValueError, TypeError):
+                    dest = None
+                if dest is None:
+                    # Can't look up destination; include with full relevance
+                    relevance = 1.0
+                else:
+                    cat = dest.category.value if hasattr(dest.category, "value") else str(dest.category).lower()
+                    relevance = self._intent_relevance_score_by_category(cat, intent)
+            else:
+                relevance = 1.0  # no destination id, include
+
+            if relevance > 0:
+                r_copy = dict(r)  # don't mutate original
+                r_copy["_intent_relevance"] = relevance
+                relevant.append(r_copy)
+        else:
+            relevant = list(results)  # no IDs to filter on
+
+        if not relevant:
+            return results  # fallback: return all if filtering removes everything
+
+        # If intent is specific (culture/religion/trekking) and less than half
+        # of results are relevant, keep only the relevant ones so the agent
+        # says "limited matching results" rather than unrelated places.
+        retention_ratio = len(relevant) / max(len(results), 1)
+        specific_ints = (CULTURE, RELIGION, TREKKING)
+        if intent in specific_ints and retention_ratio < 0.5:
+            return relevant
+
+        return relevant
+
+    # ------------------------------------------------------------------
+    # Reason/description
+    # ------------------------------------------------------------------
 
     @staticmethod
     def _reason(dest: Destination, req: dict) -> str:

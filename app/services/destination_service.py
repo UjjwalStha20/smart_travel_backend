@@ -233,6 +233,7 @@ class DestinationService:
                 selectinload(Destination.hike_details),
                 selectinload(Destination.mountain_details),
                 selectinload(Destination.nature_details),
+                selectinload(Destination.photos),
             )
         )
 

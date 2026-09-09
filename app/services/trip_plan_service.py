@@ -86,6 +86,8 @@ def build_itinerary_days(
     duration_days: Optional[int],
     transportation: Optional[List[str]] = None,
     start_location: Optional[str] = None,
+    trip_types: Optional[List[str]] = None,
+    interests: Optional[List[str]] = None,
 ) -> List[dict]:
     """Compute the initial itinerary for a set of destinations WITHOUT persisting.
 
@@ -93,14 +95,8 @@ def build_itinerary_days(
     the authenticated plan generation and the anonymous guest preview so the
     output is always identical and driven by real destination data only.
 
-    Modes:
-    - Route-like destination categories (trek/hike/mountain): walk the
-      destination's structured day-by-day itinerary rows (never repeating the
-      destination and never inventing trek stages).
-    - Sightseeing destinations (city/lake/cultural/religious/historical/nature…):
-      one day per destination built from the destination's real activity data,
-      packed several-per-day only when the trip is shorter than the chosen set.
-    No durations, permits, altitudes or routes are invented.
+    trip_types: filter/effective categories (e.g. ['cultural', 'religious', 'trek'])
+    interests: user-declared interests (destination names or category keywords)
     """
     total_days = max(int(duration_days or 4), 1)
     dests = _resolve_destinations(session, names or [])
@@ -110,6 +106,38 @@ def build_itinerary_days(
     transport = transportation or []
     route_dests = [d for d in dests if _category(d) in _ROUTE_LIKE_CATEGORIES]
     sight_dests = [d for d in dests if _category(d) not in _ROUTE_LIKE_CATEGORIES]
+
+    # Filter sightseeing destinations based on user interests
+    if interests:
+        filtered_sight: List[Destination] = []
+        interest_keywords = [str(i).lower() for i in interests]
+        for d in sight_dests:
+            cat = _category(d).lower()
+            dname = d.name.lower()
+            dest_desc = (d.description or "").lower()
+            # Check if destination matches any interest keyword
+            matches_interest = any(
+                kw in dname or kw in dest_desc or kw in cat
+                for kw in interest_keywords
+            )
+            # Also match by category if interests include category names
+            if cat in ("cultural_site", "religious_site", "historical_site", "attraction"):
+                if any(kw in ("culture", "religious", "heritage", "historical", "museum", "temple") for kw in interest_keywords):
+                    matches_interest = True
+            if matches_interest:
+                filtered_sight.append(d)
+        # If filtering removed all destinations, fall back to original
+        if filtered_sight:
+            sight_dests = filtered_sight
+        # If no interests matched but we have specific trip types, still filter
+        if trip_types:
+            filtered_route: List[Destination] = []
+            for d in route_dests:
+                cat = _category(d).lower()
+                if any(t.lower() in cat for t in trip_types):
+                    filtered_route.append(d)
+            if filtered_route:
+                route_dests = filtered_route
 
     days: List[dict] = []
     counter = 1
@@ -408,12 +436,26 @@ class TripPlanService:
     # ---- itinerary generation ----------------------------------------------
     def generate_initial_itinerary(self, trip: TripPlan) -> List[TripItineraryDay]:
         """Generate and persist the initial itinerary from real destination data."""
+        # Extract interests and trip types from trip data for itinerary filtering.
+        # Interests may be stored in preferences or answers.
+        prefs = self.session.exec(select(TripPreference).where(TripPreference.trip_id == trip.id)).first()
+        interests: List[str] = []
+        trip_types: List[str] = []
+        if prefs:
+            interests = list(prefs.answers.get("interests") or [])
+            trip_types = list(trip.trip_types or [])
+        # Also include trip_types as interests for filtering
+        if not interests:
+            interests = [str(t).lower() for t in (trip.trip_types or [])]
+
         days_dicts = build_itinerary_days(
             self.session,
             names=trip.destinations or [],
             duration_days=trip.duration_days,
             transportation=trip.transportation,
             start_location=trip.start_location,
+            trip_types=trip_types,
+            interests=interests,
         )
 
         # clear any previous automatically-generated days

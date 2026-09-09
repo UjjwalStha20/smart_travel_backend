@@ -130,7 +130,7 @@ _CULTURE = re.compile(
 )
 
 _RELIGION = re.compile(
-    r"\b(temple(s)?|stupa(s)?|monaster(y|ies)|gumba(s)?|prayer(s)?|buddhist|hindu|shrine(s)?|"
+    r"\b(religious|temple(s)?|stupa(s)?|monaster(y|ies)|gumba(s)?|prayer(s)?|buddhist|hindu|shrine(s)?|"
     r"pilgrimage|mantra(s)?|puja|heritage|boudha|swayambhu|pashupati|lumbini|god(s)?|deit(y|ies))\b",
     re.I,
 )
@@ -186,9 +186,11 @@ GENERAL_PATTERNS = (
 
 TRAVEL_PATTERNS = (
     # Most specific first. PERMITS precedes TREKKING so "which permits for a
-    # trek" routes to permit data; TREKKING/RECOMMENDATION precede WEATHER so
-    # "which trek in summer?" routes to trekking guidance, not weather bumps.
+    # trek" routes to permit data; cultural/religious intent takes priority
+    # over trekking/nature to prevent unrelated recommendations.
     (_PERMITS, PERMITS),
+    (_CULTURE, CULTURE),
+    (_RELIGION, RELIGION),
     (_TREKKING, TREKKING),
     (_RECOMMENDATION, RECOMMENDATION),
     (_WEATHER, WEATHER),
@@ -196,8 +198,6 @@ TRAVEL_PATTERNS = (
     (_TRANSPORT, TRANSPORT),
     (_ACCOMMODATION, ACCOMMODATION),
     (_FOOD, FOOD),
-    (_CULTURE, CULTURE),
-    (_RELIGION, RELIGION),
     (_NATURE, NATURE),
     (_DESTINATION, DESTINATION),
     (_ITINERARY, ITINERARY),
