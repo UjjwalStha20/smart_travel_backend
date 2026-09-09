@@ -80,50 +80,13 @@ class DestinationRouter:
         session: SessionDep,
         admin: Annotated[User, Depends(require_admin)],
         destination: str = Form(...),
-        files: List[UploadFile] = File(...),
-    ):
-        """Create a new destination with at least one photo upload."""
-        if not files:
-            raise HTTPException(status_code=422, detail="At least one photo is required")
-
-        photo_uploads = []
-        for file in files:
-            ext = os.path.splitext(file.filename or "")[1].lower()
-            if ext not in ALLOWED_EXTENSIONS:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"File type '{ext}' not allowed. Allowed: {', '.join(sorted(ALLOWED_EXTENSIONS))}",
-                )
-            content = await file.read()
-            if len(content) > MAX_FILE_SIZE:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"File too large. Max {MAX_FILE_SIZE // (1024 * 1024)} MB",
-                )
-            photo_uploads.append((file.filename or "photo.jpg", content))
-
-        try:
-            destination_data = DestinationCreate.model_validate_json(destination)
-        except ValidationError as exc:
-            raise HTTPException(status_code=422, detail=exc.errors(include_url=False, include_context=False)) from exc
-        result = DestinationService(session).create_destination(
-            destination_data, photo_uploads=photo_uploads, uploaded_by=admin.id
-        )
-        ActivityLogService(session).log(
-            user_id=admin.id, user_name=admin.name,
-            action="Created", target=f"Destination: {destination_data.name}", type="content",
-        )
-        return result
-    
-    @router.put("/{destination_id}")
-    async def update_destination(
-        session: SessionDep,
-        destination_id: uuid.UUID,
-        admin: Annotated[User, Depends(require_admin)],
-        destination: str = Form(...),
+        featured_file: Optional[UploadFile] = File(default=None),
         files: Optional[List[UploadFile]] = File(default=None),
     ):
-        """Update a destination by ID (multipart: destination JSON + optional new photos)."""
+        """Create a new destination with a featured cover photo (and optional gallery)."""
+        if not files and not featured_file:
+            raise HTTPException(status_code=422, detail="A featured or gallery photo is required")
+
         photo_uploads = []
         for file in files or []:
             ext = os.path.splitext(file.filename or "")[1].lower()
@@ -140,6 +103,77 @@ class DestinationRouter:
                 )
             photo_uploads.append((file.filename or "photo.jpg", content))
 
+        featured = None
+        if featured_file:
+            ext = os.path.splitext(featured_file.filename or "")[1].lower()
+            if ext not in ALLOWED_EXTENSIONS:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"File type '{ext}' not allowed. Allowed: {', '.join(sorted(ALLOWED_EXTENSIONS))}",
+                )
+            content = await featured_file.read()
+            if len(content) > MAX_FILE_SIZE:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"File too large. Max {MAX_FILE_SIZE // (1024 * 1024)} MB",
+                )
+            featured = (featured_file.filename or "featured.jpg", content)
+
+        try:
+            destination_data = DestinationCreate.model_validate_json(destination)
+        except ValidationError as exc:
+            raise HTTPException(status_code=422, detail=exc.errors(include_url=False, include_context=False)) from exc
+        result = DestinationService(session).create_destination(
+            destination_data, photo_uploads=photo_uploads, uploaded_by=admin.id, featured_file=featured
+        )
+        ActivityLogService(session).log(
+            user_id=admin.id, user_name=admin.name,
+            action="Created", target=f"Destination: {destination_data.name}", type="content",
+        )
+        return result
+    
+    @router.put("/{destination_id}")
+    async def update_destination(
+        session: SessionDep,
+        destination_id: uuid.UUID,
+        admin: Annotated[User, Depends(require_admin)],
+        destination: str = Form(...),
+        featured_file: Optional[UploadFile] = File(default=None),
+        files: Optional[List[UploadFile]] = File(default=None),
+    ):
+        """Update a destination by ID (multipart: destination JSON + optional photos)."""
+        photo_uploads = []
+        for file in files or []:
+            ext = os.path.splitext(file.filename or "")[1].lower()
+            if ext not in ALLOWED_EXTENSIONS:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"File type '{ext}' not allowed. Allowed: {', '.join(sorted(ALLOWED_EXTENSIONS))}",
+                )
+            content = await file.read()
+            if len(content) > MAX_FILE_SIZE:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"File too large. Max {MAX_FILE_SIZE // (1024 * 1024)} MB",
+                )
+            photo_uploads.append((file.filename or "photo.jpg", content))
+
+        featured = None
+        if featured_file:
+            ext = os.path.splitext(featured_file.filename or "")[1].lower()
+            if ext not in ALLOWED_EXTENSIONS:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"File type '{ext}' not allowed. Allowed: {', '.join(sorted(ALLOWED_EXTENSIONS))}",
+                )
+            content = await featured_file.read()
+            if len(content) > MAX_FILE_SIZE:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"File too large. Max {MAX_FILE_SIZE // (1024 * 1024)} MB",
+                )
+            featured = (featured_file.filename or "featured.jpg", content)
+
         try:
             destination_data = DestinationUpdate.model_validate_json(destination)
         except ValidationError as exc:
@@ -147,7 +181,7 @@ class DestinationRouter:
 
         result = DestinationService(session).update_destination(
             str(destination_id), destination_data,
-            photo_uploads=photo_uploads, uploaded_by=admin.id,
+            photo_uploads=photo_uploads, uploaded_by=admin.id, featured_file=featured,
         )
         ActivityLogService(session).log(
             user_id=admin.id, user_name=admin.name,

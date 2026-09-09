@@ -13,6 +13,7 @@ class Difficulty(str, Enum):
     easy     = "easy"
     moderate = "moderate"
     hard     = "hard"
+    extreme  = "extreme"
 
 
 # ---------------------------------------------------------------------------

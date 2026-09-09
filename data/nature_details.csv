@@ -1,0 +1,10 @@
+key,destination_key,visit_duration_hours,opening_hours,difficulty_if_hiking,distance_from_nearest_major_location,accessibility,best_viewing_season,activities,safety_considerations
+nd_phewa,dest_phewa_lake,3,Sunrise - Sunset,,in Pokhara city,Walk-in and boat rides,Sep-Nov / Mar-May,"[""boating"",""temple visit"",""birdwatching""]",Life jackets required on boat rides
+nd_nagarkot,dest_nagarkot,2,24 hours,,32 km from Kathmandu,Road + short walk,Oct-Mar,"[""sunrise"",""mountain views"",""hiking""]",Mornings are cold, carry warm layers
+nd_sarangkot,dest_sarangkot,2,24 hours,,Pokhara lakeside,Road + 30 min hike,Oct-Apr,"[""sunrise"",""paragliding launch"",""mountain viewing""]",Early mornings very cold and wind-chill possible
+nd_dhulikhel,dest_dhulikhel,3,24 hours,,30 km from Kathmandu,Road + walking trails,Oct-Mar,"[""sunrise panorama"",""village walks"",""mountain views""]",Ridge trails steep at places
+nd_chandragiri,dest_chandragiri,3,7 AM - 5 PM,,21 km from Kathmandu,Cable car + short walk,Oct-Mar,"[""cable car ride"",""temple visit"",""panoramic views""]",Cable car queues on holidays
+nd_rara,dest_rara,4,24 hours,moderate,371 km from Kathmandu via Jumla flights,Flight + trek or jeep,Sep-Nov,"[""lake walks"",""boating"",""birdwatching""]",Remote region, carry food, water and warm clothing
+nd_gosaikunda,dest_gosaikunda,3,Sunrise - Sunset,moderate,176 km from Kathmandu,Jeep to trailhead + trek,Sep-Oct,"[""pilgrimage"",""lake trekking"",""mountain views""]",Altitude sickness possible, acclimatise properly
+nd_phoksundo,dest_phoksundo,3,24 hours,hard,215 km from Nepalgunj via Dolpa flights,Flight to Dolpa + multi-day trek,Sep-Nov,"[""lake walks"",""nature photography"",""village visits""]",Remote area, special Dolpa permit required
+nd_devis_fall,dest_devis_fall,1,24 hours,,in Pokhara,Road,year-round,"[""waterfall viewing"",""cave exploration""]",Slippery paths after rain

@@ -19,8 +19,12 @@ from app.models import (
     DestinationItinerary,
     EntryFee,
     FoodCost,
+    HikeDetails,
+    MountainDetails,
+    NatureDetails,
     Permit,
     RoutePoint,
+    TrekDetails,
     TrekkingRoute,
 )
 from sqlmodel import Session, delete
@@ -51,7 +55,7 @@ CSV_CONFIG = {
     "destination": {
         "model": Destination,
         "file": "destination.csv",
-        "fields": ["name", "category", "description", "best_time", "permit_required", "rating"],
+        "fields": ["name", "category", "description", "best_time", "permit_required", "rating", "highlights"],
         "fk_map": {"address_key": "address_id"},
     },
     "attraction": {
@@ -76,6 +80,47 @@ CSV_CONFIG = {
         "model": TrekkingRoute,
         "file": "trekking_route.csv",
         "fields": ["route_name", "difficulty", "total_distance_km", "recommended_days", "max_altitude", "description"],
+        "fk_map": {"destination_key": "destination_id"},
+    },
+    "trek_details": {
+        "model": TrekDetails,
+        "file": "trek_details.csv",
+        "fields": [
+            "duration_days", "distance_km", "max_elevation", "elevation_gain",
+            "difficulty", "best_season", "start_point", "end_point",
+            "required_permits", "guide_required", "guide_recommended", "accommodation_type",
+        ],
+        "fk_map": {"destination_key": "destination_id"},
+    },
+    "hike_details": {
+        "model": HikeDetails,
+        "file": "hike_details.csv",
+        "fields": [
+            "difficulty", "duration_hours", "distance_km", "elevation_gain",
+            "highest_elevation", "starting_point", "ending_point", "estimated_hiking_time",
+            "guide_recommended", "required_permits", "trail_type", "water_availability",
+            "accommodation_available", "route_description",
+        ],
+        "fk_map": {"destination_key": "destination_id"},
+    },
+    "mountain_details": {
+        "model": MountainDetails,
+        "file": "mountain_details.csv",
+        "fields": [
+            "elevation", "difficulty", "climbing_season", "required_permits",
+            "expedition_required", "base_camp", "technical_climbing_required",
+            "approx_duration", "guide_required",
+        ],
+        "fk_map": {"destination_key": "destination_id"},
+    },
+    "nature_details": {
+        "model": NatureDetails,
+        "file": "nature_details.csv",
+        "fields": [
+            "visit_duration_hours", "opening_hours", "difficulty_if_hiking",
+            "distance_from_nearest_major_location", "accessibility", "best_viewing_season",
+            "activities", "safety_considerations",
+        ],
         "fk_map": {"destination_key": "destination_id"},
     },
     "blog": {
@@ -104,6 +149,7 @@ CSV_CONFIG = {
 }
 def clear_all(session: Session):
     tables = [
+        TrekDetails, HikeDetails, MountainDetails, NatureDetails,
         Blog, DestinationItinerary, RoutePoint, Permit, EntryFee, TrekkingRoute,
         Attraction, Destination, Address, Accommodation, FoodCost,
     ]
@@ -146,16 +192,20 @@ def parse_value(value: str, field_name: str):
         return None
     if field_name in ("latitude", "longitude", "altitude"):
         return float(value) if value else None
-    if field_name in ("rating", "sequence_no", "recommended_days", "max_altitude", "day_number"):
+    if field_name in ("rating", "sequence_no", "recommended_days", "max_altitude", "day_number", "duration_days"):
         return int(value) if value else None
     if field_name in (
         "budget_price", "standard_price", "luxury_price", "price",
         "total_distance_km", "walking_hours_from_previous", "visit_duration_hours",
+        "estimated_walking_hours", "distance_km", "max_elevation", "elevation_gain",
+        "duration_hours", "highest_elevation", "elevation",
     ):
         return Decimal(value) if value else None
-    if field_name in ("permit_required", "overnight_stop", "is_published"):
+    if field_name in ("permit_required", "overnight_stop", "is_published",
+                      "guide_required", "guide_recommended", "expedition_required",
+                      "technical_climbing_required"):
         return value.lower() == "true"
-    if field_name in ("best_time", "attraction_types", "tags"):
+    if field_name in ("best_time", "attraction_types", "tags", "highlights", "activities"):
         parsed = json.loads(value) if value else None
         if field_name == "best_time":
             return expand_seasons_to_months(parsed)

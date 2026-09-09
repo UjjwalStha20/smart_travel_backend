@@ -1,0 +1,9 @@
+key,destination_key,duration_days,distance_km,max_elevation,elevation_gain,difficulty,best_season,start_point,end_point,required_permits,guide_required,guide_recommended,accommodation_type
+td_abc,dest_abc_trek,8,115,4130,3130,moderate,March-May / Sep-Nov,Nayapul,Annapurna Base Camp,"ACAP + TIMS",true,true,tea_house
+td_poon_hill,dest_poon_hill_trek,5,50,3210,2140,easy,March-May / Sep-Dec,Nayapul,Ghorepani,"ACAP + TIMS",false,true,tea_house
+td_ebc,dest_ebc_trek,14,130,5364,2500,hard,March-May / Oct-Nov,Lukla,Everest Base Camp,"Sagarmatha NP + TIMS",true,true,tea_house
+td_langtang,dest_langtang_trek,8,75,3870,2370,moderate,March-May / Sep-Nov,Syabrubesi,Kyanjin Gompa,"Langtang NP + TIMS",true,true,tea_house
+td_mardi,dest_mardi_himal_trek,5,45,4500,2730,moderate,March-May / Oct-Dec,Phedi,Mardi Himal Base Camp,"ACAP + TIMS",true,true,tea_house
+td_manaslu,dest_manaslu_trek,14,174,5115,4515,hard,March-May / Sep-Nov,Aarughat,Larkya Dharamsala,"MCAP + RARA",true,true,tea_house
+td_gokyo,dest_gokyo_trek,8,85,5360,2200,moderate,March-May / Oct-Nov,Lukla,Gokyo Ri,"Sagarmatha NP + TIMS",true,true,tea_house
+td_annapurna_circuit,dest_annapurna_circuit,12,173,5416,4656,hard,March-May / Sep-Nov,Besisahar,Jomsom,"ACAP + TIMS",true,true,tea_house

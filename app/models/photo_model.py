@@ -19,6 +19,7 @@ class Photo(SQLModel, table=True):
     uploaded_by:    UUID          = Field(foreign_key="users.id")
     image_url:      str
     caption:        Optional[str] = None
+    is_featured:    bool          = False
 
     # relationships
     destination: "Destination" = Relationship(back_populates="photos")

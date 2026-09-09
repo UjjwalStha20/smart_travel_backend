@@ -36,7 +36,7 @@ class PhotoService:
         self.session.refresh(photo)
         return photo
 
-    def create_photo_from_upload(self, destination_id: UUID, user_id: UUID, filename: str, content: bytes, caption: str | None = None) -> Photo:
+    def create_photo_from_upload(self, destination_id: UUID, user_id: UUID, filename: str, content: bytes, caption: str | None = None, is_featured: bool = False) -> Photo:
         ext = os.path.splitext(filename or ".jpg")[1]
         saved_name = f"{uuid.uuid4()}{ext}"
         filepath = os.path.join(UPLOAD_DIR, saved_name)
@@ -45,7 +45,7 @@ class PhotoService:
             f.write(content)
 
         image_url = f"/uploads/{saved_name}"
-        photo = Photo(destination_id=destination_id, uploaded_by=user_id, image_url=image_url, caption=caption)
+        photo = Photo(destination_id=destination_id, uploaded_by=user_id, image_url=image_url, caption=caption, is_featured=is_featured)
         self.session.add(photo)
         self.session.commit()
         self.session.refresh(photo)

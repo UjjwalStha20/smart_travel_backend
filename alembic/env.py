@@ -14,6 +14,13 @@ from app.models import (
 )
 from app.models.chat_model import ChatConversation, ChatMessage
 from app.models.destination_itinerary_model import DestinationItinerary
+from app.models.destination_type_detail_model import (
+    AccommodationType,
+    TrekDetails,
+    HikeDetails,
+    MountainDetails,
+    NatureDetails,
+)
 from app.models.blog_model import Blog
 from app.models.activity_log_model import ActivityLog
 from app.models.trip_plan_model import (

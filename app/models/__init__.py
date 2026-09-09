@@ -18,6 +18,13 @@ from .activity_log_model import ActivityLog
 from .user_preference_model import UserPreferences
 from .user_interaction_model import UserInteraction
 from .recommendation_log_model import RecommendationLog
+from .destination_type_detail_model import (
+    AccommodationType,
+    TrekDetails,
+    HikeDetails,
+    MountainDetails,
+    NatureDetails,
+)
 from .trip_plan_model import (
     TripPlan,
     TripPlanStatus,

@@ -1,0 +1,2 @@
+key,destination_key,elevation,difficulty,climbing_season,required_permits,expedition_required,base_camp,technical_climbing_required,approx_duration,guide_required
+md_island_peak,dest_island_peak,6189,hard,Apr-May / Oct-Nov,"NMA climbing permit, Sagarmatha NP permit",true,Chhukung Base Camp,true,3 days expedition,true

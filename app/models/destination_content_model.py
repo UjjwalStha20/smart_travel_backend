@@ -18,7 +18,7 @@ class DestinationHighlight(SQLModel, table=True):
     distance_hint:  Optional[str]      = None
     visit_time:     Optional[str]      = None
 
-    destination: "Destination" = Relationship(back_populates="highlights")
+    destination: "Destination" = Relationship(back_populates="content_highlights")
 
 
 class DestinationThingToDo(SQLModel, table=True):

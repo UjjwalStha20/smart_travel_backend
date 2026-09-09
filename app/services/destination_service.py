@@ -11,14 +11,18 @@ from app.models import (
     Attraction,
     Destination,
     DestinationCategory,
+    DestinationItinerary,
     EntryFee,
+    HikeDetails,
     Itinerary,
+    MountainDetails,
+    NatureDetails,
     Permit,
     Photo,
     Review,
     RoutePoint,
     SavedDestination,
-    DestinationItinerary,
+    TrekDetails,
     TrekkingRoute,
     User,
     UserTrip,
@@ -27,10 +31,52 @@ from app.schemas.destination_schema import DestinationCreate
 from app.services import AddressService
 from app.services.photo_service import PhotoService, UPLOAD_DIR
 
+ATTRACTION_LIKE_CATEGORIES = {
+    DestinationCategory.attraction,
+    DestinationCategory.city,
+    DestinationCategory.cultural_site,
+    DestinationCategory.religious_site,
+    DestinationCategory.historical_site,
+    DestinationCategory.wildlife,
+    DestinationCategory.adventure,
+    DestinationCategory.other,
+}
+NATURE_LIKE_CATEGORIES = {
+    DestinationCategory.nature,
+    DestinationCategory.lake,
+    DestinationCategory.waterfall,
+    DestinationCategory.viewpoint,
+}
+
 
 class DestinationService:
     def __init__(self, session: Session):
         self.session = session
+
+    def _section_for_category(self, category) -> str:
+        if category == DestinationCategory.trek:
+            return "trek"
+        if category == DestinationCategory.hike:
+            return "hike"
+        if category == DestinationCategory.mountain:
+            return "mountain"
+        if category in NATURE_LIKE_CATEGORIES:
+            return "nature"
+        return "attraction"
+
+    def _detail_dict(self, obj) -> Optional[dict]:
+        if obj is None:
+            return None
+        try:
+            return obj.model_dump()
+        except Exception:
+            return None
+
+    def _safe_get(self, obj, name):
+        try:
+            return getattr(obj, name, None)
+        except Exception:
+            return None
 
     def _destination_to_dict(self, dest: Destination) -> dict:
         data = dest.model_dump()
@@ -39,11 +85,24 @@ class DestinationService:
             data["photos"] = [p.model_dump() for p in dest.photos]
         except Exception:
             data["photos"] = []
-        if dest.category == DestinationCategory.attraction:
-            try:
-                attraction = dest.attraction
-            except Exception:
-                attraction = None
+
+        data["attraction"] = None
+        data["trekking_routes"] = None
+        data["trek_details"] = None
+        data["hike_details"] = None
+        data["mountain_details"] = None
+        data["nature_details"] = None
+        try:
+            data["destination_itineraries"] = [
+                it.model_dump() for it in (dest.destination_itineraries or [])
+            ]
+        except Exception:
+            data["destination_itineraries"] = []
+
+        section = self._section_for_category(dest.category)
+
+        if section == "attraction":
+            attraction = self._safe_get(dest, "attraction")
             if attraction:
                 attr_data = attraction.model_dump()
                 try:
@@ -51,10 +110,8 @@ class DestinationService:
                 except Exception:
                     attr_data["entry_fees"] = []
                 data["attraction"] = attr_data
-            else:
-                data["attraction"] = None
-            data.pop("trekking_routes", None)
-        else:
+        elif section == "trek":
+            data["trek_details"] = self._detail_dict(self._safe_get(dest, "trek_details"))
             data["trekking_routes"] = []
             try:
                 trekking_routes = dest.trekking_routes or []
@@ -75,7 +132,12 @@ class DestinationService:
                 except Exception:
                     tr_data["route_points"] = []
                 data["trekking_routes"].append(tr_data)
-            data.pop("attraction", None)
+        elif section == "hike":
+            data["hike_details"] = self._detail_dict(self._safe_get(dest, "hike_details"))
+        elif section == "mountain":
+            data["mountain_details"] = self._detail_dict(self._safe_get(dest, "mountain_details"))
+        elif section == "nature":
+            data["nature_details"] = self._detail_dict(self._safe_get(dest, "nature_details"))
         return data
 
     def _apply_filters(self, statement, category, name, description, rating_min, permit_required, province, district, place, model_class=Destination):
@@ -117,6 +179,10 @@ class DestinationService:
             selectinload(Destination.address),
             selectinload(Destination.attraction).selectinload(Attraction.entry_fees),
             selectinload(Destination.trekking_routes).selectinload(TrekkingRoute.route_points),
+            selectinload(Destination.trek_details),
+            selectinload(Destination.hike_details),
+            selectinload(Destination.mountain_details),
+            selectinload(Destination.nature_details),
             selectinload(Destination.photos),
         )
 
@@ -163,6 +229,10 @@ class DestinationService:
                 selectinload(Destination.address),
                 selectinload(Destination.attraction).selectinload(Attraction.entry_fees),
                 selectinload(Destination.trekking_routes).selectinload(TrekkingRoute.route_points),
+                selectinload(Destination.trek_details),
+                selectinload(Destination.hike_details),
+                selectinload(Destination.mountain_details),
+                selectinload(Destination.nature_details),
             )
         )
 
@@ -179,15 +249,23 @@ class DestinationService:
         destination_data: DestinationCreate,
         photo_uploads: Optional[List[tuple[str, bytes]]] = None,
         uploaded_by: Optional[UUID] = None,
+        featured_file: Optional[tuple[str, bytes]] = None,
     ) -> dict:
         address = AddressService(self.session).get_or_create_address(destination_data.address)
 
-        dump = destination_data.model_dump(exclude={"address", "attraction", "trekking_routes"})
+        dump = destination_data.model_dump(
+            exclude={
+                "address", "attraction", "trekking_routes", "trek_details",
+                "hike_details", "mountain_details", "nature_details", "itinerary",
+            }
+        )
         destination = Destination(**dump, address_id=address.id)
         self.session.add(destination)
         self.session.flush()
 
-        if destination.category == DestinationCategory.attraction and destination_data.attraction:
+        section = self._section_for_category(destination.category)
+
+        if section == "attraction" and destination_data.attraction:
             attr_data = destination_data.attraction
             attr = Attraction(
                 destination_id=destination.id,
@@ -204,25 +282,38 @@ class DestinationService:
                         for fee in attr_data.entry_fees
                     ])
 
-        elif destination.category == DestinationCategory.trek and destination_data.trekking_routes:
-            for tr_data in destination_data.trekking_routes:
-                tr = TrekkingRoute(
-                    destination_id=destination.id,
-                    route_name=tr_data.route_name,
-                    difficulty=tr_data.difficulty,
-                    total_distance_km=tr_data.total_distance_km,
-                    recommended_days=tr_data.recommended_days,
-                    max_altitude=tr_data.max_altitude,
-                    description=tr_data.description,
-                )
-                self.session.add(tr)
-                self.session.flush()
+        elif section == "trek":
+            if destination_data.trek_details is not None:
+                row = TrekDetails(destination_id=destination.id, **destination_data.trek_details.model_dump())
+                self.session.add(row)
+            if destination_data.trekking_routes:
+                self._create_trekking_routes(destination, destination_data.trekking_routes)
 
-                if tr_data.route_points is not None:
-                    self._replace_route_points(tr, tr_data.route_points)
+        elif section == "hike" and destination_data.hike_details is not None:
+            row = HikeDetails(destination_id=destination.id, **destination_data.hike_details.model_dump())
+            self.session.add(row)
+
+        elif section == "mountain" and destination_data.mountain_details is not None:
+            row = MountainDetails(destination_id=destination.id, **destination_data.mountain_details.model_dump())
+            self.session.add(row)
+
+        elif section == "nature" and destination_data.nature_details is not None:
+            row = NatureDetails(destination_id=destination.id, **destination_data.nature_details.model_dump())
+            self.session.add(row)
+
+        if destination_data.itinerary:
+            self._create_itinerary(destination, destination_data.itinerary)
 
         self.session.commit()
         self.session.refresh(destination)
+
+        if featured_file and uploaded_by is not None:
+            filename, content = featured_file
+            photo_service = PhotoService(self.session)
+            photo_service.create_photo_from_upload(
+                destination_id=destination.id, user_id=uploaded_by,
+                filename=filename, content=content, is_featured=True,
+            )
 
         if photo_uploads and uploaded_by is not None:
             photo_service = PhotoService(self.session)
@@ -234,6 +325,39 @@ class DestinationService:
 
         # reload with relationships for the response
         return self.get_destination_by_id(str(destination.id))
+
+    def _create_trekking_routes(self, destination: Destination, routes_data) -> None:
+        for tr_data in routes_data:
+            tr = TrekkingRoute(
+                destination_id=destination.id,
+                route_name=tr_data.route_name,
+                difficulty=tr_data.difficulty,
+                total_distance_km=tr_data.total_distance_km,
+                recommended_days=tr_data.recommended_days,
+                max_altitude=tr_data.max_altitude,
+                description=tr_data.description,
+            )
+            self.session.add(tr)
+            self.session.flush()
+
+            if tr_data.route_points is not None:
+                self._replace_route_points(tr, tr_data.route_points)
+
+    def _create_itinerary(self, destination: Destination, itinerary_data) -> None:
+        self.session.add_all([
+            DestinationItinerary(
+                destination_id=destination.id,
+                day_number=d.day_number,
+                title=d.title,
+                start_location=d.start_location,
+                end_location=d.end_location,
+                overnight_location=d.overnight_location,
+                estimated_walking_hours=d.estimated_walking_hours,
+                notes=d.notes,
+            )
+            for d in itinerary_data
+        ])
+        self.session.flush()
 
     def _replace_attraction(self, existing: Destination, attr_data) -> None:
         if existing.attraction:
@@ -346,6 +470,8 @@ class DestinationService:
         keep_photo_ids: Optional[list] = None,
         photo_uploads: Optional[List[tuple[str, bytes]]] = None,
         uploaded_by: Optional[UUID] = None,
+        featured_photo_id: Optional[str] = None,
+        featured_file: Optional[tuple[str, bytes]] = None,
     ) -> None:
         if keep_photo_ids is not None:
             keep = {str(i) for i in keep_photo_ids}
@@ -359,6 +485,13 @@ class DestinationService:
                     existing.photos.remove(photo)
                     self.session.delete(photo)
             self.session.flush()
+
+        # normalize existing photos: exactly one featured stays featured
+        if featured_photo_id is not None:
+            for photo in list(existing.photos or []):
+                photo.is_featured = str(photo.id) == str(featured_photo_id)
+            self.session.flush()
+
         if photo_uploads and uploaded_by is not None:
             photo_service = PhotoService(self.session)
             for filename, content in photo_uploads:
@@ -367,34 +500,103 @@ class DestinationService:
                     filename=filename, content=content,
                 )
 
+        if featured_file and uploaded_by is not None:
+            for photo in list(existing.photos or []):
+                photo.is_featured = False
+            self.session.flush()
+            filename, content = featured_file
+            photo_service = PhotoService(self.session)
+            photo_service.create_photo_from_upload(
+                destination_id=existing.id, user_id=uploaded_by,
+                filename=filename, content=content, is_featured=True,
+            )
+
+    def _replace_type_details(self, existing: Destination, section: str, data) -> None:
+        if data is None:
+            return
+        model_map = {
+            "trek": (TrekDetails, "trek_details"),
+            "hike": (HikeDetails, "hike_details"),
+            "mountain": (MountainDetails, "mountain_details"),
+            "nature": (NatureDetails, "nature_details"),
+        }
+        model_cls, attr = model_map[section]
+        payload = data.model_dump(exclude_unset=True)
+        current = self._safe_get(existing, attr)
+        if current is not None:
+            current.sqlmodel_update(payload)
+            self.session.add(current)
+        else:
+            row = model_cls(destination_id=existing.id, **payload)
+            self.session.add(row)
+            setattr(existing, attr, row)
+        self.session.flush()
+
+    def _replace_itinerary(self, existing: Destination, itinerary_data) -> None:
+        for it in list(existing.destination_itineraries or []):
+            self.session.delete(it)
+        existing.destination_itineraries = []
+        self.session.flush()
+        if itinerary_data:
+            self._create_itinerary(existing, itinerary_data)
+
     def update_destination(
         self,
         destination_id: str,
         destination_data,
         photo_uploads: Optional[List[tuple[str, bytes]]] = None,
         uploaded_by: Optional[UUID] = None,
+        featured_file: Optional[tuple[str, bytes]] = None,
     ) -> dict:
         existing = self.session.get(Destination, destination_id)
         if not existing:
             raise HTTPException(status_code=404, detail="Destination not found")
         address = AddressService(self.session).get_or_create_address(destination_data.address)
         dump = destination_data.model_dump(
-            exclude={"address", "attraction", "trekking_routes", "keep_photo_ids"}, exclude_unset=True
+            exclude={
+                "address", "attraction", "trekking_routes", "trek_details",
+                "hike_details", "mountain_details", "nature_details", "itinerary",
+                "keep_photo_ids", "featured_photo_id",
+            },
+            exclude_unset=True,
         )
         existing.sqlmodel_update(dump)
         existing.address_id = address.id
 
-        if existing.category == DestinationCategory.attraction and destination_data.attraction is not None:
+        section = self._section_for_category(existing.category)
+
+        if section == "attraction" and destination_data.attraction is not None:
             self._replace_attraction(existing, destination_data.attraction)
 
-        if existing.category == DestinationCategory.trek:
-            self._replace_trekking_routes(existing, destination_data.trekking_routes or [])
+        if section == "trek":
+            if "trek_details" in destination_data.model_fields_set:
+                self._replace_type_details(existing, "trek", destination_data.trek_details)
+            if destination_data.trekking_routes is not None:
+                self._replace_trekking_routes(existing, destination_data.trekking_routes)
+
+        if section == "hike" and "hike_details" in destination_data.model_fields_set:
+            self._replace_type_details(existing, "hike", destination_data.hike_details)
+
+        if section == "mountain" and "mountain_details" in destination_data.model_fields_set:
+            self._replace_type_details(existing, "mountain", destination_data.mountain_details)
+
+        if section == "nature" and "nature_details" in destination_data.model_fields_set:
+            self._replace_type_details(existing, "nature", destination_data.nature_details)
+
+        if "itinerary" in destination_data.model_fields_set:
+            self._replace_itinerary(existing, destination_data.itinerary)
 
         self._sync_photos(
             existing,
             keep_photo_ids=destination_data.keep_photo_ids,
             photo_uploads=photo_uploads,
             uploaded_by=uploaded_by,
+            featured_photo_id=(
+                str(destination_data.featured_photo_id)
+                if getattr(destination_data, "featured_photo_id", None) is not None
+                else None
+            ),
+            featured_file=featured_file,
         )
 
         self.session.commit()
@@ -423,6 +625,17 @@ class DestinationService:
             attr.entry_fees = []
             self.session.delete(attr)
         dest.attraction = None
+
+        # type-specific detail rows
+        for row, attr in [
+            (self._safe_get(dest, "trek_details"), "trek_details"),
+            (self._safe_get(dest, "hike_details"), "hike_details"),
+            (self._safe_get(dest, "mountain_details"), "mountain_details"),
+            (self._safe_get(dest, "nature_details"), "nature_details"),
+        ]:
+            if row is not None:
+                self.session.delete(row)
+                setattr(dest, attr, None)
 
         # user trips -> itineraries (must go before trekking routes: trips reference route_id)
         for trip in list(dest.user_trips or []):
