@@ -14,6 +14,12 @@ class SavedDestinationRouter:
     async def get_saved_destinations(session: SessionDep, offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
         return SavedDestinationService(session).get_all_saved_destinations(offset=offset, limit=limit)
 
+    @router.get("/mine", response_model=PaginatedResponse[SavedDestination], status_code=200)
+    async def get_my_saved_destinations(session: SessionDep, current_user: CurrentUser, offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
+        return SavedDestinationService(session).get_all_saved_destinations(
+            user_id=current_user.id, offset=offset, limit=limit
+        )
+
     @router.get("/{saved_id}", response_model=SavedDestination, status_code=200)
     async def get_saved_destination_by_id(saved_id: str, session: SessionDep):
         return SavedDestinationService(session).get_saved_destination_by_id(saved_id)

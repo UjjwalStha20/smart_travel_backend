@@ -23,6 +23,7 @@ class Permit(SQLModel, table=True):
 
     id:             UUID           = Field(default_factory=uuid4, primary_key=True)
     destination_id: UUID           = Field(foreign_key="destination.id")
+    permit_type:    str            = Field(default="General") # <-- ADDED (e.g., "TIMS", "ACAP", "Sagarmatha")
     category:       PermitCategory
     price:          Decimal
 

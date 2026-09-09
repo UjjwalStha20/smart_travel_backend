@@ -1,57 +1,72 @@
 from typing import Optional
-
 from sqlmodel import Session
-
 from app.services.attraction_service import AttractionService
-
+from app.services.entry_fee_service import EntryFeeService # Assuming you have this
 from . import json_safe
-
 
 class AttractionTool:
     def __init__(self, session: Session):
-        self.service = AttractionService(session)
+        self.attraction_service = AttractionService(session)
+        self.entry_fee_service = EntryFeeService(session)
 
-    def search_attractions(
-        self,
-        attraction_types: Optional[str] = None,
-        min_duration_hours: Optional[float] = None,
-        offset: int = 0,
-        limit: int = 10,
-    ) -> dict:
-        result = self.service.get_attractions(offset=offset, limit=limit)
-        items = json_safe(result.get("items", []))
-        if attraction_types:
-            items = [
-                a for a in items
-                if a.get("attraction_types")
-                and attraction_types.lower() in str(a["attraction_types"]).lower()
-            ]
-        if min_duration_hours is not None:
-            items = [
-                a for a in items
-                if a.get("visit_duration_hours") is not None
-                and float(a["visit_duration_hours"]) >= min_duration_hours
-            ]
-        return json_safe({
-            "found": len(items),
-            "total": result.get("total", len(items)),
-            "attractions": [
-                {
-                    "id": a.get("id"),
-                    "attraction_types": a.get("attraction_types"),
-                    "opening_hours": a.get("opening_hours"),
-                    "visit_duration_hours": a.get("visit_duration_hours"),
-                    "destination_id": a.get("destination_id"),
-                }
-                for a in items
-            ],
-        })
-
-    def get_attraction_by_id(self, attraction_id: str) -> dict:
+    def get_attraction_details(self, destination_id: str) -> dict:
+        """
+        Fetches specific attraction details (hours, duration, fees) for a given destination.
+        Use this AFTER search_destinations when the user asks about visiting hours or entry fees.
+        """
         try:
-            attr = self.service.get_attraction_by_id(attraction_id)
-            data = json_safe(attr.model_dump() if hasattr(attr, "model_dump") else attr)
-            return {"id": data.get("id"), "attraction_types": data.get("attraction_types"), "opening_hours": data.get("opening_hours"), "visit_duration_hours": data.get("visit_duration_hours")}
+            # Fetch the attraction linked to this destination
+            attraction = self.attraction_service.get_by_destination_id(destination_id)
+            if not attraction:
+                return {"error": "This destination does not have specific attraction details (it might be a trek)."}
+            
+            data = json_safe(attraction.model_dump() if hasattr(attraction, "model_dump") else attraction)
+            
+            # Fetch related entry fees
+            fees = []
+            try:
+                entry_fees = self.entry_fee_service.get_by_attraction_id(data["id"])
+                fees = json_safe([f.model_dump() for f in entry_fees]) if entry_fees else []
+            except Exception:
+                pass # Fallback if service method doesn't exist yet
+
+            return {
+                "destination_id": str(data["destination_id"]),
+                "attraction_types": data.get("attraction_types"),
+                "opening_hours": data.get("opening_hours"),
+                "visit_duration_hours": str(data.get("visit_duration_hours")),
+                "entry_fees": [
+                    {
+                        "category": f.get("category"), # e.g., "Foreigner", "SAARC", "Local"
+                        "price_npr": str(f.get("price_npr"))
+                    } for f in fees
+                ]
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def search_attractions_by_type(self, attraction_type: str, limit: int = 5) -> dict:
+        """
+        Finds attractions of a specific type (e.g., 'temple', 'lake').
+        Note: This relies on your DestinationService to filter by category='attraction' 
+        and join the Attraction table.
+        """
+        try:
+            # You will need to implement this in your DestinationService or AttractionService
+            # It should query Destination where category='attraction' and attraction_types contains the type
+            results = self.attraction_service.search_by_type(attraction_type, limit=limit)
+            
+            return json_safe({
+                "found": len(results),
+                "attractions": [
+                    {
+                        "name": r.get("name"), # From Destination table
+                        "location": r.get("address"), # From Destination table
+                        "types": r.get("attraction_types"),
+                        "duration_hours": str(r.get("visit_duration_hours"))
+                    } for r in results
+                ]
+            })
         except Exception as e:
             return {"error": str(e)}
 
@@ -60,37 +75,34 @@ class AttractionTool:
             {
                 "type": "function",
                 "function": {
-                    "name": "search_attractions",
-                    "description": "Search for attractions with optional filters by type or minimum visit duration.",
+                    "name": "get_attraction_details",
+                    "description": "Get specific details about an attraction, including opening hours, visit duration, and entry fees. Use this AFTER finding the destination ID.",
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "attraction_types": {
+                            "destination_id": {
                                 "type": "string",
-                                "description": "Filter by attraction type (e.g., temple, heritage, hiking, lake, viewpoint)",
-                            },
-                            "min_duration_hours": {
-                                "type": "number",
-                                "description": "Minimum visit duration in hours",
+                                "description": "The UUID of the destination (attraction)",
                             },
                         },
+                        "required": ["destination_id"],
                     },
                 },
             },
             {
                 "type": "function",
                 "function": {
-                    "name": "get_attraction_by_id",
-                    "description": "Get detailed information about a specific attraction by ID.",
+                    "name": "search_attractions_by_type",
+                    "description": "Find attractions in Nepal by a specific type (e.g., 'temple', 'heritage', 'lake', 'hiking').",
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "attraction_id": {
+                            "attraction_type": {
                                 "type": "string",
-                                "description": "The UUID of the attraction",
+                                "description": "The type of attraction to search for",
                             },
                         },
-                        "required": ["attraction_id"],
+                        "required": ["attraction_type"],
                     },
                 },
             },

@@ -1,25 +1,33 @@
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
 from sqlmodel import Session, func, select
 
 from app.chat.ai_service import AIService
 from app.chat.schemas import ChatRequest, ChatResponse
+from app.core.rate_limit import limiter  # <-- IMPORT YOUR LIMITER
 from app.dependencies import CurrentUser, SessionDep
 from app.models.chat_model import ChatConversation, ChatMessage
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
 
+# 1. ADDED: Rate limit specifically for the heavy AI endpoint
+# 2. ADDED: 'request: Request' is required by SlowAPI to track IPs
 @router.post("/", status_code=200)
+@limiter.limit("10/minute") 
 def chat(
-    request: ChatRequest,
+    request: Request,           # <-- Added for SlowAPI
+    body: ChatRequest,          # <-- Renamed from 'request' to avoid variable shadowing
     session: SessionDep,
     current_user: CurrentUser,
 ) -> ChatResponse:
+    
     result = AIService(session, current_user).process_message(
-        message=request.message,
-        conversation_id=request.conversation_id,
+        message=body.message,
+        conversation_id=body.conversation_id,
+        user_profile=body.user_profile,  # <-- ADDED: Passes budget/fitness to the AI!
+        trip_plan_id=body.trip_plan_id,  # <-- ADDED: Bind chat to a saved trip plan
     )
     return ChatResponse(**result)
 
@@ -123,12 +131,9 @@ def delete_conversation(
     if not conv:
         raise HTTPException(status_code=404, detail="Conversation not found")
 
-    messages = session.exec(
-        select(ChatMessage)
-        .where(ChatMessage.conversation_id == conv.id)
-    ).all()
-    for msg in messages:
-        session.delete(msg)
+    # PRO-TIP: You don't actually need to manually delete the messages here!
+    # Because your ChatMessage model has ondelete="CASCADE", 
+    # deleting the conversation will automatically wipe the messages in the database.
     session.delete(conv)
     session.commit()
     return {"message": "Conversation deleted successfully"}

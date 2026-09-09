@@ -10,7 +10,7 @@ from app.models.user_model import BudgetType, PaceType, TripStatus
 class UserTripBase(BaseModel):
     user_id: UUID
     destination_id: UUID
-    route_id: UUID
+    route_id: Optional[UUID] = None
     pace_type: PaceType
     budget_type: BudgetType
     start_date: Optional[date] = None
@@ -20,7 +20,7 @@ class UserTripBase(BaseModel):
 
 class UserTripCreate(BaseModel):
     destination_id: UUID
-    route_id: UUID
+    route_id: Optional[UUID] = None
     pace_type: PaceType
     budget_type: BudgetType
     start_date: Optional[date] = None

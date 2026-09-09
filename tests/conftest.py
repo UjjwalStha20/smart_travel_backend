@@ -12,14 +12,15 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session, SQLModel, create_engine
 
+from app.core.config import settings
 from app.core.db import get_session
 from app.main import app
-from app.models import Accommodation, Address, FoodCost
+from app.models import Accommodation, Address, Destination, FoodCost
 
-DB_USER = os.getenv("DB_USER", "postgres")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "Ujjwal123@@")
-DB_HOST = os.getenv("DB_HOST", "localhost")
-DB_PORT = os.getenv("DB_PORT", "5432")
+DB_USER = os.getenv("DB_USER", settings.DB_USER)
+DB_PASSWORD = os.getenv("DB_PASSWORD", settings.DB_PASSWORD)
+DB_HOST = os.getenv("DB_HOST", settings.DB_HOST)
+DB_PORT = os.getenv("DB_PORT", str(settings.DB_PORT))
 DB_NAME = os.getenv("TEST_DB_NAME", "smart_travel_test")
 
 TEST_DB_URL = f"postgresql+psycopg2://{DB_USER}:{quote_plus(DB_PASSWORD)}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
@@ -71,11 +72,51 @@ def test_addresses(session: Session) -> list[Address]:
 
 @pytest.fixture
 def test_accommodation(session: Session) -> Accommodation:
-    a = Accommodation(budget_price=10, standard_price=30, luxury_price=100)
+    a = Accommodation(name="Test Lodge", budget_price=10, standard_price=30, luxury_price=100)
     session.add(a)
     session.commit()
     session.refresh(a)
     return a
+
+
+@pytest.fixture
+def test_destinations(session: Session, test_addresses: list[Address]) -> list[Destination]:
+    from app.models import DestinationCategory
+
+    dests = [
+        Destination(
+            name="Annapurna Base Camp Trek",
+            category=DestinationCategory.trek,
+            description="Popular trekking route in the Annapurna region.",
+            best_time=["March", "April", "October", "November"],
+            permit_required=True,
+            rating=5,
+            address_id=test_addresses[1].id,
+        ),
+        Destination(
+            name="Pashupatinath Temple",
+            category=DestinationCategory.attraction,
+            description="Sacred Hindu temple on the banks of the Bagmati river.",
+            best_time=["March", "April", "October", "November"],
+            permit_required=False,
+            rating=5,
+            address_id=test_addresses[0].id,
+        ),
+        Destination(
+            name="Ghorepani Poon Hill Trek",
+            category=DestinationCategory.trek,
+            description="Short trek famous for sunrise views over the Annapurna range.",
+            best_time=["October", "November"],
+            permit_required=True,
+            rating=4,
+            address_id=test_addresses[1].id,
+        ),
+    ]
+    session.add_all(dests)
+    session.commit()
+    for d in dests:
+        session.refresh(d)
+    return dests
 
 
 @pytest.fixture

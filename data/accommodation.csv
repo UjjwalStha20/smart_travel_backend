@@ -1,6 +1,31 @@
-key,budget_price,standard_price,luxury_price
-accom_budget,10,30,100
-accom_budget_plus,15,40,120
-accom_standard,20,50,150
-accom_premium,50,100,300
-accom_luxury,80,150,400
+key,name,description,location,budget_price,standard_price,luxury_price
+accom_budget,Basic Teahouse,"Simple, clean rooms with shared bathrooms",Tikhedhunga,10,30,100
+accom_budget_plus,Cozy Teahouse,"Warm rooms, shared bath, great local food",Lower Ghorepani,15,40,120
+accom_standard,Standard Lodge,Comfortable rooms with attached bathrooms,Ghorepani / Tadapani,20,50,150
+accom_premium,Premium Mountain Lodge,"Best available rooms at high altitude, hot water",Annapurna Base Camp,50,100,300
+accom_luxury,Luxury Alpine Resort,"Heated rooms, private bathrooms, gourmet dining",Pokhara Lakeside,80,150,400
+accom_ghorepani_hilltop,Hotel Hilltop,Classic teahouse on Ghorepani bazar with mountain-view rooms.,Ghorepani,12,35,90
+accom_thamel_guest_house,Kathmandu Guest House,Legendary Thamel hotel with garden courtyard and travel services.,"Thamel, Kathmandu",800,1500,4000
+accom_dwarikas,Dwarika's Hotel,Heritage luxury hotel showcasing Newari architecture.,"Battisputali, Kathmandu",12000,20000,45000
+accom_hotel_barahi,Hotel Barahi,"Well-located lakeside hotel, five minutes from Phewa Lake.","Lakeside, Pokhara",1500,3500,9000
+accom_fishtail_lodge,Fishtail Lodge,Heritage lakeside resort with dramatic mountain views.,"Phewa Lake, Pokhara",6000,12000,25000
+accom_tiger_tops,Tiger Tops Tharu Lodge,Iconic jungle lodge in the Chitwan buffer zone.,"Sauraha, Chitwan",8000,15000,30000
+accom_chitwan_paradise,Chitwan Paradise Hotel,Comfortable resort with pool and safari bookings.,"Sauraha, Chitwan",1500,3000,7000
+accom_lumbini_ananda,Buddha Maya Garden Hotel,Peaceful hotel steps from the Lumbini sacred garden.,Lumbini,1200,2500,6000
+accom_janakpur_laxmi,Hotel Paradise Janakpur,Clean budget hotel near Janaki Mandir.,Janakpur,700,1500,3500
+accom_nagarkot_country,Country Villa Nagarkot,Hill hotel with sunrise Himalayan views.,Nagarkot,1500,3500,8000
+accom_dhulikhel_mountain,Dhulikhel Mountain Resort,Boutique resort with panoramic peak views.,Dhulikhel,2500,5500,14000
+accom_bandipur_resort,Bandipur Mountain Resort,Terracotta-roofed resort above the heritage hill town.,Bandipur,2000,4500,11000
+accom_sarangkot_eco,Sarangkot Eco Lodge,Simple lodge with paragliding and sunrise packages.,Sarangkot,800,1800,4500
+accom_poonhill_alpine,Alpine Trekkers Inn,One of the best sunrise-view teahouses above Poon Hill.,"Poon Hill, 3,210m",10,25,60
+accom_chhomrong_flyin,Fly-in Lodge,Friendly riverside lodge popular with ABC trekkers.,Jhinu Danda,10,28,80
+accom_mbc_trekker,Sanctuary Lodge,High-altitude lodge near Annapurna Base Camp.,"Annapurna Base Camp, 4,130m",30,70,200
+accom_lukla_tashi,Tashi Lodge,Established lodge at the Everest gateway.,Lukla,15,40,120
+accom_namche_everest_view,Hotel Everest View,"Famed hotel with unobstructed Everest views at 3,880m.",Namche Bazaar,150,500,1500
+accom_gorakshep_inn,Hotel Yak & Yeti Gorakshep,Basic but essential lodge above Kala Patthar.,"Gorakshep, 5,140m",40,90,250
+accom_manaslu_namrung,Namrung Boarding House,Riverside guesthouse mid-Mananslu circuit.,"Namrung, Manaslu",10,30,90
+accom_manang_thaplu,Tilicho Hotel,Bustling lodge in the Manang acclimatization hub.,"Manang, 3,540m",15,40,120
+accom_jomsom_grand,Hotel Grand Himalaya,Well-appointed lodge on the Mustang trailhead.,Jomsom,25,60,180
+accom_kagbeni_manang,Kagbeni Guest House,Traditional lodge in the walled Mustang village.,Kagbeni,12,35,110
+accom_rara_lake,Rara Lake Camp,Rustic lakeside camp near Rara National Park.,"Rara, Mugu",20,50,150
+accom_gokyo_lakeside,Gokyo Resort,Simple lakeside huts above the turquoise Gokyo lake.,"Gokyo, 4,790m",25,60,180

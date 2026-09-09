@@ -1,6 +1,31 @@
-key,budget_price,standard_price,luxury_price
-food_budget,500,1200,2500
-food_budget_plus,300,800,1800
-food_standard,100,200,400
-food_premium,150,350,600
-food_luxury,200,500,1000
+key,name,category,budget_price,standard_price,luxury_price
+food_budget,Dal Bhat (Basic),Main Meal,500,1200,2500
+food_standard,Momos / Thukpa,Snack / Light Meal,100,200,400
+food_premium,Hot Drinks / Snacks,Drink / Snack,150,350,600
+food_tea,Local Tea / Coffee,Drink,50,100,200
+food_water,Bottled Water,Drink,30,50,100
+food_thukpa,Thukpa (Noodle Soup),Main Meal,150,300,600
+food_tibetan_bread,Tibetan Bread,Breakfast,60,150,300
+food_fried_momo,Fried Momos,Snack,120,250,500
+food_chowmein,Chow Mein,Main Meal,150,300,600
+food_pizza,Pizza (Lakeside),Western,300,600,1200
+food_pasta,Pasta / Macaroni,Western,250,500,1000
+food_banana_pancake,Banana Pancake,Breakfast,100,200,400
+food_apple_pie,Apple Pie (Ghorepani),Dessert,100,250,500
+food_ginger_lemon,Ginger Lemon Honey Tea,Drink,60,120,250
+food_masala_tea,Masala Tea,Drink,50,100,200
+food_black_tea,Black Tea / Coffee,Drink,40,80,160
+food_porridge,Porridge (Oatmeal),Breakfast,120,250,500
+food_dal_bhat_thali,Dal Bhat Thali,Main Meal,300,600,1200
+food_gundruk,Gundruk Soup,Traditional,100,200,400
+food_sel_roti,Sel Roti,Traditional,30,60,120
+food_yomari,Yomari,Traditional,50,100,200
+food_chatamari,Chatamari (Newari Pizza),Traditional,150,300,600
+food_choila,Buff Choila,Traditional,200,400,800
+food_sekuwa,Sekuwa (Grilled Meat),Traditional,250,500,1000
+food_samay_baji,Samay Baji Set,Traditional,300,600,1200
+food_khasi,Khasi (Goat) Curry,Main Meal,350,700,1400
+food_butter_chicken,Butter Chicken with Naan,Indo-Nepali,400,800,1600
+food_spring_roll,Vegetable Spring Roll,Snack,150,300,600
+food_fries,French Fries,Snack,100,200,400
+food_egg_roll,Kathmandu Egg Roll,Snack,80,150,300

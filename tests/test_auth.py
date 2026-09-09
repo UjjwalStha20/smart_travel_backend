@@ -46,3 +46,22 @@ def test_me(client, user_token):
 def test_me_unauthorized(client):
     resp = client.get("/auth/me")
     assert resp.status_code == 401
+
+
+def test_update_me(client, user_token):
+    resp = client.patch(
+        "/auth/me",
+        json={"name": "Updated User", "phone": "+977-9800000009", "nationality": "Japan"},
+        headers={"Authorization": f"Bearer {user_token}"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["name"] == "Updated User"
+    assert data["phone"] == "+977-9800000009"
+    assert data["nationality"] == "Japan"
+    assert data["email"] == "user@test.com"
+
+
+def test_update_me_unauthorized(client):
+    resp = client.patch("/auth/me", json={"name": "Hacker"})
+    assert resp.status_code == 401

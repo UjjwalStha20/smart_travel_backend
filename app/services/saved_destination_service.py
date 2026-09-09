@@ -11,10 +11,16 @@ class SavedDestinationService:
     def __init__(self, session: Session):
         self.session = session
 
-    def get_all_saved_destinations(self, offset: int = 0, limit: int = 100):
-        statement = select(SavedDestination).offset(offset).limit(limit)
-        items = self.session.exec(statement).all()
-        total = self.session.exec(select(func.count(SavedDestination.id))).one()
+    def get_all_saved_destinations(
+        self, offset: int = 0, limit: int = 100, user_id: UUID | None = None
+    ):
+        statement = select(SavedDestination)
+        count_statement = select(func.count(SavedDestination.id))
+        if user_id is not None:
+            statement = statement.where(SavedDestination.user_id == user_id)
+            count_statement = count_statement.where(SavedDestination.user_id == user_id)
+        items = self.session.exec(statement.offset(offset).limit(limit)).all()
+        total = self.session.exec(count_statement).one()
         return {"items": items, "total": total, "offset": offset, "limit": limit}
 
     def get_saved_destination_by_id(self, saved_id: UUID) -> SavedDestination:

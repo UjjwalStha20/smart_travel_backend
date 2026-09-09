@@ -12,6 +12,37 @@ from .saved_destination_schema import SavedDestinationCreate, SavedDestinationRe
 from .trekking_route_schema import TrekkingRouteCreate, TrekkingRouteRead, TrekkingRouteUpdate
 from .user_schema import UserCreate, UserRead, UserUpdate
 from .user_trip_schema import UserTripCreate, UserTripRead, UserTripUpdate
+from .trip_plan_schema import (
+    ApplyEditRequest,
+    ApplyEditResponse,
+    PlanGenerateResponse,
+    TripChatRequest,
+    TripChatResponse,
+    TripPlanBase,
+    TripPlanCreate,
+    TripPlanRead,
+    TripPlanUpdate,
+    TripPreferenceUpdate,
+    TripItineraryDayOut,
+    TripMessageOut,
+    TripEditOut,
+    TripRecommendationOut,
+    PlanAcceptResponse,
+    AddRecommendationRequest,
+    AddRecommendationResponse,
+)
 from .entry_fee_schema import EntryFeeCreate, EntryFeeRead, EntryFeeUpdate
 from .destination_itinerary_schema import DestinationItineraryCreate, DestinationItineraryRead, DestinationItineraryUpdate
 from .blog_schema import BlogCreate, BlogRead, BlogUpdate
+from .destination_content_schema import (
+    DestinationHighlightCreate,
+    DestinationHighlightRead,
+    DestinationHighlightUpdate,
+    DestinationThingToDoCreate,
+    DestinationThingToDoRead,
+    DestinationThingToDoUpdate,
+    DestinationFaqCreate,
+    DestinationFaqRead,
+    DestinationFaqUpdate,
+    DestinationContentRead,
+)

@@ -46,3 +46,33 @@ addr_kanyam,Province No. 1,Ilam,Kanyam,26.9500,87.9000,1700
 addr_pashupatinath,Bagmati,Kathmandu,Pashupatinath,27.7100,85.3480,1340
 addr_boudhanath,Bagmati,Kathmandu,Boudhanath,27.7215,85.3620,1350
 addr_swayambhunath,Bagmati,Kathmandu,Swayambhunath,27.7150,85.2900,1500
+addr_budhanilkantha,Bagmati,Kathmandu,Budhanilkantha,27.7833,85.3667,1500
+addr_garden_of_dreams,Bagmati,Kathmandu,Thamel,27.7145,85.3110,1350
+addr_mountain_museum,Gandaki,Kaski,Rato Pairo / Ratna Chowk,28.2099,83.9674,900
+addr_sarangkot,Gandaki,Kaski,Sarangkot,28.2240,83.9470,1600
+addr_peace_pagoda,Gandaki,Kaski,Pumdikot,28.2000,83.9333,1100
+addr_dhulikhel,Bagmati,Kavrepalanchok,Dhulikhel,27.6222,85.5569,1550
+addr_rara,Karnali,Mugu,Rara,29.5285,82.0908,2990
+addr_muktinath,Gandaki,Mustang,Muktinath,28.8167,83.8711,3710
+addr_besisahar,Gandaki,Lamjung,Besisahar,28.2333,84.3833,760
+addr_bahundanda,Gandaki,Lamjung,Bahundanda,28.3167,84.3500,1310
+addr_chame,Gandaki,Manang,Chame,28.5500,84.2500,2710
+addr_pisang,Gandaki,Manang,Pisang,28.6167,84.1667,3300
+addr_manang,Gandaki,Manang,Manang,28.6667,84.0167,3540
+addr_thorong_phedi,Gandaki,Manang,Thorong Phedi,28.7667,83.9333,4450
+addr_jomsom,Gandaki,Mustang,Jomsom,28.7833,83.7167,2743
+addr_kagbeni,Gandaki,Mustang,Kagbeni,28.8333,83.7833,2800
+addr_phedi,Gandaki,Kaski,Phedi,28.3500,83.8833,1770
+addr_low_camp,Gandaki,Kaski,Forest Camp,28.3833,83.9333,3200
+addr_high_camp,Gandaki,Kaski,High Camp,28.4167,83.9333,3580
+addr_mardi_base,Gandaki,Kaski,Mardi Himal Base Camp,28.4500,83.9167,4500
+addr_aarughat,Gandaki,Gorkha,Aarughat,28.1000,84.7667,600
+addr_jagat,Gandaki,Gorkha,Jagat,28.2500,84.7500,1300
+addr_deng,Gandaki,Gorkha,Deng,28.3667,84.7667,2060
+addr_namrung,Gandaki,Gorkha,Namrung,28.4167,84.8000,2630
+addr_samagaon,Gandaki,Gorkha,Samagaon,28.6000,84.6333,3530
+addr_larkya,Gandaki,Gorkha,Larkya Dharamsala,28.6500,84.5667,4900
+addr_dole,Province No. 1,Solukhumbu,Dole,27.8833,86.7500,4110
+addr_machermo,Province No. 1,Solukhumbu,Machermo,27.8667,86.7333,4470
+addr_thangnak,Province No. 1,Solukhumbu,Thangnak,27.9500,86.7000,4700
+addr_gokyo,Province No. 1,Solukhumbu,Gokyo,27.9500,86.7000,4790

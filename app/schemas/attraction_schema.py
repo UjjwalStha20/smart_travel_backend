@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from app.schemas.entry_fee_schema import EntryFeeCreate, EntryFeeNested
+from app.schemas.entry_fee_schema import EntryFeeNested
 
 
 class AttractionBase(BaseModel):
@@ -15,7 +15,7 @@ class AttractionBase(BaseModel):
     
 
 class AttractionCreate(AttractionBase):
-    entry_fee: Optional[EntryFeeCreate] = None
+    entry_fees: Optional[list[EntryFeeNested]] = None
 
 
 class AttractionRead(AttractionBase):

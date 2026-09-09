@@ -2,6 +2,8 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
+from pydantic import Field
+
 from pydantic import BaseModel, EmailStr
 
 from app.models.user_model import UserRole
@@ -34,3 +36,9 @@ class UserOut(BaseModel):
     nationality: Optional[str] = None
     phone: Optional[str] = None
     created_at: datetime
+
+
+class UpdateProfileRequest(BaseModel):
+    name: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    phone: Optional[str] = Field(default=None, max_length=50)
+    nationality: Optional[str] = Field(default=None, max_length=100)

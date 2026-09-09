@@ -7,7 +7,7 @@ from sqlalchemy import JSON
 from sqlmodel import Field, Relationship, SQLModel, Text
 
 if TYPE_CHECKING:
-    from app.models import Attraction, Permit, Photo, Review, TrekkingRoute, SavedDestination, UserTrip, Address, DestinationItinerary
+    from app.models import Attraction, Permit, Photo, Review, TrekkingRoute, SavedDestination, UserTrip, Address, DestinationItinerary, DestinationHighlight, DestinationThingToDo, DestinationFaq
 
 
 class DestinationCategory(str, Enum):
@@ -41,4 +41,7 @@ class Destination(SQLModel, table=True):
     user_trips:              List["UserTrip"]              = Relationship(back_populates="destination")
     destination_itineraries: List["DestinationItinerary"]  = Relationship(back_populates="destination")
     address:                 "Address"                     = Relationship(back_populates="destinations")
+    highlights:              List["DestinationHighlight"]  = Relationship(back_populates="destination")
+    things_to_do:            List["DestinationThingToDo"]  = Relationship(back_populates="destination")
+    faqs:                    List["DestinationFaq"]        = Relationship(back_populates="destination")
 

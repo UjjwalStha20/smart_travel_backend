@@ -14,6 +14,12 @@ class UserTripRouter:
     async def get_user_trips(session: SessionDep, offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
         return UserTripService(session).get_all_user_trips(offset=offset, limit=limit)
 
+    @router.get("/mine", response_model=PaginatedResponse[UserTrip], status_code=200)
+    async def get_my_user_trips(session: SessionDep, current_user: CurrentUser, offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
+        return UserTripService(session).get_all_user_trips(
+            user_id=current_user.id, offset=offset, limit=limit
+        )
+
     @router.get("/{trip_id}", response_model=UserTrip, status_code=200)
     async def get_user_trip_by_id(trip_id: str, session: SessionDep):
         return UserTripService(session).get_user_trip_by_id(trip_id)
