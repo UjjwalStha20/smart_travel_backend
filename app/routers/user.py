@@ -46,6 +46,7 @@ class UserRouter:
             raise HTTPException(status_code=403, detail="Not your profile")
         update_user = UserService(session).update_user(user_id, user)
         return {"message": "User updated successfully", "user": update_user}
+    
     @router.delete("/{user_id}")
     async def delete_user(session: SessionDep, user_id: str, current_user: CurrentUser):
         """Delete a user by ID."""
