@@ -244,6 +244,19 @@ def test_route_trip_keeps_selected_sightseeing(client: TestClient, user_token: s
         "selected sightseeing destination must not be silently dropped"
 
 
+def test_list_trip_plans_returns_pagination(client: TestClient, user_token: str):
+    _create_trip(client, user_token)
+    _create_trip(client, user_token, name="Second Trip")
+    resp = client.get("/trip-plans/?offset=0&limit=10", headers=_auth(user_token))
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["total"] == 2
+    assert body["offset"] == 0
+    assert body["limit"] == 10
+    assert len(body["items"]) == 2
+    assert {t["name"] for t in body["items"]} == {"Pokhara Adventure", "Second Trip"}
+
+
 def test_ownership_enforced(client: TestClient, session, user_token, admin_token):
     from app.core.security import hash_password
     from app.models import User

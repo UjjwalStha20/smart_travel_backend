@@ -53,7 +53,7 @@ def list_trip_plans(session: SessionDep, current_user: CurrentUser, offset: int 
     service = TripPlanService(session)
     trips, _total = service.list_trips(current_user.id, offset=offset, limit=limit)
     items = [build_read(session, t) for t in trips]
-    return {"items": items, "total": len(items)}
+    return {"items": items, "total": len(items), "offset": offset, "limit": limit}
 
 
 @router.post("/", response_model=TripPlanRead, status_code=201)
